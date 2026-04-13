@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Resume Generator</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#f0f2f5;
+}
+.container{
+  max-width:800px;
+  margin:auto;
+  background:white;
+  padding:20px;
+}
+input, select{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+}
+button{
+  padding:10px;
+  background:#007bff;
+  color:white;
+  border:none;
+  width:100%;
+  margin-top:10px;
+}
+.skill-box{
+  display:flex;
+  flex-wrap:wrap;
+}
+.skill-box label{
+  margin:5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Resume Builder</h2>
+
+<input id="name" placeholder="Full Name">
+<input id="role" placeholder="Job Role">
+<input id="email" placeholder="Email">
+<input id="phone" placeholder="Phone">
+<input id="location" placeholder="Location">
+
+<h3>Select Skills</h3>
+<div class="skill-box">
+<label><input type="checkbox" value="Communication"> Communication</label>
+<label><input type="checkbox" value="Team Work"> Team Work</label>
+<label><input type="checkbox" value="Leadership"> Leadership</label>
+<label><input type="checkbox" value="Computer Knowledge"> Computer</label>
+<label><input type="checkbox" value="Marketing"> Marketing</label>
+</div>
+
+<h3>Education</h3>
+
+<div id="edu-section">
+<div class="edu">
+<input placeholder="Class (10th/12th)" class="class">
+<input placeholder="School Name" class="school">
+<select class="board">
+<option>Bihar Board</option>
+<option>CBSE</option>
+<option>ICSE</option>
+</select>
+<input placeholder="Marks" class="marks">
+<input placeholder="Total Marks" class="total">
+</div>
+</div>
+
+<button onclick="addEducation()">+ Add More</button>
+
+<input type="file" id="photo">
+
+<button onclick="generate()">Generate Resume</button>
+
+</div>
+
+<script>
+function addEducation(){
+  let div = document.createElement("div");
+  div.innerHTML = `
+  <input placeholder="Class" class="class">
+  <input placeholder="School" class="school">
+  <select class="board">
+    <option>Bihar Board</option>
+    <option>CBSE</option>
+  </select>
+  <input placeholder="Marks" class="marks">
+  <input placeholder="Total" class="total">
+  `;
+  document.getElementById("edu-section").appendChild(div);
+}
+
+function generate(){
+  let data = {};
+
+  data.name = document.getElementById("name").value;
+  data.role = document.getElementById("role").value;
+  data.email = document.getElementById("email").value;
+  data.phone = document.getElementById("phone").value;
+  data.location = document.getElementById("location").value;
+
+  // skills
+  data.skills = [];
+  document.querySelectorAll("input[type=checkbox]:checked").forEach(s=>{
+    data.skills.push(s.value);
+  });
+
+  // education
+  data.education = [];
+  let classes = document.querySelectorAll(".class");
+
+  for(let i=0;i<classes.length;i++){
+    let marks = document.querySelectorAll(".marks")[i].value;
+    let total = document.querySelectorAll(".total")[i].value;
+    let percent = ((marks/total)*100).toFixed(2);
+
+    data.education.push({
+      class: classes[i].value,
+      school: document.querySelectorAll(".school")[i].value,
+      board: document.querySelectorAll(".board")[i].value,
+      percent: percent
+    });
+  }
+
+  // photo
+  let file = document.getElementById("photo").files[0];
+  if(file){
+    let reader = new FileReader();
+    reader.onload = function(){
+      localStorage.setItem("photo", reader.result);
+      localStorage.setItem("resumeData", JSON.stringify(data));
+      window.open("resume.html","_blank");
+    }
+    reader.readAsDataURL(file);
+  }else{
+    localStorage.setItem("resumeData", JSON.stringify(data));
+    window.open("resume.html","_blank");
+  }
+}
+</script>
+
+</body>
+</html>
