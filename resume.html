@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Resume</title>
+
+<style>
+body{
+  font-family: Georgia;
+}
+.resume{
+  width:794px;
+  margin:auto;
+  padding:30px;
+}
+.header{
+  display:flex;
+  justify-content:space-between;
+}
+.name{
+  color:#ff5c8a;
+  font-size:36px;
+}
+img{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+}
+h3{
+  border-bottom:2px solid black;
+}
+.dot{
+  width:8px;
+  height:8px;
+  background:#ff5c8a;
+  display:inline-block;
+  border-radius:50%;
+}
+
+@media print{
+  button{display:none;}
+}
+</style>
+</head>
+
+<body>
+
+<button onclick="window.print()">Print / Download</button>
+
+<div class="resume" id="resume"></div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("resumeData"));
+let photo = localStorage.getItem("photo");
+
+let skillsHTML = data.skills.map(s=>`<span class="dot"></span> ${s}`).join(" | ");
+
+let eduHTML = data.education.map(e=>`
+<p><b>${e.class}</b> - ${e.school} (${e.board}) - ${e.percent}%</p>
+`).join("");
+
+document.getElementById("resume").innerHTML = `
+<div class="header">
+  <div>
+    <div class="name">${data.name}</div>
+    <p>${data.role}</p>
+    <p><b>Email:</b> ${data.email}</p>
+    <p><b>Phone:</b> ${data.phone}</p>
+    <p><b>Location:</b> ${data.location}</p>
+  </div>
+  <img src="${photo || ''}">
+</div>
+
+<hr>
+
+<h3>SKILLS</h3>
+<p>${skillsHTML}</p>
+
+<h3>EDUCATION</h3>
+${eduHTML}
+`;
+</script>
+
+</body>
+</html>
