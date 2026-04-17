@@ -1,151 +1,304 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Resume Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro Image ⇄ PDF Tool</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins}
+
 body{
-  font-family: Arial;
-  background:#f0f2f5;
+    background: linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
 }
+
+/* HEADER */
+.header{
+    padding:20px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    background:#020617;
+}
+
+/* TABS */
+.tabs{
+    display:flex;
+    justify-content:center;
+    margin-top:10px;
+}
+.tabs button{
+    padding:10px 20px;
+    border:none;
+    background:#1e293b;
+    color:white;
+    cursor:pointer;
+    margin:5px;
+    border-radius:8px;
+    transition:0.3s;
+}
+.tabs button.active{
+    background:#22c55e;
+}
+
+/* CONTAINER */
 .container{
-  max-width:800px;
-  margin:auto;
-  background:white;
-  padding:20px;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
 }
-input, select{
-  width:100%;
-  padding:10px;
-  margin:5px 0;
+
+/* CARD */
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:15px;
+    margin-top:20px;
+    animation:fadeIn 0.5s ease;
 }
-button{
-  padding:10px;
-  background:#007bff;
-  color:white;
-  border:none;
-  width:100%;
-  margin-top:10px;
+
+@keyframes fadeIn{
+    from{opacity:0;transform:translateY(20px)}
+    to{opacity:1;transform:translateY(0)}
 }
-.skill-box{
-  display:flex;
-  flex-wrap:wrap;
+
+/* INPUT */
+input,select{
+    padding:10px;
+    margin:10px;
+    border-radius:8px;
+    border:none;
 }
-.skill-box label{
-  margin:5px;
+
+/* BUTTON */
+.btn{
+    background:#22c55e;
+    padding:12px 20px;
+    border:none;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+.btn:hover{
+    transform:scale(1.05);
+}
+
+/* PREVIEW */
+.preview{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+.preview img{
+    width:90px;
+    border-radius:8px;
+    transition:0.3s;
+}
+.preview img:hover{
+    transform:scale(1.1);
+}
+
+/* DROP AREA */
+.drop{
+    border:2px dashed #22c55e;
+    padding:20px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+/* PDF IMAGE */
+.pdfImg{
+    width:120px;
+    margin:10px;
+}
+
+/* LOADER */
+.loader{
+    display:none;
+    margin-top:10px;
 }
 </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
 </head>
 
 <body>
 
+<div class="header">⚡ PRO Image ⇄ PDF Tool</div>
+
+<div class="tabs">
+<button onclick="showTab('jpg')" class="active">JPG → PDF</button>
+<button onclick="showTab('pdf')">PDF → JPG</button>
+</div>
+
 <div class="container">
 
-<h2>Resume Builder</h2>
+<!-- JPG TO PDF -->
+<div id="jpgTab" class="card">
 
-<input id="name" placeholder="Full Name">
-<input id="role" placeholder="Job Role">
-<input id="email" placeholder="Email">
-<input id="phone" placeholder="Phone">
-<input id="location" placeholder="Location">
+<h3>Upload Images</h3>
 
-<h3>Select Skills</h3>
-<div class="skill-box">
-<label><input type="checkbox" value="Communication"> Communication</label>
-<label><input type="checkbox" value="Team Work"> Team Work</label>
-<label><input type="checkbox" value="Leadership"> Leadership</label>
-<label><input type="checkbox" value="Computer Knowledge"> Computer</label>
-<label><input type="checkbox" value="Marketing"> Marketing</label>
+<div class="drop" id="dropArea">
+Drag & Drop Images OR Select
+<input type="file" id="images" multiple accept="image/*">
 </div>
 
-<h3>Education</h3>
-
-<div id="edu-section">
-<div class="edu">
-<input placeholder="Class (10th/12th)" class="class">
-<input placeholder="School Name" class="school">
-<select class="board">
-<option>Bihar Board</option>
-<option>CBSE</option>
-<option>ICSE</option>
+<select id="paper">
+<option value="a4">A4</option>
+<option value="letter">Letter</option>
 </select>
-<input placeholder="Marks" class="marks">
-<input placeholder="Total Marks" class="total">
+
+<input type="number" id="quality" value="80" placeholder="Quality %">
+
+<div class="preview" id="preview"></div>
+
+<button class="btn" onclick="makePDF()">Generate PDF</button>
+
+<div class="loader" id="loader">Processing...</div>
+
 </div>
+
+<!-- PDF TO JPG -->
+<div id="pdfTab" class="card" style="display:none">
+
+<h3>Upload PDF</h3>
+
+<input type="file" id="pdfFile" accept="application/pdf">
+
+<button class="btn" onclick="pdfToImg()">Convert</button>
+
+<div id="pdfOutput"></div>
+
 </div>
-
-<button onclick="addEducation()">+ Add More</button>
-
-<input type="file" id="photo">
-
-<button onclick="generate()">Generate Resume</button>
 
 </div>
 
 <script>
-function addEducation(){
-  let div = document.createElement("div");
-  div.innerHTML = `
-  <input placeholder="Class" class="class">
-  <input placeholder="School" class="school">
-  <select class="board">
-    <option>Bihar Board</option>
-    <option>CBSE</option>
-  </select>
-  <input placeholder="Marks" class="marks">
-  <input placeholder="Total" class="total">
-  `;
-  document.getElementById("edu-section").appendChild(div);
+
+let files = [];
+
+/* TAB SWITCH */
+function showTab(tab){
+    document.getElementById("jpgTab").style.display = tab==='jpg'?'block':'none';
+    document.getElementById("pdfTab").style.display = tab==='pdf'?'block':'none';
+
+    document.querySelectorAll(".tabs button").forEach(btn=>btn.classList.remove("active"));
+    event.target.classList.add("active");
 }
 
-function generate(){
-  let data = {};
+/* PREVIEW */
+document.getElementById("images").addEventListener("change", e=>{
+    files = Array.from(e.target.files);
+    showPreview();
+});
 
-  data.name = document.getElementById("name").value;
-  data.role = document.getElementById("role").value;
-  data.email = document.getElementById("email").value;
-  data.phone = document.getElementById("phone").value;
-  data.location = document.getElementById("location").value;
+/* DRAG DROP */
+let drop = document.getElementById("dropArea");
 
-  // skills
-  data.skills = [];
-  document.querySelectorAll("input[type=checkbox]:checked").forEach(s=>{
-    data.skills.push(s.value);
-  });
+drop.addEventListener("dragover", e=>{
+    e.preventDefault();
+    drop.style.background="#334155";
+});
 
-  // education
-  data.education = [];
-  let classes = document.querySelectorAll(".class");
+drop.addEventListener("dragleave", ()=>{
+    drop.style.background="transparent";
+});
 
-  for(let i=0;i<classes.length;i++){
-    let marks = document.querySelectorAll(".marks")[i].value;
-    let total = document.querySelectorAll(".total")[i].value;
-    let percent = ((marks/total)*100).toFixed(2);
+drop.addEventListener("drop", e=>{
+    e.preventDefault();
+    files = Array.from(e.dataTransfer.files);
+    showPreview();
+});
 
-    data.education.push({
-      class: classes[i].value,
-      school: document.querySelectorAll(".school")[i].value,
-      board: document.querySelectorAll(".board")[i].value,
-      percent: percent
+/* SHOW PREVIEW */
+function showPreview(){
+    let preview = document.getElementById("preview");
+    preview.innerHTML="";
+
+    files.forEach((file,i)=>{
+        let img=document.createElement("img");
+        img.src=URL.createObjectURL(file);
+        preview.appendChild(img);
     });
-  }
-
-  // photo
-  let file = document.getElementById("photo").files[0];
-  if(file){
-    let reader = new FileReader();
-    reader.onload = function(){
-      localStorage.setItem("photo", reader.result);
-      localStorage.setItem("resumeData", JSON.stringify(data));
-      window.open("resume.html","_blank");
-    }
-    reader.readAsDataURL(file);
-  }else{
-    localStorage.setItem("resumeData", JSON.stringify(data));
-    window.open("resume.html","_blank");
-  }
 }
+
+/* JPG TO PDF */
+async function makePDF(){
+    document.getElementById("loader").style.display="block";
+
+    const { jsPDF } = window.jspdf;
+    let pdf = new jsPDF();
+
+    for(let i=0;i<files.length;i++){
+        let img = await toData(files[i]);
+
+        if(i!==0) pdf.addPage();
+
+        pdf.addImage(img,'JPEG',10,10,180,250);
+    }
+
+    pdf.save("file.pdf");
+
+    document.getElementById("loader").style.display="none";
+}
+
+/* FILE TO BASE64 */
+function toData(file){
+    return new Promise(res=>{
+        let r=new FileReader();
+        r.onload=e=>res(e.target.result);
+        r.readAsDataURL(file);
+    });
+}
+
+/* PDF TO IMAGE */
+async function pdfToImg(){
+    let file=document.getElementById("pdfFile").files[0];
+    let output=document.getElementById("pdfOutput");
+    output.innerHTML="";
+
+    let reader=new FileReader();
+
+    reader.onload=async function(){
+        let pdf=await pdfjsLib.getDocument(new Uint8Array(this.result)).promise;
+
+        for(let i=1;i<=pdf.numPages;i++){
+            let page=await pdf.getPage(i);
+
+            let canvas=document.createElement("canvas");
+            let ctx=canvas.getContext("2d");
+
+            let view=page.getViewport({scale:2});
+            canvas.width=view.width;
+            canvas.height=view.height;
+
+            await page.render({canvasContext:ctx,viewport:view}).promise;
+
+            let img=document.createElement("img");
+            img.src=canvas.toDataURL("image/jpeg");
+            img.className="pdfImg";
+
+            let link=document.createElement("a");
+            link.href=img.src;
+            link.download="page_"+i+".jpg";
+            link.innerText="Download Page "+i;
+
+            output.appendChild(img);
+            output.appendChild(document.createElement("br"));
+            output.appendChild(link);
+            output.appendChild(document.createElement("hr"));
+        }
+    }
+
+    reader.readAsArrayBuffer(file);
+}
+
 </script>
 
 </body>
