@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NBHC Report System</title>
+<title>NBHC Smart App</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
@@ -11,69 +11,96 @@
 <style>
 body{margin:0;font-family:Arial;background:#f2f2f2;}
 
-#loader{
-position:fixed;width:100%;height:100%;
-background:#000;color:#fff;
-display:flex;justify-content:center;align-items:center;
-flex-direction:column;z-index:999;
-animation:fadeOut 1s ease 2s forwards;
-}
-@keyframes fadeOut{to{opacity:0;visibility:hidden;}}
-
 .container{max-width:500px;margin:auto;padding:10px;}
 
 .card{
 background:#fff;padding:12px;border-radius:12px;
-margin-bottom:10px;box-shadow:0 5px 10px rgba(0,0,0,0.1);
+margin-bottom:10px;box-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
 
 input{
-width:100%;padding:10px;margin:5px 0;
+width:100%;padding:10px;margin:6px 0;
 border-radius:8px;border:1px solid #ccc;
+font-size:14px;
 }
 
 button{
-width:100%;padding:10px;margin-top:5px;
+width:100%;padding:10px;margin-top:6px;
 border:none;border-radius:8px;
 background:linear-gradient(45deg,green,#00c853);
-color:#fff;
+color:#fff;font-size:15px;
 }
 
 .preview{
-background:#e6ffe6;padding:10px;
-border-radius:8px;white-space:pre-line;
+background:#e6ffe6;padding:10px;border-radius:8px;
+white-space:pre-line;font-size:13px;
 }
 
 .switch{display:flex;gap:5px;}
 .switch button{flex:1;background:#333;}
+
+.profileBtn{
+background:#1976d2;
+}
+
+/* SLIDE PANEL */
+#profilePanel{
+position:fixed;
+top:0;left:-100%;
+width:85%;
+max-width:320px;
+height:100%;
+background:#fff;
+padding:15px;
+box-shadow:5px 0 15px rgba(0,0,0,0.2);
+transition:0.3s;
+overflow:auto;
+z-index:999;
+}
+
+#profilePanel.active{left:0;}
+
+.historyItem{
+border-bottom:1px solid #ddd;
+padding:6px 0;
+}
+.deleteBtn{
+background:red;margin-top:5px;
+}
 </style>
 </head>
 
 <body>
 
-<div id="loader">
-<h2>Loading...</h2>
-<p>Made by Karan</p>
-</div>
-
 <div class="container">
+
+<button class="profileBtn" onclick="toggleProfile()">☰ Profile</button>
 
 <div class="switch">
 <button onclick="setMode(1)">Analyzer</button>
 <button onclick="setMode(2)">Supervisor</button>
 </div>
 
-<div class="card">
+<!-- PROFILE PANEL -->
+<div id="profilePanel">
+
 <h3>Profile</h3>
 <input id="spray" placeholder="Spray Date">
 <input id="whs" placeholder="WHS Name">
-<input id="remarksProfile" placeholder="Remarks (Supervisor)">
+<input id="remarksProfile" placeholder="Remarks">
 <label><input type="checkbox" id="carry"> Auto Carry</label>
 <button onclick="saveProfile()">Save Profile</button>
+
+<hr>
+
+<h3>History</h3>
+<input id="search" placeholder="Search..." oninput="loadHistory()">
+<div id="history"></div>
+
 </div>
 
+<!-- ANALYZER -->
 <div class="card" id="analyserBox">
-<h3>Analyzer</h3>
 <input id="lorry" placeholder="Lorry No">
 <input id="moisture" placeholder="Moisture">
 <input id="wdd" placeholder="WDD">
@@ -81,8 +108,8 @@ border-radius:8px;white-space:pre-line;
 <input id="fm" placeholder="FM">
 </div>
 
+<!-- SUPERVISOR -->
 <div class="card" id="supervisorBox" style="display:none;">
-<h3>Supervisor</h3>
 <input id="openingBag" placeholder="Opening Bag">
 <input id="openingMT" placeholder="Opening MT">
 <input id="inBag" placeholder="Inward Bag">
@@ -93,12 +120,12 @@ border-radius:8px;white-space:pre-line;
 <input id="pending" placeholder="Pending">
 </div>
 
+<!-- PREVIEW -->
 <div class="card">
-<h4>Preview</h4>
 <div class="preview" id="preview"></div>
-<button onclick="saveAndCarry()">Save</button>
+<button onclick="saveAll()">Save</button>
 <button onclick="send()">WhatsApp</button>
-<button onclick="downloadPDF()">Download PDF</button>
+<button onclick="downloadPDF()">PDF</button>
 </div>
 
 </div>
@@ -107,14 +134,20 @@ border-radius:8px;white-space:pre-line;
 
 let mode=1;
 
+// TOGGLE PROFILE
+function toggleProfile(){
+profilePanel.classList.toggle("active");
+}
+
+// MODE
 function setMode(m){
 mode=m;
-analyserBox.style.display = m==1?"block":"none";
-supervisorBox.style.display = m==2?"block":"none";
+analyserBox.style.display=m==1?"block":"none";
+supervisorBox.style.display=m==2?"block":"none";
 generate();
 }
 
-// PROFILE
+// PROFILE SAVE
 function saveProfile(){
 let p={
 spray:spray.value,
@@ -123,9 +156,10 @@ remarks:remarksProfile.value,
 carry:carry.checked
 };
 localStorage.setItem("profile",JSON.stringify(p));
-alert("Saved ✅");
+alert("Saved");
 }
 
+// LOAD PROFILE
 function loadProfile(){
 let p=JSON.parse(localStorage.getItem("profile")||"{}");
 spray.value=p.spray||"13/04/26";
@@ -134,13 +168,14 @@ remarksProfile.value=p.remarks||"inward/outward";
 carry.checked=p.carry||false;
 }
 
+// DATE
 function getDate(){
 let d=new Date();
-return d.getDate()+"-"+(d.getMonth()+1)+"-"+d.getFullYear();
+return d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear();
 }
 
 function val(id){
-return document.getElementById(id)?.value || "00";
+return document.getElementById(id)?.value||"00";
 }
 
 // GENERATE
@@ -174,25 +209,31 @@ msg=
 *Warehouse Name:-* SANTI DEVI
 *Location:-* SEMAPUR
 *Client Name:-* SHIV SHARKTI TRADERS
+*Case Type:-* Retail/corporate 
+*Chamber No.:-* GODOWN
 *Commodity:-* MAIZE🌽
 
 *Opening Bag:-* ${val("openingBag")}
 *Opening MT:-* ${val("openingMT")}
 
 *INward Bag:-* ${val("inBag")}
-*INward MT:-* ${val("inMT")}
-
+*INward MT:-* ${val("inMT")}                                           
 *Clossing bags:-* ${val("closingBag")}
 *CLOSING MT:-* ${val("closingMT")}
 
+ *Pala:-* 0
+ 
+*Lock seal No:-*      
+
 *CHR:-* ND
 *Spray:-* ${p.spray}
-
+*Fumigation:-* ND
+*Degassing:-* ND 
+*MSIR:-* ND
+   
 *Today INward lorry:-* ${val("todayLorry")}
-*Pending:-* ${val("pending")}
-
-*WHS Noutward:-* ${p.whs}
-
+ *Today Pending lorry:-* ${val("pending")}
+                                                                    *WHS Noutward_${p.whs}                                                                                       
 *Remarks:-* ${p.remarks}`;
 }
 
@@ -200,21 +241,46 @@ preview.innerText=msg;
 return msg;
 }
 
-// AUTO
-document.querySelectorAll("input").forEach(e=>{
-e.addEventListener("input",generate);
-});
+// SAVE ALL + HISTORY
+function saveAll(){
+let text=generate();
+let history=JSON.parse(localStorage.getItem("history")||"[]");
+history.unshift(text);
+localStorage.setItem("history",JSON.stringify(history));
 
-// SAVE + CARRY
-function saveAndCarry(){
+// carry
 let p=JSON.parse(localStorage.getItem("profile")||"{}");
-
 if(mode==2 && p.carry){
 localStorage.setItem("nextOpeningBag",val("closingBag"));
 localStorage.setItem("nextOpeningMT",val("closingMT"));
 }
 
-alert("Saved ✅");
+alert("Saved");
+loadHistory();
+}
+
+// LOAD HISTORY
+function loadHistory(){
+let search=document.getElementById("search").value.toLowerCase();
+let history=JSON.parse(localStorage.getItem("history")||"[]");
+
+let html=history.map((h,i)=>{
+if(!h.toLowerCase().includes(search)) return "";
+return `<div class="historyItem">
+${h}
+<button class="deleteBtn" onclick="del(${i})">Delete</button>
+</div>`;
+}).join("");
+
+document.getElementById("history").innerHTML=html;
+}
+
+// DELETE
+function del(i){
+let history=JSON.parse(localStorage.getItem("history")||"[]");
+history.splice(i,1);
+localStorage.setItem("history",JSON.stringify(history));
+loadHistory();
 }
 
 // LOAD CARRY
@@ -228,32 +294,25 @@ function send(){
 window.open("https://wa.me/?text="+encodeURIComponent(generate()));
 }
 
-// PDF WITH REAL QR
+// PDF
 function downloadPDF(){
-
 let {jsPDF}=window.jspdf;
 let doc=new jsPDF("p","mm","a4");
 
 let text=generate().replace(/\*/g,"");
 
-// Heading
 doc.setFontSize(14);
 doc.text("NBHC - National Bulk Handling Corporation",10,10);
 
-// Body
 doc.setFontSize(11);
 let lines=doc.splitTextToSize(text,180);
 doc.text(lines,10,20);
 
-// Generate QR
-let qrData=text;
-let qrCanvas=document.createElement("canvas");
+let canvas=document.createElement("canvas");
+QRCode.toCanvas(canvas,text,function(){
+let img=canvas.toDataURL("image/png");
+doc.addImage(img,"PNG",150,220,40,40);
 
-QRCode.toCanvas(qrCanvas, qrData, function () {
-let imgData=qrCanvas.toDataURL("image/png");
-doc.addImage(imgData,"PNG",150,220,40,40);
-
-// Footer
 doc.setFontSize(10);
 doc.text("Verified by System (NBHC)",10,280);
 
@@ -265,6 +324,7 @@ doc.save("NBHC_Report.pdf");
 loadProfile();
 loadCarry();
 generate();
+loadHistory();
 
 </script>
 
