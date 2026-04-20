@@ -3,179 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Report Pro</title>
+<title>NBHC Report System</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
 
 <style>
-body {
-  margin:0;
-  font-family: Arial;
-  background:#f2f2f2;
+body{margin:0;font-family:Arial;background:#f2f2f2;}
+
+#loader{
+position:fixed;width:100%;height:100%;
+background:#000;color:#fff;
+display:flex;justify-content:center;align-items:center;
+flex-direction:column;z-index:999;
+animation:fadeOut 1s ease 2s forwards;
+}
+@keyframes fadeOut{to{opacity:0;visibility:hidden;}}
+
+.container{max-width:500px;margin:auto;padding:10px;}
+
+.card{
+background:#fff;padding:12px;border-radius:12px;
+margin-bottom:10px;box-shadow:0 5px 10px rgba(0,0,0,0.1);
 }
 
-/* Loader */
-#loader {
-  position:fixed;
-  width:100%;
-  height:100%;
-  background:#000;
-  color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  z-index:999;
-  animation: fadeOut 1s ease 2s forwards;
+input{
+width:100%;padding:10px;margin:5px 0;
+border-radius:8px;border:1px solid #ccc;
 }
 
-@keyframes fadeOut {
-  to { opacity:0; visibility:hidden; }
+button{
+width:100%;padding:10px;margin-top:5px;
+border:none;border-radius:8px;
+background:linear-gradient(45deg,green,#00c853);
+color:#fff;
 }
 
-/* Main */
-.container {
-  max-width:500px;
-  margin:auto;
-  padding:10px;
+.preview{
+background:#e6ffe6;padding:10px;
+border-radius:8px;white-space:pre-line;
 }
 
-.card {
-  background:#fff;
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:10px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.1);
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from {opacity:0; transform:translateY(10px);}
-  to {opacity:1; transform:translateY(0);}
-}
-
-input {
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-
-.preview {
-  background:#e6ffe6;
-  padding:10px;
-  border-radius:8px;
-  white-space:pre-line;
-}
-
-button {
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  border:none;
-  border-radius:8px;
-  background:linear-gradient(45deg, green, #00c853);
-  color:#fff;
-  font-size:15px;
-}
-
-.nav {
-  display:flex;
-  gap:5px;
-}
-
-.nav button {
-  flex:1;
-  background:#333;
-}
-
-/* Hidden sections */
-#historyPage {
-  display:none;
-}
-
-.deleteBtn {
-  background:red;
-}
+.switch{display:flex;gap:5px;}
+.switch button{flex:1;background:#333;}
 </style>
 </head>
 
 <body>
 
-<!-- Loader -->
 <div id="loader">
-  <h2>Loading...</h2>
-  <p>Made by Karan</p>
+<h2>Loading...</h2>
+<p>Made by Karan</p>
 </div>
 
 <div class="container">
 
-<div class="nav">
-  <button onclick="showHome()">Home</button>
-  <button onclick="showHistory()">History</button>
+<div class="switch">
+<button onclick="setMode(1)">Analyzer</button>
+<button onclick="setMode(2)">Supervisor</button>
 </div>
 
-<!-- HOME -->
-<div id="homePage">
-
 <div class="card">
-<h3>Daily Report</h3>
+<h3>Profile</h3>
+<input id="spray" placeholder="Spray Date">
+<input id="whs" placeholder="WHS Name">
+<input id="remarksProfile" placeholder="Remarks (Supervisor)">
+<label><input type="checkbox" id="carry"> Auto Carry</label>
+<button onclick="saveProfile()">Save Profile</button>
+</div>
 
+<div class="card" id="analyserBox">
+<h3>Analyzer</h3>
 <input id="lorry" placeholder="Lorry No">
 <input id="moisture" placeholder="Moisture">
 <input id="wdd" placeholder="WDD">
 <input id="fungus" placeholder="Fungus">
 <input id="fm" placeholder="FM">
-<input id="remarks" placeholder="Remarks">
+</div>
+
+<div class="card" id="supervisorBox" style="display:none;">
+<h3>Supervisor</h3>
+<input id="openingBag" placeholder="Opening Bag">
+<input id="openingMT" placeholder="Opening MT">
+<input id="inBag" placeholder="Inward Bag">
+<input id="inMT" placeholder="Inward MT">
+<input id="closingBag" placeholder="Closing Bag">
+<input id="closingMT" placeholder="Closing MT">
+<input id="todayLorry" placeholder="Today Lorry">
+<input id="pending" placeholder="Pending">
 </div>
 
 <div class="card">
 <h4>Preview</h4>
 <div class="preview" id="preview"></div>
-
-<button onclick="saveHistory()">Save</button>
+<button onclick="saveAndCarry()">Save</button>
 <button onclick="send()">WhatsApp</button>
-<button onclick="downloadPDF()">PDF</button>
-</div>
-
-</div>
-
-<!-- HISTORY -->
-<div id="historyPage">
-
-<div class="card">
-<h3>History</h3>
-<input id="search" placeholder="Search..." oninput="loadHistory()">
-</div>
-
-<div class="card" id="history"></div>
-
+<button onclick="downloadPDF()">Download PDF</button>
 </div>
 
 </div>
 
 <script>
 
-function getDate(){
-  let d=new Date();
-  return String(d.getDate()).padStart(2,'0')+"-"+
-         String(d.getMonth()+1).padStart(2,'0')+"-"+
-         d.getFullYear();
+let mode=1;
+
+function setMode(m){
+mode=m;
+analyserBox.style.display = m==1?"block":"none";
+supervisorBox.style.display = m==2?"block":"none";
+generate();
 }
 
-function getTime(){
-  return new Date().toLocaleTimeString();
+// PROFILE
+function saveProfile(){
+let p={
+spray:spray.value,
+whs:whs.value,
+remarks:remarksProfile.value,
+carry:carry.checked
+};
+localStorage.setItem("profile",JSON.stringify(p));
+alert("Saved ✅");
+}
+
+function loadProfile(){
+let p=JSON.parse(localStorage.getItem("profile")||"{}");
+spray.value=p.spray||"13/04/26";
+whs.value=p.whs||"NIRMAL KUMAR";
+remarksProfile.value=p.remarks||"inward/outward";
+carry.checked=p.carry||false;
+}
+
+function getDate(){
+let d=new Date();
+return d.getDate()+"-"+(d.getMonth()+1)+"-"+d.getFullYear();
 }
 
 function val(id){
-  return document.getElementById(id).value||"-";
+return document.getElementById(id)?.value || "00";
 }
 
+// GENERATE
 function generate(){
-let msg =
-`*Date:-* ${getDate()} | ${getTime()}
 
+let p=JSON.parse(localStorage.getItem("profile")||"{}");
+
+let msg="";
+
+if(mode==1){
+msg=
+`*Date:-* ${getDate()}
 *W/h:-* Shanti Devi
 *Location:-* Semapur
 
@@ -188,73 +165,105 @@ let msg =
 *Dunky:-* ND
 *Live:-* ND
 
-*REMARKS:-*
-${val("remarks")}`;
+*Remarks:-* PLEASE SUGGEST SIR....`;
+}
 
-document.getElementById("preview").innerText=msg;
+else{
+msg=
+`*Date:-* ${getDate()}
+*Warehouse Name:-* SANTI DEVI
+*Location:-* SEMAPUR
+*Client Name:-* SHIV SHARKTI TRADERS
+*Commodity:-* MAIZE🌽
+
+*Opening Bag:-* ${val("openingBag")}
+*Opening MT:-* ${val("openingMT")}
+
+*INward Bag:-* ${val("inBag")}
+*INward MT:-* ${val("inMT")}
+
+*Clossing bags:-* ${val("closingBag")}
+*CLOSING MT:-* ${val("closingMT")}
+
+*CHR:-* ND
+*Spray:-* ${p.spray}
+
+*Today INward lorry:-* ${val("todayLorry")}
+*Pending:-* ${val("pending")}
+
+*WHS Noutward:-* ${p.whs}
+
+*Remarks:-* ${p.remarks}`;
+}
+
+preview.innerText=msg;
 return msg;
 }
 
+// AUTO
 document.querySelectorAll("input").forEach(e=>{
 e.addEventListener("input",generate);
 });
 
+// SAVE + CARRY
+function saveAndCarry(){
+let p=JSON.parse(localStorage.getItem("profile")||"{}");
+
+if(mode==2 && p.carry){
+localStorage.setItem("nextOpeningBag",val("closingBag"));
+localStorage.setItem("nextOpeningMT",val("closingMT"));
+}
+
+alert("Saved ✅");
+}
+
+// LOAD CARRY
+function loadCarry(){
+openingBag.value=localStorage.getItem("nextOpeningBag")||"";
+openingMT.value=localStorage.getItem("nextOpeningMT")||"";
+}
+
+// WHATSAPP
 function send(){
-let m=generate();
-window.open("https://wa.me/?text="+encodeURIComponent(m));
+window.open("https://wa.me/?text="+encodeURIComponent(generate()));
 }
 
-function saveHistory(){
-let history=JSON.parse(localStorage.getItem("reports")||"[]");
-history.unshift({text:generate(),date:getDate()});
-localStorage.setItem("reports",JSON.stringify(history));
-}
-
-function loadHistory(){
-let search=document.getElementById("search").value.toLowerCase();
-let history=JSON.parse(localStorage.getItem("reports")||"[]");
-
-let html=history.map((h,i)=>{
-if(!h.text.toLowerCase().includes(search)) return "";
-return `
-<div>
-${h.text}
-<button class="deleteBtn" onclick="del(${i})">Delete</button>
-</div><hr>`;
-}).join("");
-
-document.getElementById("history").innerHTML=html;
-}
-
-function del(i){
-let history=JSON.parse(localStorage.getItem("reports")||"[]");
-history.splice(i,1);
-localStorage.setItem("reports",JSON.stringify(history));
-loadHistory();
-}
-
+// PDF WITH REAL QR
 function downloadPDF(){
+
 let {jsPDF}=window.jspdf;
-let doc=new jsPDF();
+let doc=new jsPDF("p","mm","a4");
+
 let text=generate().replace(/\*/g,"");
+
+// Heading
+doc.setFontSize(14);
+doc.text("NBHC - National Bulk Handling Corporation",10,10);
+
+// Body
+doc.setFontSize(11);
 let lines=doc.splitTextToSize(text,180);
-doc.text(lines,10,10);
-doc.save("Report.pdf");
+doc.text(lines,10,20);
+
+// Generate QR
+let qrData=text;
+let qrCanvas=document.createElement("canvas");
+
+QRCode.toCanvas(qrCanvas, qrData, function () {
+let imgData=qrCanvas.toDataURL("image/png");
+doc.addImage(imgData,"PNG",150,220,40,40);
+
+// Footer
+doc.setFontSize(10);
+doc.text("Verified by System (NBHC)",10,280);
+
+doc.save("NBHC_Report.pdf");
+});
 }
 
-/* Navigation */
-function showHome(){
-document.getElementById("homePage").style.display="block";
-document.getElementById("historyPage").style.display="none";
-}
-
-function showHistory(){
-document.getElementById("homePage").style.display="none";
-document.getElementById("historyPage").style.display="block";
-loadHistory();
-}
-
-/* Init */
+// INIT
+loadProfile();
+loadCarry();
 generate();
 
 </script>
