@@ -3,177 +3,153 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro Image ⇄ PDF Tool</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins}
-
-body{
-    background: linear-gradient(135deg,#0f172a,#1e293b);
-    color:white;
-}
-
-/* HEADER */
-.header{
-    padding:20px;
-    text-align:center;
-    font-size:22px;
-    font-weight:bold;
-    background:#020617;
-}
-
-/* TABS */
-.tabs{
-    display:flex;
-    justify-content:center;
-    margin-top:10px;
-}
-.tabs button{
-    padding:10px 20px;
-    border:none;
-    background:#1e293b;
-    color:white;
-    cursor:pointer;
-    margin:5px;
-    border-radius:8px;
-    transition:0.3s;
-}
-.tabs button.active{
-    background:#22c55e;
-}
-
-/* CONTAINER */
-.container{
-    max-width:900px;
-    margin:auto;
-    padding:20px;
-}
-
-/* CARD */
-.card{
-    background:#1e293b;
-    padding:20px;
-    border-radius:15px;
-    margin-top:20px;
-    animation:fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn{
-    from{opacity:0;transform:translateY(20px)}
-    to{opacity:1;transform:translateY(0)}
-}
-
-/* INPUT */
-input,select{
-    padding:10px;
-    margin:10px;
-    border-radius:8px;
-    border:none;
-}
-
-/* BUTTON */
-.btn{
-    background:#22c55e;
-    padding:12px 20px;
-    border:none;
-    border-radius:8px;
-    color:white;
-    cursor:pointer;
-    transition:0.3s;
-}
-.btn:hover{
-    transform:scale(1.05);
-}
-
-/* PREVIEW */
-.preview{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-}
-.preview img{
-    width:90px;
-    border-radius:8px;
-    transition:0.3s;
-}
-.preview img:hover{
-    transform:scale(1.1);
-}
-
-/* DROP AREA */
-.drop{
-    border:2px dashed #22c55e;
-    padding:20px;
-    border-radius:10px;
-    margin-top:10px;
-}
-
-/* PDF IMAGE */
-.pdfImg{
-    width:120px;
-    margin:10px;
-}
-
-/* LOADER */
-.loader{
-    display:none;
-    margin-top:10px;
-}
-</style>
+<title>Report Pro</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
+<style>
+body {
+  margin:0;
+  font-family: Arial;
+  background:#f2f2f2;
+}
+
+/* Loader */
+#loader {
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:#000;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  z-index:999;
+  animation: fadeOut 1s ease 2s forwards;
+}
+
+@keyframes fadeOut {
+  to { opacity:0; visibility:hidden; }
+}
+
+/* Main */
+.container {
+  max-width:500px;
+  margin:auto;
+  padding:10px;
+}
+
+.card {
+  background:#fff;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:10px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity:0; transform:translateY(10px);}
+  to {opacity:1; transform:translateY(0);}
+}
+
+input {
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+.preview {
+  background:#e6ffe6;
+  padding:10px;
+  border-radius:8px;
+  white-space:pre-line;
+}
+
+button {
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border:none;
+  border-radius:8px;
+  background:linear-gradient(45deg, green, #00c853);
+  color:#fff;
+  font-size:15px;
+}
+
+.nav {
+  display:flex;
+  gap:5px;
+}
+
+.nav button {
+  flex:1;
+  background:#333;
+}
+
+/* Hidden sections */
+#historyPage {
+  display:none;
+}
+
+.deleteBtn {
+  background:red;
+}
+</style>
 </head>
 
 <body>
 
-<div class="header">⚡ PRO Image ⇄ PDF Tool</div>
-
-<div class="tabs">
-<button onclick="showTab('jpg')" class="active">JPG → PDF</button>
-<button onclick="showTab('pdf')">PDF → JPG</button>
+<!-- Loader -->
+<div id="loader">
+  <h2>Loading...</h2>
+  <p>Made by Karan</p>
 </div>
 
 <div class="container">
 
-<!-- JPG TO PDF -->
-<div id="jpgTab" class="card">
-
-<h3>Upload Images</h3>
-
-<div class="drop" id="dropArea">
-Drag & Drop Images OR Select
-<input type="file" id="images" multiple accept="image/*">
+<div class="nav">
+  <button onclick="showHome()">Home</button>
+  <button onclick="showHistory()">History</button>
 </div>
 
-<select id="paper">
-<option value="a4">A4</option>
-<option value="letter">Letter</option>
-</select>
+<!-- HOME -->
+<div id="homePage">
 
-<input type="number" id="quality" value="80" placeholder="Quality %">
+<div class="card">
+<h3>Daily Report</h3>
 
+<input id="lorry" placeholder="Lorry No">
+<input id="moisture" placeholder="Moisture">
+<input id="wdd" placeholder="WDD">
+<input id="fungus" placeholder="Fungus">
+<input id="fm" placeholder="FM">
+<input id="remarks" placeholder="Remarks">
+</div>
+
+<div class="card">
+<h4>Preview</h4>
 <div class="preview" id="preview"></div>
 
-<button class="btn" onclick="makePDF()">Generate PDF</button>
-
-<div class="loader" id="loader">Processing...</div>
+<button onclick="saveHistory()">Save</button>
+<button onclick="send()">WhatsApp</button>
+<button onclick="downloadPDF()">PDF</button>
+</div>
 
 </div>
 
-<!-- PDF TO JPG -->
-<div id="pdfTab" class="card" style="display:none">
+<!-- HISTORY -->
+<div id="historyPage">
 
-<h3>Upload PDF</h3>
+<div class="card">
+<h3>History</h3>
+<input id="search" placeholder="Search..." oninput="loadHistory()">
+</div>
 
-<input type="file" id="pdfFile" accept="application/pdf">
-
-<button class="btn" onclick="pdfToImg()">Convert</button>
-
-<div id="pdfOutput"></div>
+<div class="card" id="history"></div>
 
 </div>
 
@@ -181,123 +157,105 @@ Drag & Drop Images OR Select
 
 <script>
 
-let files = [];
-
-/* TAB SWITCH */
-function showTab(tab){
-    document.getElementById("jpgTab").style.display = tab==='jpg'?'block':'none';
-    document.getElementById("pdfTab").style.display = tab==='pdf'?'block':'none';
-
-    document.querySelectorAll(".tabs button").forEach(btn=>btn.classList.remove("active"));
-    event.target.classList.add("active");
+function getDate(){
+  let d=new Date();
+  return String(d.getDate()).padStart(2,'0')+"-"+
+         String(d.getMonth()+1).padStart(2,'0')+"-"+
+         d.getFullYear();
 }
 
-/* PREVIEW */
-document.getElementById("images").addEventListener("change", e=>{
-    files = Array.from(e.target.files);
-    showPreview();
+function getTime(){
+  return new Date().toLocaleTimeString();
+}
+
+function val(id){
+  return document.getElementById(id).value||"-";
+}
+
+function generate(){
+let msg =
+`*Date:-* ${getDate()} | ${getTime()}
+
+*W/h:-* Shanti Devi
+*Location:-* Semapur
+
+*Lorry no.* ${val("lorry")}
+
+*Moisture:-* ${val("moisture")}
+*WDD:-* ${val("wdd")}
+*Fungus:-* ${val("fungus")}
+*FM:-* ${val("fm")}
+*Dunky:-* ND
+*Live:-* ND
+
+*REMARKS:-*
+${val("remarks")}`;
+
+document.getElementById("preview").innerText=msg;
+return msg;
+}
+
+document.querySelectorAll("input").forEach(e=>{
+e.addEventListener("input",generate);
 });
 
-/* DRAG DROP */
-let drop = document.getElementById("dropArea");
-
-drop.addEventListener("dragover", e=>{
-    e.preventDefault();
-    drop.style.background="#334155";
-});
-
-drop.addEventListener("dragleave", ()=>{
-    drop.style.background="transparent";
-});
-
-drop.addEventListener("drop", e=>{
-    e.preventDefault();
-    files = Array.from(e.dataTransfer.files);
-    showPreview();
-});
-
-/* SHOW PREVIEW */
-function showPreview(){
-    let preview = document.getElementById("preview");
-    preview.innerHTML="";
-
-    files.forEach((file,i)=>{
-        let img=document.createElement("img");
-        img.src=URL.createObjectURL(file);
-        preview.appendChild(img);
-    });
+function send(){
+let m=generate();
+window.open("https://wa.me/?text="+encodeURIComponent(m));
 }
 
-/* JPG TO PDF */
-async function makePDF(){
-    document.getElementById("loader").style.display="block";
-
-    const { jsPDF } = window.jspdf;
-    let pdf = new jsPDF();
-
-    for(let i=0;i<files.length;i++){
-        let img = await toData(files[i]);
-
-        if(i!==0) pdf.addPage();
-
-        pdf.addImage(img,'JPEG',10,10,180,250);
-    }
-
-    pdf.save("file.pdf");
-
-    document.getElementById("loader").style.display="none";
+function saveHistory(){
+let history=JSON.parse(localStorage.getItem("reports")||"[]");
+history.unshift({text:generate(),date:getDate()});
+localStorage.setItem("reports",JSON.stringify(history));
 }
 
-/* FILE TO BASE64 */
-function toData(file){
-    return new Promise(res=>{
-        let r=new FileReader();
-        r.onload=e=>res(e.target.result);
-        r.readAsDataURL(file);
-    });
+function loadHistory(){
+let search=document.getElementById("search").value.toLowerCase();
+let history=JSON.parse(localStorage.getItem("reports")||"[]");
+
+let html=history.map((h,i)=>{
+if(!h.text.toLowerCase().includes(search)) return "";
+return `
+<div>
+${h.text}
+<button class="deleteBtn" onclick="del(${i})">Delete</button>
+</div><hr>`;
+}).join("");
+
+document.getElementById("history").innerHTML=html;
 }
 
-/* PDF TO IMAGE */
-async function pdfToImg(){
-    let file=document.getElementById("pdfFile").files[0];
-    let output=document.getElementById("pdfOutput");
-    output.innerHTML="";
-
-    let reader=new FileReader();
-
-    reader.onload=async function(){
-        let pdf=await pdfjsLib.getDocument(new Uint8Array(this.result)).promise;
-
-        for(let i=1;i<=pdf.numPages;i++){
-            let page=await pdf.getPage(i);
-
-            let canvas=document.createElement("canvas");
-            let ctx=canvas.getContext("2d");
-
-            let view=page.getViewport({scale:2});
-            canvas.width=view.width;
-            canvas.height=view.height;
-
-            await page.render({canvasContext:ctx,viewport:view}).promise;
-
-            let img=document.createElement("img");
-            img.src=canvas.toDataURL("image/jpeg");
-            img.className="pdfImg";
-
-            let link=document.createElement("a");
-            link.href=img.src;
-            link.download="page_"+i+".jpg";
-            link.innerText="Download Page "+i;
-
-            output.appendChild(img);
-            output.appendChild(document.createElement("br"));
-            output.appendChild(link);
-            output.appendChild(document.createElement("hr"));
-        }
-    }
-
-    reader.readAsArrayBuffer(file);
+function del(i){
+let history=JSON.parse(localStorage.getItem("reports")||"[]");
+history.splice(i,1);
+localStorage.setItem("reports",JSON.stringify(history));
+loadHistory();
 }
+
+function downloadPDF(){
+let {jsPDF}=window.jspdf;
+let doc=new jsPDF();
+let text=generate().replace(/\*/g,"");
+let lines=doc.splitTextToSize(text,180);
+doc.text(lines,10,10);
+doc.save("Report.pdf");
+}
+
+/* Navigation */
+function showHome(){
+document.getElementById("homePage").style.display="block";
+document.getElementById("historyPage").style.display="none";
+}
+
+function showHistory(){
+document.getElementById("homePage").style.display="none";
+document.getElementById("historyPage").style.display="block";
+loadHistory();
+}
+
+/* Init */
+generate();
 
 </script>
 
