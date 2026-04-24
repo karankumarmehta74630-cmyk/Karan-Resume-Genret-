@@ -3,48 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NBHC Smart App</title>
+<title>NBHC Smart System</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
 
 <style>
 body{margin:0;font-family:Arial;background:#f2f2f2;}
-
-/* LOADER */
-#loader{
-position:fixed;width:100%;height:100%;
-background:#000;color:#fff;
-display:flex;justify-content:center;align-items:center;
-flex-direction:column;z-index:999;
-animation:fadeOut 1s ease 2.5s forwards;
-}
-@keyframes fadeOut{to{opacity:0;visibility:hidden;}}
-
-.loaderCircle{
-width:50px;height:50px;
-border:5px solid #fff;
-border-top:5px solid green;
-border-radius:50%;
-animation:spin 1s linear infinite;
-margin-bottom:10px;
-}
-@keyframes spin{to{transform:rotate(360deg);}}
-
-/* UI */
 .container{max-width:500px;margin:auto;padding:10px;}
 
 .card{
 background:#fff;padding:12px;border-radius:12px;
 margin-bottom:10px;box-shadow:0 4px 10px rgba(0,0,0,0.1);
-animation:fadeIn 0.4s ease;
-}
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;transform:translateY(0);}
 }
 
-input{
+input,textarea{
 width:100%;padding:10px;margin:6px 0;
 border-radius:8px;border:1px solid #ccc;
 }
@@ -61,31 +34,27 @@ background:#e6ffe6;padding:10px;border-radius:8px;
 white-space:pre-line;
 }
 
+.profileBtn{background:#1976d2;}
+
 .switch{display:flex;gap:5px;}
 .switch button{flex:1;background:#333;}
 
-.profileBtn{background:#1976d2;}
-
 #profilePanel{
-position:fixed;
-top:0;left:-100%;
+position:fixed;top:0;left:-100%;
 width:85%;max-width:320px;height:100%;
 background:#fff;padding:15px;
-transition:0.3s;z-index:999;
-overflow:auto;
+transition:0.3s;z-index:999;overflow:auto;
 }
 #profilePanel.active{left:0;}
+
+.historyBox{
+background:#fff;padding:10px;border-radius:10px;
+margin-top:10px;
+}
 </style>
 </head>
 
 <body>
-
-<!-- LOADER -->
-<div id="loader">
-<div class="loaderCircle"></div>
-<h3>Loading...</h3>
-<p>Made by Karan</p>
-</div>
 
 <div class="container">
 
@@ -99,11 +68,22 @@ overflow:auto;
 <!-- PROFILE -->
 <div id="profilePanel">
 <h3>Profile</h3>
+
 <input id="spray" placeholder="Spray Date">
 <input id="whs" placeholder="WHS Name">
 <input id="remarksProfile" placeholder="Remarks">
+
 <label><input type="checkbox" id="carry"> Auto Carry</label>
 <button onclick="saveProfile()">Save</button>
+
+<hr>
+
+<h3>Problem</h3>
+<textarea id="problem"></textarea>
+<button onclick="sendProblem()">Send</button>
+
+<button onclick="contactDev()">Contact Developer</button>
+
 </div>
 
 <!-- ANALYZER -->
@@ -119,13 +99,16 @@ overflow:auto;
 <div class="card" id="supervisorBox" style="display:none;">
 <input id="openingBag" placeholder="Opening Bag">
 <input id="openingMT" placeholder="Opening MT">
+
 <input id="inBag" placeholder="Inward Bag">
 <input id="inMT" placeholder="Inward MT">
+
 <input id="closingBag" placeholder="Closing Bag">
 <input id="closingMT" placeholder="Closing MT">
-<input id="todayLorry" placeholder="Today Inward Lorry">
-<input id="pending" placeholder="Today Pending Lorry">
-<input id="reject" placeholder="Today Reject Lorry">
+
+<input id="todayLorry" placeholder="Today Lorry">
+<input id="pending" placeholder="Pending">
+<input id="reject" placeholder="Reject">
 </div>
 
 <!-- PREVIEW -->
@@ -134,7 +117,11 @@ overflow:auto;
 <button onclick="saveAll()">Save</button>
 <button onclick="send()">WhatsApp</button>
 <button onclick="downloadPDF()">PDF</button>
+<button onclick="toggleHistory()">Preview History</button>
 </div>
+
+<!-- HISTORY -->
+<div id="historyBox" class="historyBox" style="display:none;"></div>
 
 </div>
 
@@ -142,20 +129,11 @@ overflow:auto;
 
 let mode=1;
 
-// PROFILE TOGGLE
+// PROFILE
 function toggleProfile(){
 profilePanel.classList.toggle("active");
 }
 
-// MODE
-function setMode(m){
-mode=m;
-analyserBox.style.display=m==1?"block":"none";
-supervisorBox.style.display=m==2?"block":"none";
-generate();
-}
-
-// PROFILE SAVE
 function saveProfile(){
 let p={
 spray:spray.value,
@@ -167,7 +145,6 @@ localStorage.setItem("profile",JSON.stringify(p));
 alert("Saved");
 }
 
-// LOAD PROFILE
 function loadProfile(){
 let p=JSON.parse(localStorage.getItem("profile")||"{}");
 spray.value=p.spray||"13/04/26";
@@ -176,10 +153,23 @@ remarksProfile.value=p.remarks||"inward/outward";
 carry.checked=p.carry||false;
 }
 
+// MODE
+function setMode(m){
+mode=m;
+analyserBox.style.display=m==1?"block":"none";
+supervisorBox.style.display=m==2?"block":"none";
+generate();
+}
+
 // DATE
 function getDate(){
 let d=new Date();
 return d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear();
+}
+
+// MT FORMAT
+function formatMT(v){
+return (parseFloat(v||0)/1000).toFixed(3);
 }
 
 function val(id){
@@ -210,7 +200,6 @@ msg=
 
 *Remarks:-* PLEASE SUGGEST SIR....`;
 }
-
 else{
 msg=
 `*Date:-* ${getDate()}
@@ -222,12 +211,12 @@ msg=
 *Commodity:-* MAIZE🌽
 
 *Opening Bag:-* ${val("openingBag")}
-*Opening MT:-* ${val("openingMT")}
+*Opening MT:-* ${formatMT(val("openingMT"))}
 
 *INward Bag:-* ${val("inBag")}
-*INward MT:-* ${val("inMT")}                                           
+*INward MT:-* ${formatMT(val("inMT"))}                                           
 *Clossing bags:-* ${val("closingBag")}
-*CLOSING MT:-* ${val("closingMT")}
+*CLOSING MT:-* ${formatMT(val("closingMT"))}
 
  *Pala:-* 0
  
@@ -250,21 +239,43 @@ preview.innerText=msg;
 return msg;
 }
 
-// AUTO
-document.querySelectorAll("input").forEach(e=>{
-e.addEventListener("input",generate);
-});
-
-// SAVE
+// SAVE + HISTORY
 function saveAll(){
-let p=JSON.parse(localStorage.getItem("profile")||"{}");
+let text=generate();
+let history=JSON.parse(localStorage.getItem("history")||"{}");
+let date=getDate();
 
-if(mode==2 && p.carry){
+if(!history[date]) history[date]=[];
+history[date].push(text);
+
+localStorage.setItem("history",JSON.stringify(history));
+
+// carry
+let p=JSON.parse(localStorage.getItem("profile")||"{}");
+if(p.carry){
 localStorage.setItem("nextOpeningBag",val("closingBag"));
 localStorage.setItem("nextOpeningMT",val("closingMT"));
 }
 
 alert("Saved");
+}
+
+// HISTORY VIEW
+function toggleHistory(){
+let box=document.getElementById("historyBox");
+box.style.display=box.style.display=="none"?"block":"none";
+
+let history=JSON.parse(localStorage.getItem("history")||"{}");
+
+let html="";
+for(let d in history){
+html+=`<h4>${d}</h4>`;
+history[d].forEach(h=>{
+html+=`<pre>${h}</pre><hr>`;
+});
+}
+
+box.innerHTML=html;
 }
 
 // WHATSAPP
@@ -277,12 +288,10 @@ function downloadPDF(){
 let {jsPDF}=window.jspdf;
 let doc=new jsPDF("p","mm","a4");
 
+doc.setFontSize(16);
+doc.text("NBHC - NATIONAL BULK HANDLING CORPORATION",10,10);
+
 let text=generate().replace(/\*/g,"");
-
-doc.setFontSize(14);
-doc.text("NBHC - National Bulk Handling Corporation",10,10);
-
-doc.setFontSize(11);
 let lines=doc.splitTextToSize(text,180);
 doc.text(lines,10,20);
 
@@ -291,16 +300,28 @@ QRCode.toCanvas(canvas,text,function(){
 let img=canvas.toDataURL("image/png");
 doc.addImage(img,"PNG",150,220,40,40);
 
-doc.setFontSize(10);
 doc.text("Verified by System (NBHC)",10,280);
-
 doc.save("NBHC_Report.pdf");
 });
+}
+
+// PROBLEM
+function sendProblem(){
+let msg=document.getElementById("problem").value;
+window.open("https://wa.me/917463011305?text="+encodeURIComponent(msg));
+}
+
+function contactDev(){
+window.open("https://wa.me/917463011305");
 }
 
 // INIT
 loadProfile();
 generate();
+
+document.querySelectorAll("input").forEach(e=>{
+e.addEventListener("input",generate);
+});
 
 </script>
 
