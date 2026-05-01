@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBHC History</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#e3f2fd,#ffffff);
+}
+
+/* Card */
+.card{
+margin:10px;
+padding:12px;
+background:#fff;
+border-radius:15px;
+box-shadow:0 6px 15px rgba(0,0,0,0.1);
+animation:fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(15px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:10px;
+border:1px solid #ccc;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:6px;
+border:none;
+border-radius:10px;
+background:linear-gradient(45deg,#4caf50,#00c853);
+color:#fff;
+font-size:15px;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.05);
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* History Item */
+.item{
+border-bottom:1px solid #ddd;
+padding:6px 0;
+animation:fadeIn 0.4s ease;
+}
+
+.deleteBtn{
+background:red;
+margin-top:5px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h3>🔍 Search History</h3>
+<input id="search" placeholder="Search..." oninput="loadHistory()">
+
+</div>
+
+<div class="card">
+
+<h3>📊 Daily History</h3>
+<div id="history"></div>
+
+</div>
+
+<div class="card">
+
+<h3>📆 Monthly Report</h3>
+<input type="month" id="monthPicker" onchange="loadMonthly()">
+
+<div id="monthlyView"></div>
+
+<button onclick="downloadMonthlyPDF()">Download Monthly PDF</button>
+
+</div>
+
+<script>
+
+// LOAD HISTORY
+function loadHistory(){
+
+let search=document.getElementById("search").value.toLowerCase();
+let history=JSON.parse(localStorage.getItem("history")||"[]");
+
+let html=history.map((h,i)=>{
+if(!h.toLowerCase().includes(search)) return "";
+
+return `<div class="item">
+${h}
+<button class="deleteBtn" onclick="del(${i})">Delete</button>
+</div>`;
+}).join("");
+
+document.getElementById("history").innerHTML=html || "No Data";
+}
+
+// DELETE
+function del(i){
+let history=JSON.parse(localStorage.getItem("history")||"[]");
+history.splice(i,1);
+localStorage.setItem("history",JSON.stringify(history));
+loadHistory();
+}
+
+// MONTHLY VIEW
+function loadMonthly(){
+
+let month=document.getElementById("monthPicker").value;
+let reports=JSON.parse(localStorage.getItem("reportsData")||{});
+
+let html="";
+
+Object.keys(reports).forEach(date=>{
+
+let [d,m,y]=date.split("/");
+let formatted=y+"-"+m.padStart(2,"0");
+
+if(formatted!==month) return;
+
+let r=reports[date];
+
+html+=`
+<div class="item">
+<b>${date}</b><br>
+Opening: ${r.openingBag} / ${r.openingMT}<br>
+Inward: ${r.inwardBag} / ${r.inwardMT}<br>
+Closing: ${r.closingBag} / ${r.closingMT}
+</div>
+`;
+
+});
+
+document.getElementById("monthlyView").innerHTML=html || "No Data";
+}
+
+// PDF
+function downloadMonthlyPDF(){
+
+let {jsPDF}=window.jspdf;
+let doc=new jsPDF("p","mm","a4");
+
+let reports=JSON.parse(localStorage.getItem("reportsData")||{});
+let month=document.getElementById("monthPicker").value;
+
+let yPos=20;
+
+doc.setFontSize(14);
+doc.text("NBHC - National Bulk Handling Corporation",10,10);
+
+doc.setFontSize(10);
+doc.text("Monthly Report: "+month,10,16);
+
+Object.keys(reports).forEach(date=>{
+
+let [d,m,y]=date.split("/");
+let formatted=y+"-"+m.padStart(2,"0");
+
+if(formatted!==month) return;
+
+let r=reports[date];
+
+let text=
+`${date}
+
+Opening: ${r.openingBag} / ${r.openingMT}
+Inward: ${r.inwardBag} / ${r.inwardMT}
+Closing: ${r.closingBag} / ${r.closingMT}`;
+
+let lines=doc.splitTextToSize(text,180);
+
+// page break
+if(yPos>250){
+doc.addPage();
+yPos=20;
+}
+
+doc.text(lines,10,yPos);
+yPos+=lines.length*6;
+
+});
+
+// QR
+let canvas=document.createElement("canvas");
+
+QRCode.toCanvas(canvas,"NBHC VERIFIED",function(){
+
+let img=canvas.toDataURL("image/png");
+
+doc.addImage(img,"PNG",150,240,40,40);
+
+doc.text("Verified by NBHC",10,280);
+
+doc.save("NBHC_Monthly_Report.pdf");
+
+});
+
+}
+
+// INIT
+loadHistory();
+
+</script>
+
+</body>
+</html>
