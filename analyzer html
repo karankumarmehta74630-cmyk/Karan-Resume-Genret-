@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analyzer Report</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#e3f2fd,#ffffff);
+}
+
+/* Animation */
+.card{
+background:#fff;
+margin:10px;
+padding:12px;
+border-radius:15px;
+box-shadow:0 6px 15px rgba(0,0,0,0.1);
+animation:fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(20px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+input{
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:10px;
+border:1px solid #ccc;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:6px;
+border:none;
+border-radius:10px;
+background:linear-gradient(45deg,#4caf50,#00c853);
+color:#fff;
+font-size:16px;
+}
+
+.preview{
+background:#e8f5e9;
+padding:10px;
+border-radius:10px;
+white-space:pre-line;
+}
+
+img{
+width:100%;
+border-radius:10px;
+margin-top:8px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+<h3>Analyzer Entry</h3>
+
+<input id="lorry" placeholder="Lorry No">
+<input id="moisture" placeholder="Moisture">
+<input id="wdd" placeholder="WDD">
+<input id="fungus" placeholder="Fungus">
+<input id="fm" placeholder="FM">
+
+<input type="file" id="photo">
+
+</div>
+
+<div class="card">
+<h4>Preview</h4>
+<div class="preview" id="preview"></div>
+<img id="imgPreview" style="display:none;">
+<button onclick="share()">Share WhatsApp</button>
+</div>
+
+<script>
+
+// Date
+function getDate(){
+let d=new Date();
+return d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear();
+}
+
+function val(id){
+return document.getElementById(id).value||"-";
+}
+
+// Generate text
+function generate(){
+
+let msg=
+`Date:- ${getDate()}
+
+W/h:- Shanti Devi
+Location:- Semapur
+
+Lorry no. ${val("lorry")}
+
+Moisture:- ${val("moisture")}
+WDD:- ${val("wdd")}
+Fungus:- ${val("fungus")}
+FM:- ${val("fm")}
+Dunky:- ND
+Live:- ND
+
+REMARKS:-
+PLEASE SUGGEST SIR....`;
+
+document.getElementById("preview").innerText=msg;
+return msg;
+}
+
+// Live update
+document.querySelectorAll("input").forEach(e=>{
+e.addEventListener("input",generate);
+});
+
+// Image preview
+document.getElementById("photo").addEventListener("change",function(e){
+
+let file=e.target.files[0];
+if(!file) return;
+
+let reader=new FileReader();
+
+reader.onload=function(){
+let img=document.getElementById("imgPreview");
+img.src=reader.result;
+img.style.display="block";
+}
+
+reader.readAsDataURL(file);
+});
+
+// Share
+function share(){
+
+let msg=generate();
+
+let url="https://wa.me/?text="+encodeURIComponent(msg);
+
+window.open(url);
+}
+
+generate();
+
+</script>
+
+</body>
+</html>
