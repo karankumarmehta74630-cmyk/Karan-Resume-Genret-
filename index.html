@@ -3,325 +3,309 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NBHC Smart System</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
+<title>NBHC Dashboard</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#f2f2f2;}
-.container{max-width:500px;margin:auto;padding:10px;}
+body{
+margin:0;
+font-family:Arial;
+background:#f4f6f9;
+}
 
+/* HEADER */
+.header{
+background:#ffffff;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo{
+font-size:20px;
+font-weight:bold;
+color:#0a3d62;
+animation:glow 2s infinite alternate;
+}
+
+@keyframes glow{
+from{opacity:0.6;}
+to{opacity:1;}
+}
+
+.settings{
+cursor:pointer;
+font-size:18px;
+}
+
+/* CONTAINER */
+.container{
+padding:12px;
+max-width:500px;
+margin:auto;
+}
+
+/* CARD */
 .card{
-background:#fff;padding:12px;border-radius:12px;
-margin-bottom:10px;box-shadow:0 4px 10px rgba(0,0,0,0.1);
+background:#fff;
+border-radius:12px;
+padding:15px;
+margin-bottom:12px;
+box-shadow:0 3px 10px rgba(0,0,0,0.08);
+animation:fadeUp 0.6s ease;
 }
 
-input,textarea{
-width:100%;padding:10px;margin:6px 0;
-border-radius:8px;border:1px solid #ccc;
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(10px);}
+to{opacity:1;}
 }
 
+.title{
+font-size:13px;
+color:#777;
+}
+
+.value{
+font-size:20px;
+font-weight:bold;
+color:#0a3d62;
+}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+/* BIG VALUE */
+.big{
+font-size:22px;
+color:#00a86b;
+}
+
+/* BUTTON */
 button{
-width:100%;padding:10px;margin-top:6px;
-border:none;border-radius:8px;
-background:linear-gradient(45deg,green,#00c853);
+width:100%;
+padding:12px;
+margin-top:8px;
+border:none;
+border-radius:10px;
+background:#0a3d62;
 color:#fff;
 }
 
-.preview{
-background:#e6ffe6;padding:10px;border-radius:8px;
-white-space:pre-line;
+/* PANEL */
+#panel{
+position:fixed;
+top:0;
+right:-100%;
+width:80%;
+max-width:320px;
+height:100%;
+background:#fff;
+padding:15px;
+box-shadow:-5px 0 15px rgba(0,0,0,0.2);
+transition:0.3s;
+overflow:auto;
 }
 
-.profileBtn{background:#1976d2;}
+#panel.active{right:0;}
 
-.switch{display:flex;gap:5px;}
-.switch button{flex:1;background:#333;}
-
-#profilePanel{
-position:fixed;top:0;left:-100%;
-width:85%;max-width:320px;height:100%;
-background:#fff;padding:15px;
-transition:0.3s;z-index:999;overflow:auto;
-}
-#profilePanel.active{left:0;}
-
-.historyBox{
-background:#fff;padding:10px;border-radius:10px;
-margin-top:10px;
+input{
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:8px;
+border:1px solid #ccc;
 }
 </style>
 </head>
 
 <body>
 
+<div class="header">
+<div class="logo">NBHC</div>
+<div class="settings" onclick="togglePanel()">⚙️</div>
+</div>
+
 <div class="container">
 
-<button class="profileBtn" onclick="toggleProfile()">☰ Profile</button>
-
-<div class="switch">
-<button onclick="setMode(1)">Analyzer</button>
-<button onclick="setMode(2)">Supervisor</button>
-</div>
-
-<!-- PROFILE -->
-<div id="profilePanel">
-<h3>Profile</h3>
-
-<input id="spray" placeholder="Spray Date">
-<input id="whs" placeholder="WHS Name">
-<input id="remarksProfile" placeholder="Remarks">
-
-<label><input type="checkbox" id="carry"> Auto Carry</label>
-<button onclick="saveProfile()">Save</button>
-
-<hr>
-
-<h3>Problem</h3>
-<textarea id="problem"></textarea>
-<button onclick="sendProblem()">Send</button>
-
-<button onclick="contactDev()">Contact Developer</button>
-
-</div>
-
-<!-- ANALYZER -->
-<div class="card" id="analyserBox">
-<input id="lorry" placeholder="Lorry No">
-<input id="moisture" placeholder="Moisture">
-<input id="wdd" placeholder="WDD">
-<input id="fungus" placeholder="Fungus">
-<input id="fm" placeholder="FM">
-</div>
-
-<!-- SUPERVISOR -->
-<div class="card" id="supervisorBox" style="display:none;">
-<input id="openingBag" placeholder="Opening Bag">
-<input id="openingMT" placeholder="Opening MT">
-
-<input id="inBag" placeholder="Inward Bag">
-<input id="inMT" placeholder="Inward MT">
-
-<input id="closingBag" placeholder="Closing Bag">
-<input id="closingMT" placeholder="Closing MT">
-
-<input id="todayLorry" placeholder="Today Lorry">
-<input id="pending" placeholder="Pending">
-<input id="reject" placeholder="Reject">
-</div>
-
-<!-- PREVIEW -->
+<!-- DATE & TIME -->
 <div class="card">
-<div class="preview" id="preview"></div>
-<button onclick="saveAll()">Save</button>
-<button onclick="send()">WhatsApp</button>
-<button onclick="downloadPDF()">PDF</button>
-<button onclick="toggleHistory()">Preview History</button>
+<div class="title">Date & Time</div>
+<div class="value" id="date"></div>
+<div class="value" id="time"></div>
 </div>
 
-<!-- HISTORY -->
-<div id="historyBox" class="historyBox" style="display:none;"></div>
+<!-- WHS + SUPERVISOR -->
+<div class="card">
+<div class="title">Warehouse</div>
+<div class="value" id="whs"></div>
+
+<div class="title" style="margin-top:10px;">Supervisor</div>
+<div class="value" id="sup"></div>
+</div>
+
+<!-- TOTAL -->
+<div class="card">
+<div class="title">Total Stock</div>
+
+<div class="grid">
+<div>
+Total Bag
+<div class="value big" id="totalBag"></div>
+</div>
+
+<div>
+Total MT
+<div class="value big" id="totalMT"></div>
+</div>
+</div>
+
+</div>
+
+<!-- TODAY -->
+<div class="card">
+<div class="title">Today Status</div>
+
+<div class="grid">
+<div>
+Opening Bag
+<div class="value" id="openBag"></div>
+</div>
+
+<div>
+Opening MT
+<div class="value" id="openMT"></div>
+</div>
+
+<div>
+Closing Bag
+<div class="value" id="closeBag"></div>
+</div>
+
+<div>
+Closing MT
+<div class="value" id="closeMT"></div>
+</div>
+</div>
+
+</div>
+
+<!-- NAV -->
+<div class="card">
+<button onclick="go('analyzer.html')">Analyzer</button>
+<button onclick="go('supervisor.html')">Supervisor</button>
+<button onclick="go('history.html')">History</button>
+</div>
+
+</div>
+
+<!-- SETTINGS -->
+<div id="panel">
+
+<h3>Settings</h3>
+
+<label>Warehouse Name</label>
+<input id="whsInput" placeholder="Shanti Devi">
+
+<label>Location</label>
+<input id="locInput" placeholder="Semapur">
+
+<label>Supervisor Name</label>
+<input id="supInput" placeholder="Saurav Kumar">
+
+<button onclick="save()">Save</button>
+<button onclick="togglePanel()">Close</button>
 
 </div>
 
 <script>
 
-let mode=1;
-
-// PROFILE
-function toggleProfile(){
-profilePanel.classList.toggle("active");
-}
-
-function saveProfile(){
-let p={
-spray:spray.value,
-whs:whs.value,
-remarks:remarksProfile.value,
-carry:carry.checked
-};
-localStorage.setItem("profile",JSON.stringify(p));
-alert("Saved");
-}
-
-function loadProfile(){
-let p=JSON.parse(localStorage.getItem("profile")||"{}");
-spray.value=p.spray||"13/04/26";
-whs.value=p.whs||"NIRMAL KUMAR";
-remarksProfile.value=p.remarks||"inward/outward";
-carry.checked=p.carry||false;
-}
-
-// MODE
-function setMode(m){
-mode=m;
-analyserBox.style.display=m==1?"block":"none";
-supervisorBox.style.display=m==2?"block":"none";
-generate();
-}
-
-// DATE
+// DATE FORMAT
 function getDate(){
 let d=new Date();
-return d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear();
+return String(d.getDate()).padStart(2,'0')+"-"+
+String(d.getMonth()+1).padStart(2,'0')+"-"+
+d.getFullYear();
 }
 
-// MT FORMAT
-function formatMT(v){
-return (parseFloat(v||0)/1000).toFixed(3);
+// TIME
+function updateTime(){
+let d=new Date();
+let t=d.toLocaleTimeString();
+document.getElementById("time").innerText=t;
 }
 
-function val(id){
-return document.getElementById(id)?.value||"00";
-}
+// LOAD
+function load(){
 
-// GENERATE
-function generate(){
-
+// profile
 let p=JSON.parse(localStorage.getItem("profile")||"{}");
 
-let msg="";
+document.getElementById("whs").innerText=
+(p.whs||"Shanti Devi")+" - "+(p.location||"Semapur");
 
-if(mode==1){
-msg=
-`*Date:-* ${getDate()}
-*W/h:-* Shanti Devi
-*Location:-* Semapur
+document.getElementById("sup").innerText=p.supervisor||"Saurav Kumar";
 
-*Lorry no.* ${val("lorry")}
+// today
+document.getElementById("date").innerText=getDate();
 
-*Moisture:-* ${val("moisture")}
-*WDD:-* ${val("wdd")}
-*Fungus:-* ${val("fungus")}
-*FM:-* ${val("fm")}
-*Dunky:-* ND
-*Live:-* ND
+// reports
+let data=JSON.parse(localStorage.getItem("reportsData")||"{}");
 
-*Remarks:-* PLEASE SUGGEST SIR....`;
-}
-else{
-msg=
-`*Date:-* ${getDate()}
-*Warehouse Name:-* SANTI DEVI
-*Location:-* SEMAPUR
-*Client Name:-* SHIV SHAKTI TRADERS
-*Case Type:-* Retail/corporate 
-*Chamber No.:-* GODOWN
-*Commodity:-* MAIZE🌽
+let today=data[getDate()]||{};
 
-*Opening Bag:-* ${val("openingBag")}
-*Opening MT:-* ${formatMT(val("openingMT"))}
+openBag.innerText=today.openingBag||"0";
+openMT.innerText=today.openingMT||"0.000";
+closeBag.innerText=today.closingBag||"0";
+closeMT.innerText=today.closingMT||"0.000";
 
-*INward Bag:-* ${val("inBag")}
-*INward MT:-* ${formatMT(val("inMT"))}                                           
-*Clossing bags:-* ${val("closingBag")}
-*CLOSING MT:-* ${formatMT(val("closingMT"))}
+// TOTAL
+let totalBag=0,totalMT=0;
 
- *Pala:-* 0
- 
-*Lock seal No:-*      
+Object.values(data).forEach(r=>{
+totalBag+=Number(r.closingBag||0);
+totalMT+=Number(r.closingMT||0);
+});
 
-*CHR:-* ND
-*Spray:-* ${p.spray}
-*Fumigation:-* ND
-*Degassing:-* ND 
-*MSIR:-* ND
-   
-*Today INward lorry:-* ${val("todayLorry")}
- *Today Pending lorry:-* ${val("pending")}
- *Today Reject lorry:-* ${val("reject")}
-                                                                    *WHS Noutward_${p.whs}                                                                                       
-*Remarks:-* ${p.remarks}`;
+totalBagElem.innerText=totalBag;
+totalMTElem.innerText=totalMT.toFixed(3);
 }
 
-preview.innerText=msg;
-return msg;
+// FIX IDs
+let totalBagElem=document.getElementById("totalBag");
+let totalMTElem=document.getElementById("totalMT");
+
+// NAV
+function go(p){
+window.location.href=p;
 }
 
-// SAVE + HISTORY
-function saveAll(){
-let text=generate();
-let history=JSON.parse(localStorage.getItem("history")||"{}");
-let date=getDate();
+// PANEL
+function togglePanel(){
+panel.classList.toggle("active");
+}
 
-if(!history[date]) history[date]=[];
-history[date].push(text);
-
-localStorage.setItem("history",JSON.stringify(history));
-
-// carry
+// SAVE
+function save(){
 let p=JSON.parse(localStorage.getItem("profile")||"{}");
-if(p.carry){
-localStorage.setItem("nextOpeningBag",val("closingBag"));
-localStorage.setItem("nextOpeningMT",val("closingMT"));
-}
+
+p.whs=whsInput.value;
+p.location=locInput.value;
+p.supervisor=supInput.value;
+
+localStorage.setItem("profile",JSON.stringify(p));
 
 alert("Saved");
-}
-
-// HISTORY VIEW
-function toggleHistory(){
-let box=document.getElementById("historyBox");
-box.style.display=box.style.display=="none"?"block":"none";
-
-let history=JSON.parse(localStorage.getItem("history")||"{}");
-
-let html="";
-for(let d in history){
-html+=`<h4>${d}</h4>`;
-history[d].forEach(h=>{
-html+=`<pre>${h}</pre><hr>`;
-});
-}
-
-box.innerHTML=html;
-}
-
-// WHATSAPP
-function send(){
-window.open("https://wa.me/?text="+encodeURIComponent(generate()));
-}
-
-// PDF
-function downloadPDF(){
-let {jsPDF}=window.jspdf;
-let doc=new jsPDF("p","mm","a4");
-
-doc.setFontSize(16);
-doc.text("NBHC - NATIONAL BULK HANDLING CORPORATION",10,10);
-
-let text=generate().replace(/\*/g,"");
-let lines=doc.splitTextToSize(text,180);
-doc.text(lines,10,20);
-
-let canvas=document.createElement("canvas");
-QRCode.toCanvas(canvas,text,function(){
-let img=canvas.toDataURL("image/png");
-doc.addImage(img,"PNG",150,220,40,40);
-
-doc.text("Verified by System (NBHC)",10,280);
-doc.save("NBHC_Report.pdf");
-});
-}
-
-// PROBLEM
-function sendProblem(){
-let msg=document.getElementById("problem").value;
-window.open("https://wa.me/917463011305?text="+encodeURIComponent(msg));
-}
-
-function contactDev(){
-window.open("https://wa.me/917463011305");
+load();
 }
 
 // INIT
-loadProfile();
-generate();
-
-document.querySelectorAll("input").forEach(e=>{
-e.addEventListener("input",generate);
-});
+load();
+setInterval(updateTime,1000);
 
 </script>
 
