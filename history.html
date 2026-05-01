@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NBHC History</title>
+<title>NBHC History Dashboard</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body{
@@ -15,7 +16,6 @@ font-family:Arial;
 background:linear-gradient(135deg,#e3f2fd,#ffffff);
 }
 
-/* Card */
 .card{
 margin:10px;
 padding:12px;
@@ -30,7 +30,7 @@ from{opacity:0;transform:translateY(15px);}
 to{opacity:1;transform:translateY(0);}
 }
 
-input,select{
+input,select,textarea{
 width:100%;
 padding:10px;
 margin:6px 0;
@@ -40,31 +40,26 @@ border:1px solid #ccc;
 
 button{
 width:100%;
-padding:12px;
-margin-top:6px;
+padding:10px;
+margin-top:5px;
 border:none;
 border-radius:10px;
 background:linear-gradient(45deg,#4caf50,#00c853);
 color:#fff;
-font-size:15px;
 transition:0.3s;
 }
 
 button:hover{
 transform:scale(1.05);
-box-shadow:0 5px 15px rgba(0,0,0,0.2);
 }
 
-/* History Item */
 .item{
 border-bottom:1px solid #ddd;
 padding:6px 0;
-animation:fadeIn 0.4s ease;
 }
 
-.deleteBtn{
-background:red;
-margin-top:5px;
+.editBox{
+display:none;
 }
 
 </style>
@@ -72,29 +67,25 @@ margin-top:5px;
 
 <body>
 
+<!-- TOTAL HISTORY -->
 <div class="card">
-
-<h3>🔍 Search History</h3>
+<h3>📊 Total History</h3>
 <input id="search" placeholder="Search..." oninput="loadHistory()">
-
-</div>
-
-<div class="card">
-
-<h3>📊 Daily History</h3>
 <div id="history"></div>
-
 </div>
 
+<!-- MONTHLY REPORT -->
 <div class="card">
-
 <h3>📆 Monthly Report</h3>
 <input type="month" id="monthPicker" onchange="loadMonthly()">
-
 <div id="monthlyView"></div>
+<button onclick="downloadMonthlyPDF()">Download PDF</button>
+</div>
 
-<button onclick="downloadMonthlyPDF()">Download Monthly PDF</button>
-
+<!-- GRAPH -->
+<div class="card">
+<h3>📈 Stock Graph</h3>
+<canvas id="chart"></canvas>
 </div>
 
 <script>
@@ -108,13 +99,47 @@ let history=JSON.parse(localStorage.getItem("history")||"[]");
 let html=history.map((h,i)=>{
 if(!h.toLowerCase().includes(search)) return "";
 
-return `<div class="item">
-${h}
-<button class="deleteBtn" onclick="del(${i})">Delete</button>
-</div>`;
+return `
+<div class="item">
+
+<div id="text${i}">${h}</div>
+
+<textarea id="edit${i}" class="editBox">${h}</textarea>
+
+<button onclick="edit(${i})">Edit</button>
+<button onclick="saveEdit(${i})">Save</button>
+<button onclick="share(${i})">Share</button>
+<button style="background:red" onclick="del(${i})">Delete</button>
+
+</div>
+`;
 }).join("");
 
 document.getElementById("history").innerHTML=html || "No Data";
+}
+
+// EDIT
+function edit(i){
+document.getElementById("edit"+i).style.display="block";
+}
+
+// SAVE EDIT
+function saveEdit(i){
+
+let history=JSON.parse(localStorage.getItem("history")||"[]");
+
+history[i]=document.getElementById("edit"+i).value;
+
+localStorage.setItem("history",JSON.stringify(history));
+
+loadHistory();
+}
+
+// SHARE
+function share(i){
+let history=JSON.parse(localStorage.getItem("history")||"[]");
+let msg=history[i];
+window.open("https://wa.me/?text="+encodeURIComponent(msg));
 }
 
 // DELETE
@@ -125,12 +150,15 @@ localStorage.setItem("history",JSON.stringify(history));
 loadHistory();
 }
 
-// MONTHLY VIEW
+// MONTHLY
 function loadMonthly(){
 
 let month=document.getElementById("monthPicker").value;
 let reports=JSON.parse(localStorage.getItem("reportsData")||{});
 
+let labels=[];
+let opening=[];
+let closing=[];
 let html="";
 
 Object.keys(reports).forEach(date=>{
@@ -142,18 +170,39 @@ if(formatted!==month) return;
 
 let r=reports[date];
 
+labels.push(date);
+opening.push(Number(r.openingBag));
+closing.push(Number(r.closingBag));
+
 html+=`
 <div class="item">
 <b>${date}</b><br>
-Opening: ${r.openingBag} / ${r.openingMT}<br>
-Inward: ${r.inwardBag} / ${r.inwardMT}<br>
-Closing: ${r.closingBag} / ${r.closingMT}
+Opening: ${r.openingBag}<br>
+Closing: ${r.closingBag}
 </div>
 `;
-
 });
 
 document.getElementById("monthlyView").innerHTML=html || "No Data";
+
+drawChart(labels,opening,closing);
+}
+
+// GRAPH
+function drawChart(labels,open,close){
+
+let ctx=document.getElementById("chart");
+
+new Chart(ctx,{
+type:'line',
+data:{
+labels:labels,
+datasets:[
+{label:'Opening',data:open},
+{label:'Closing',data:close}
+]
+}
+});
 }
 
 // PDF
@@ -167,11 +216,7 @@ let month=document.getElementById("monthPicker").value;
 
 let yPos=20;
 
-doc.setFontSize(14);
 doc.text("NBHC - National Bulk Handling Corporation",10,10);
-
-doc.setFontSize(10);
-doc.text("Monthly Report: "+month,10,16);
 
 Object.keys(reports).forEach(date=>{
 
@@ -184,21 +229,16 @@ let r=reports[date];
 
 let text=
 `${date}
+Opening: ${r.openingBag}
+Closing: ${r.closingBag}`;
 
-Opening: ${r.openingBag} / ${r.openingMT}
-Inward: ${r.inwardBag} / ${r.inwardMT}
-Closing: ${r.closingBag} / ${r.closingMT}`;
-
-let lines=doc.splitTextToSize(text,180);
-
-// page break
 if(yPos>250){
 doc.addPage();
 yPos=20;
 }
 
-doc.text(lines,10,yPos);
-yPos+=lines.length*6;
+doc.text(text,10,yPos);
+yPos+=10;
 
 });
 
@@ -213,7 +253,7 @@ doc.addImage(img,"PNG",150,240,40,40);
 
 doc.text("Verified by NBHC",10,280);
 
-doc.save("NBHC_Monthly_Report.pdf");
+doc.save("NBHC_Report.pdf");
 
 });
 
