@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBHC Supervisor</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
+
+<style>
+body{margin:0;font-family:Arial;background:#f4f6f9;}
+.container{padding:10px;max-width:500px;margin:auto;}
+.card{background:#fff;padding:12px;border-radius:12px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc;font-size:14px;}
+button{width:100%;padding:12px;margin-top:5px;border:none;border-radius:10px;background:#0a3d62;color:#fff;font-size:15px;}
+.preview{white-space:pre-line;background:#e8f5e9;padding:10px;border-radius:10px;font-size:13px;}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<input id="date" placeholder="Date (DD/MM/YYYY)">
+<input id="openingBag" placeholder="Opening Bag">
+<input id="openingMT" placeholder="Opening MT">
+
+<input id="inBag" placeholder="Inward Bag">
+<input id="inMT" placeholder="Inward MT">
+
+<input id="closingBag" placeholder="Closing Bag">
+<input id="closingMT" placeholder="Closing MT">
+
+<input id="pala" placeholder="Pala Bag">
+<input id="totalLorry" placeholder="Total Lorry">
+<input id="inwardLorry" placeholder="Inward Lorry">
+<input id="rejectLorry" placeholder="Reject Lorry">
+
+</div>
+
+<div class="card">
+
+<div id="preview" class="preview"></div>
+
+<button onclick="save()">Save</button>
+<button onclick="send()">WhatsApp</button>
+<button onclick="downloadPDF()">Download PDF</button>
+
+</div>
+
+</div>
+
+<script>
+
+// DATE AUTO
+function getDate(){
+let d=new Date();
+return String(d.getDate()).padStart(2,'0')+"/"+
+String(d.getMonth()+1).padStart(2,'0')+"/"+
+d.getFullYear();
+}
+
+// FORM DATE
+function getFormDate(){
+return document.getElementById("date").value || getDate();
+}
+
+// MT FIX
+function formatMT(v){
+let num=parseFloat(v);
+if(isNaN(num)) return "0.000";
+if(num>10000){ num=num/1000; }
+return num.toFixed(3);
+}
+
+// VALUE
+function val(id){
+return document.getElementById(id).value || "00";
+}
+
+// GENERATE
+function generate(){
+
+let p=JSON.parse(localStorage.getItem("profile")||"{}");
+let d=getFormDate();
+
+let text=
+`DATE-${d}
+
+WAREHOUSE NAME- ${p.whs||"SANTI DEVI"}
+
+LOCATION- ${p.location||"SEMAPUR"}
+
+CLIENT-NAME-SHIV SHAKTI TRADERS
+
+CASE TYPE-RETAIL/CORPORATE
+
+COMMODITY -MAIZE🌽
+
+OPENING BAG - ${val("openingBag")}
+OPENING MT - ${formatMT(val("openingMT"))}
+
+INWARD BAG - ${val("inBag")}
+INWARD MT - ${formatMT(val("inMT"))}
+
+CLOSING BAG- ${val("closingBag")}
+CLOSING MT- ${formatMT(val("closingMT"))}
+
+PALA BAG - ${val("pala")}
+CH-NO - GODOWN
+
+LAST MSIR -ND
+LAST FUMIGATION -ND
+LAST DEGASSING -ND
+LAST CLEANING -ND
+LAST CHR -ND
+LAST SPARY - ${p.spray||"13/04/26"}
+LAST AUDIT -ND
+
+TOTAL LORRY- ${val("totalLorry")}
+INWARD LORRY- ${val("inwardLorry")}
+REJECT LORRY- ${val("rejectLorry")}
+
+WHS NAME - ${p.supervisor||"SAURAV KUMAR"}`;
+
+document.getElementById("preview").innerText=text;
+return text;
+}
+
+// AUTO UPDATE
+document.querySelectorAll("input").forEach(e=>{
+e.addEventListener("input",generate);
+});
+
+// SAVE SYSTEM
+function save(){
+
+let text=generate();
+let today=getFormDate();
+
+// HISTORY
+let history=JSON.parse(localStorage.getItem("history")||"[]");
+history.unshift(text);
+localStorage.setItem("history",JSON.stringify(history));
+
+// REPORT DATA
+let reports=JSON.parse(localStorage.getItem("reportsData")||"{}");
+
+reports[today]={
+openingBag:val("openingBag"),
+openingMT:formatMT(val("openingMT")),
+inwardBag:val("inBag"),
+inwardMT:formatMT(val("inMT")),
+closingBag:val("closingBag"),
+closingMT:formatMT(val("closingMT"))
+};
+
+localStorage.setItem("reportsData",JSON.stringify(reports));
+
+// 🔁 CARRY FORWARD
+let p=JSON.parse(localStorage.getItem("profile")||"{}");
+
+if(p.carry){
+
+let bag=val("closingBag");
+let mt=val("closingMT");
+
+if(bag!=="00" && mt!=="00"){
+
+localStorage.setItem("nextOpeningBag",bag);
+localStorage.setItem("nextOpeningMT",mt);
+localStorage.setItem("carryDate",today);
+
+}
+
+}
+
+alert("Saved ✔");
+}
+
+// LOAD CARRY
+function loadCarry(){
+
+let p=JSON.parse(localStorage.getItem("profile")||"{}");
+if(!p.carry) return;
+
+let bag=localStorage.getItem("nextOpeningBag");
+let mt=localStorage.getItem("nextOpeningMT");
+let d=localStorage.getItem("carryDate");
+
+let today=getFormDate();
+
+if(bag && mt && d && d!==today){
+
+openingBag.value=bag;
+openingMT.value=mt;
+
+closingBag.value="00";
+closingMT.value="00";
+
+localStorage.removeItem("nextOpeningBag");
+localStorage.removeItem("nextOpeningMT");
+localStorage.removeItem("carryDate");
+
+}
+}
+
+// WHATSAPP
+function send(){
+window.open("https://wa.me/?text="+encodeURIComponent(generate()));
+}
+
+// PDF
+function downloadPDF(){
+
+let {jsPDF}=window.jspdf;
+let doc=new jsPDF("p","mm","a4");
+
+let text=generate();
+
+// HEADER
+doc.setFontSize(14);
+doc.text("NBHC - National Bulk Handling Corporation",10,10);
+
+// BODY
+doc.setFontSize(10);
+let lines=doc.splitTextToSize(text,180);
+doc.text(lines,10,20);
+
+// QR
+let canvas=document.createElement("canvas");
+QRCode.toCanvas(canvas,text,function(){
+
+let img=canvas.toDataURL("image/png");
+doc.addImage(img,"PNG",150,220,40,40);
+
+doc.text("Verified by System (NBHC)",10,285);
+
+doc.save("NBHC_Report.pdf");
+});
+}
+
+// INIT
+document.getElementById("date").value=getDate();
+loadCarry();
+generate();
+
+</script>
+
+</body>
+</html>
