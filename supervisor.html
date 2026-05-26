@@ -267,36 +267,61 @@ Supervisor Report
 </div>
 
 <input id="date"
-placeholder="Date">
+type="date">
 
 <input id="openingBag"
+type="number"
+inputmode="numeric"
 placeholder="Opening Bag">
 
 <input id="openingMT"
+type="number"
+inputmode="decimal"
 placeholder="Opening MT">
 
 <input id="inBag"
+type="number"
+inputmode="numeric"
 placeholder="Inward Bag">
 
 <input id="inMT"
+type="number"
+inputmode="decimal"
 placeholder="Inward MT">
 
 <input id="closingBag"
+type="number"
+inputmode="numeric"
 placeholder="Closing Bag">
 
 <input id="closingMT"
+type="number"
+inputmode="decimal"
 placeholder="Closing MT">
 
 <input id="pala"
+type="number"
+inputmode="numeric"
 placeholder="Pala Bag">
 
 <input id="totalLorry"
+type="number"
+inputmode="numeric"
 placeholder="Total Lorry">
 
 <input id="inwardLorry"
+type="number"
+inputmode="numeric"
 placeholder="Inward Lorry">
 
+<input id="pendingLorry"
+type="number"
+inputmode="numeric"
+placeholder="Pending Lorry">
+
 <input id="rejectLorry"
+type="number"
+inputmode="numeric"
 placeholder="Reject Lorry">
 
 </div>
@@ -338,6 +363,26 @@ function getDate(){
 
 let d = new Date();
 
+return d.getFullYear()
++
+"-"
++
+String(d.getMonth()+1).padStart(2,'0')
++
+"-"
++
+String(d.getDate()).padStart(2,'0');
+
+}
+
+/* FORMAT DATE */
+
+function formatDate(date){
+
+if(!date) return "";
+
+let d = new Date(date);
+
 return String(d.getDate()).padStart(2,'0')
 +
 "/"
@@ -359,12 +404,6 @@ let num = parseFloat(v);
 if(isNaN(num))
 return "0.000";
 
-if(num > 10000){
-
-num = num / 1000;
-
-}
-
 return num.toFixed(3);
 
 }
@@ -377,7 +416,7 @@ return document.getElementById(id).value || "00";
 
 }
 
-/* LOAD DASHBOARD SETTINGS */
+/* LOAD SETTINGS */
 
 function loadDashboardSettings(){
 
@@ -442,8 +481,6 @@ localStorage.getItem(
 
 ) || {};
 
-/* PROFILE */
-
 document.getElementById(
 "warehouseName"
 ).innerText =
@@ -462,48 +499,39 @@ document.getElementById(
 
 p.supervisor || "Saurav Kumar";
 
-/* REPORTS */
-
 document.getElementById(
 "lastMsir"
 ).innerText =
-
 p.msir || "ND";
 
 document.getElementById(
 "lastFumigation"
 ).innerText =
-
 p.fumigation || "ND";
 
 document.getElementById(
 "lastDegassing"
 ).innerText =
-
 p.degassing || "ND";
 
 document.getElementById(
 "lastCleaning"
 ).innerText =
-
 p.cleaning || "ND";
 
 document.getElementById(
 "lastChr"
 ).innerText =
-
 p.chr || "ND";
 
 document.getElementById(
 "lastSpray"
 ).innerText =
-
 p.spray || "11/05/2026";
 
 document.getElementById(
 "lastAudit"
 ).innerText =
-
 p.audit || "ND";
 
 }
@@ -522,7 +550,7 @@ localStorage.getItem(
 
 let text =
 
-`DATE-${document.getElementById("date").value || getDate()}
+`DATE-${formatDate(document.getElementById("date").value)}
 
 WAREHOUSE NAME- ${p.whs}
 
@@ -556,6 +584,7 @@ LAST AUDIT - ${p.audit}
 
 TOTAL LORRY- ${val("totalLorry")}
 INWARD LORRY- ${val("inwardLorry")}
+PENDING LORRY- ${val("pendingLorry")}
 REJECT LORRY- ${val("rejectLorry")}
 
 WHS NAME - ${p.supervisor}`;
