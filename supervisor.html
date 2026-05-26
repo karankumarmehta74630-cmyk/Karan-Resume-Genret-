@@ -1,53 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NBHC Supervisor</title>
+
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0">
+
+<title>
+NBHC Supervisor
+</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#f4f6f9;}
-.container{padding:10px;max-width:500px;margin:auto;}
-.card{background:#fff;padding:12px;border-radius:12px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,0.1);}
-input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc;font-size:14px;}
-button{width:100%;padding:12px;margin-top:5px;border:none;border-radius:10px;background:#0a3d62;color:#fff;font-size:15px;}
-.preview{white-space:pre-line;background:#e8f5e9;padding:10px;border-radius:10px;font-size:13px;}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#f4f6f9;
+}
+
+/* HEADER */
+
+.header{
+background:#536DFE;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+color:white;
+box-shadow:0 2px 10px rgba(0,0,0,0.15);
+}
+
+.logo-box{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.logo{
+width:45px;
+height:45px;
+background:white;
+padding:5px;
+border-radius:10px;
+}
+
+.logo-name{
+font-size:22px;
+font-weight:700;
+}
+
+/* CONTAINER */
+
+.container{
+padding:12px;
+max-width:550px;
+margin:auto;
+}
+
+/* CARD */
+
+.card{
+background:white;
+padding:15px;
+border-radius:18px;
+margin-bottom:14px;
+box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+/* PROFILE */
+
+.profile{
+line-height:1.8;
+font-size:16px;
+}
+
+.profile b{
+color:#536DFE;
+}
+
+/* INPUT */
+
+input{
+width:100%;
+padding:14px;
+margin:7px 0;
+border-radius:12px;
+border:1px solid #ccc;
+font-size:15px;
+}
+
+/* BUTTON */
+
+button{
+width:100%;
+padding:14px;
+margin-top:10px;
+border:none;
+border-radius:14px;
+background:linear-gradient(90deg,#536DFE,#5c5fa8);
+color:white;
+font-size:18px;
+font-weight:600;
+}
+
+/* PREVIEW */
+
+.preview{
+white-space:pre-line;
+background:#f8f9ff;
+padding:15px;
+border-radius:14px;
+font-size:14px;
+line-height:1.7;
+border:1px solid #ddd;
+}
+
+/* TITLE */
+
+.title{
+font-size:22px;
+font-weight:700;
+margin-bottom:15px;
+color:#536DFE;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<div class="container">
+<!-- HEADER -->
 
-<div class="card">
+<div class="header">
 
-<input id="date" placeholder="Date (DD/MM/YYYY)">
-<input id="openingBag" placeholder="Opening Bag">
-<input id="openingMT" placeholder="Opening MT">
+<div class="logo-box">
 
-<input id="inBag" placeholder="Inward Bag">
-<input id="inMT" placeholder="Inward MT">
+<img src="https://i.ibb.co/svf7T4Kq/nbhclogo.png"
+class="logo">
 
-<input id="closingBag" placeholder="Closing Bag">
-<input id="closingMT" placeholder="Closing MT">
-
-<input id="pala" placeholder="Pala Bag">
-<input id="totalLorry" placeholder="Total Lorry">
-<input id="inwardLorry" placeholder="Inward Lorry">
-<input id="rejectLorry" placeholder="Reject Lorry">
+<div class="logo-name">
+NBHC Supervisor
+</div>
 
 </div>
 
+</div>
+
+<div class="container">
+
+<!-- PROFILE -->
+
 <div class="card">
 
-<div id="preview" class="preview"></div>
+<div class="title">
+Warehouse Profile
+</div>
 
-<button onclick="save()">Save</button>
-<button onclick="send()">WhatsApp</button>
-<button onclick="downloadPDF()">Download PDF</button>
+<div class="profile">
+
+<b>Warehouse :</b>
+<span id="warehouseName">
+Shanti Devi
+</span>
+
+<br>
+
+<b>Location :</b>
+<span id="locationName">
+Semapur
+</span>
+
+<br>
+
+<b>Supervisor :</b>
+<span id="supervisorName">
+Saurav Kumar
+</span>
+
+</div>
+
+</div>
+
+<!-- REPORT STATUS -->
+
+<div class="card">
+
+<div class="title">
+Warehouse Reports
+</div>
+
+<div class="profile">
+
+<b>LAST MSIR :</b>
+<span id="lastMsir">
+ND
+</span>
+
+<br>
+
+<b>LAST FUMIGATION :</b>
+<span id="lastFumigation">
+ND
+</span>
+
+<br>
+
+<b>LAST DEGASSING :</b>
+<span id="lastDegassing">
+ND
+</span>
+
+<br>
+
+<b>LAST CLEANING 🧹 :</b>
+<span id="lastCleaning">
+26/05/26
+</span>
+
+<br>
+
+<b>LAST CHR :</b>
+<span id="lastChr">
+ND
+</span>
+
+<br>
+
+<b>LAST SPRAY :</b>
+<span id="lastSpray">
+11/05/26
+</span>
+
+<br>
+
+<b>LAST AUDIT :</b>
+<span id="lastAudit">
+17/05/26
+</span>
+
+</div>
+
+</div>
+
+<!-- FORM -->
+
+<div class="card">
+
+<div class="title">
+Supervisor Report
+</div>
+
+<input id="date"
+placeholder="Date">
+
+<input id="openingBag"
+placeholder="Opening Bag">
+
+<input id="openingMT"
+placeholder="Opening MT">
+
+<input id="inBag"
+placeholder="Inward Bag">
+
+<input id="inMT"
+placeholder="Inward MT">
+
+<input id="closingBag"
+placeholder="Closing Bag">
+
+<input id="closingMT"
+placeholder="Closing MT">
+
+<input id="pala"
+placeholder="Pala Bag">
+
+<input id="totalLorry"
+placeholder="Total Lorry">
+
+<input id="inwardLorry"
+placeholder="Inward Lorry">
+
+<input id="rejectLorry"
+placeholder="Reject Lorry">
+
+</div>
+
+<!-- PREVIEW -->
+
+<div class="card">
+
+<div class="title">
+Preview
+</div>
+
+<div id="preview"
+class="preview">
+
+</div>
+
+<button onclick="save()">
+Save
+</button>
+
+<button onclick="send()">
+WhatsApp
+</button>
+
+<button onclick="downloadPDF()">
+Download PDF
+</button>
 
 </div>
 
@@ -55,44 +332,201 @@ button{width:100%;padding:12px;margin-top:5px;border:none;border-radius:10px;bac
 
 <script>
 
-// DATE AUTO
+/* DATE */
+
 function getDate(){
-let d=new Date();
-return String(d.getDate()).padStart(2,'0')+"/"+
-String(d.getMonth()+1).padStart(2,'0')+"/"+
+
+let d = new Date();
+
+return String(d.getDate()).padStart(2,'0')
++
+"/"
++
+String(d.getMonth()+1).padStart(2,'0')
++
+"/"
++
 d.getFullYear();
+
 }
 
-// FORM DATE
-function getFormDate(){
-return document.getElementById("date").value || getDate();
-}
+/* FORMAT MT */
 
-// MT FIX
 function formatMT(v){
-let num=parseFloat(v);
-if(isNaN(num)) return "0.000";
-if(num>10000){ num=num/1000; }
+
+let num = parseFloat(v);
+
+if(isNaN(num))
+return "0.000";
+
+if(num > 10000){
+
+num = num / 1000;
+
+}
+
 return num.toFixed(3);
+
 }
 
-// VALUE
+/* VALUE */
+
 function val(id){
+
 return document.getElementById(id).value || "00";
+
 }
 
-// GENERATE
+/* LOAD DASHBOARD SETTINGS */
+
+function loadDashboardSettings(){
+
+let d = JSON.parse(
+
+localStorage.getItem(
+"dashboardSettings"
+)
+
+) || {};
+
+let profile = {
+
+whs:
+d.warehouse || "SANTI DEVI",
+
+location:
+d.location || "SEMAPUR",
+
+supervisor:
+d.supervisor || "SAURAV KUMAR",
+
+spray:
+d.spray || "11/05/2026",
+
+msir:
+d.msir || "ND",
+
+fumigation:
+d.fumigation || "ND",
+
+degassing:
+d.degassing || "ND",
+
+cleaning:
+d.cleaning || "ND",
+
+chr:
+d.chr || "ND",
+
+audit:
+d.audit || "ND"
+
+};
+
+localStorage.setItem(
+"profile",
+JSON.stringify(profile)
+);
+
+}
+
+/* LOAD PROFILE */
+
+function loadProfile(){
+
+let p = JSON.parse(
+
+localStorage.getItem(
+"profile"
+)
+
+) || {};
+
+/* PROFILE */
+
+document.getElementById(
+"warehouseName"
+).innerText =
+
+p.whs || "Shanti Devi";
+
+document.getElementById(
+"locationName"
+).innerText =
+
+p.location || "Semapur";
+
+document.getElementById(
+"supervisorName"
+).innerText =
+
+p.supervisor || "Saurav Kumar";
+
+/* REPORTS */
+
+document.getElementById(
+"lastMsir"
+).innerText =
+
+p.msir || "ND";
+
+document.getElementById(
+"lastFumigation"
+).innerText =
+
+p.fumigation || "ND";
+
+document.getElementById(
+"lastDegassing"
+).innerText =
+
+p.degassing || "ND";
+
+document.getElementById(
+"lastCleaning"
+).innerText =
+
+p.cleaning || "ND";
+
+document.getElementById(
+"lastChr"
+).innerText =
+
+p.chr || "ND";
+
+document.getElementById(
+"lastSpray"
+).innerText =
+
+p.spray || "11/05/2026";
+
+document.getElementById(
+"lastAudit"
+).innerText =
+
+p.audit || "ND";
+
+}
+
+/* GENERATE */
+
 function generate(){
 
-let p=JSON.parse(localStorage.getItem("profile")||"{}");
-let d=getFormDate();
+let p = JSON.parse(
 
-let text=
-`DATE-${d}
+localStorage.getItem(
+"profile"
+)
 
-WAREHOUSE NAME- ${p.whs||"SANTI DEVI"}
+) || {};
 
-LOCATION- ${p.location||"SEMAPUR"}
+let text =
+
+`DATE-${document.getElementById("date").value || getDate()}
+
+WAREHOUSE NAME- ${p.whs}
+
+LOCATION- ${p.location}
 
 CLIENT-NAME-SHIV SHAKTI TRADERS
 
@@ -112,143 +546,193 @@ CLOSING MT- ${formatMT(val("closingMT"))}
 PALA BAG - ${val("pala")}
 CH-NO - GODOWN
 
-LAST MSIR -ND
-LAST FUMIGATION -ND
-LAST DEGASSING -ND
-LAST CLEANING 🧹 -ND
-LAST CHR -ND
-LAST SPARY - ${p.spray||"11/05/2026"}
-LAST AUDIT -ND
+LAST MSIR - ${p.msir}
+LAST FUMIGATION - ${p.fumigation}
+LAST DEGASSING - ${p.degassing}
+LAST CLEANING 🧹 - ${p.cleaning}
+LAST CHR - ${p.chr}
+LAST SPARY - ${p.spray}
+LAST AUDIT - ${p.audit}
 
 TOTAL LORRY- ${val("totalLorry")}
 INWARD LORRY- ${val("inwardLorry")}
 REJECT LORRY- ${val("rejectLorry")}
 
-WHS NAME - ${p.supervisor||"SAURAV KUMAR"}`;
+WHS NAME - ${p.supervisor}`;
 
-document.getElementById("preview").innerText=text;
+document.getElementById(
+"preview"
+).innerText = text;
+
 return text;
+
 }
 
-// AUTO UPDATE
+/* AUTO UPDATE */
+
 document.querySelectorAll("input").forEach(e=>{
-e.addEventListener("input",generate);
+
+e.addEventListener(
+"input",
+generate
+);
+
 });
 
-// SAVE SYSTEM
+/* SAVE */
+
 function save(){
 
-let text=generate();
-let today=getFormDate();
+let text = generate();
 
-// HISTORY
-let history=JSON.parse(localStorage.getItem("history")||"[]");
+let history = JSON.parse(
+
+localStorage.getItem(
+"history"
+)
+
+|| "[]");
+
 history.unshift(text);
-localStorage.setItem("history",JSON.stringify(history));
 
-// REPORT DATA
-let reports=JSON.parse(localStorage.getItem("reportsData")||"{}");
+localStorage.setItem(
+"history",
+JSON.stringify(history)
+);
 
-reports[today]={
-openingBag:val("openingBag"),
-openingMT:formatMT(val("openingMT")),
-inwardBag:val("inBag"),
-inwardMT:formatMT(val("inMT")),
-closingBag:val("closingBag"),
-closingMT:formatMT(val("closingMT"))
-};
-
-localStorage.setItem("reportsData",JSON.stringify(reports));
-
-// 🔁 CARRY FORWARD
-let p=JSON.parse(localStorage.getItem("profile")||"{}");
-
-if(p.carry){
-
-let bag=val("closingBag");
-let mt=val("closingMT");
-
-if(bag!=="00" && mt!=="00"){
-
-localStorage.setItem("nextOpeningBag",bag);
-localStorage.setItem("nextOpeningMT",mt);
-localStorage.setItem("carryDate",today);
+alert(
+"Saved Successfully ✔"
+);
 
 }
 
-}
+/* WHATSAPP */
 
-alert("Saved ✔");
-}
-
-// LOAD CARRY
-function loadCarry(){
-
-let p=JSON.parse(localStorage.getItem("profile")||"{}");
-if(!p.carry) return;
-
-let bag=localStorage.getItem("nextOpeningBag");
-let mt=localStorage.getItem("nextOpeningMT");
-let d=localStorage.getItem("carryDate");
-
-let today=getFormDate();
-
-if(bag && mt && d && d!==today){
-
-openingBag.value=bag;
-openingMT.value=mt;
-
-closingBag.value="00";
-closingMT.value="00";
-
-localStorage.removeItem("nextOpeningBag");
-localStorage.removeItem("nextOpeningMT");
-localStorage.removeItem("carryDate");
-
-}
-}
-
-// WHATSAPP
 function send(){
-window.open("https://wa.me/?text="+encodeURIComponent(generate()));
+
+window.open(
+
+"https://wa.me/?text="
++
+encodeURIComponent(
+generate()
+)
+
+);
+
 }
 
-// PDF
+/* PDF */
+
 function downloadPDF(){
 
-let {jsPDF}=window.jspdf;
-let doc=new jsPDF("p","mm","a4");
+let {jsPDF} = window.jspdf;
 
-let text=generate();
+let doc = new jsPDF();
 
-// HEADER
-doc.setFontSize(14);
-doc.text("NBHC - National Bulk Handling Corporation",10,10);
+let text = generate();
 
-// BODY
+/* HEADER */
+
+doc.addImage(
+"https://i.ibb.co/svf7T4Kq/nbhclogo.png",
+"PNG",
+10,
+8,
+18,
+18
+);
+
+doc.setFontSize(16);
+
+doc.text(
+"NBHC Supervisor Report",
+35,
+18
+);
+
 doc.setFontSize(10);
-let lines=doc.splitTextToSize(text,180);
-doc.text(lines,10,20);
 
-// QR
-let canvas=document.createElement("canvas");
-QRCode.toCanvas(canvas,text,function(){
+doc.text(
+"National Bulk Handling Corporation",
+35,
+25
+);
 
-let img=canvas.toDataURL("image/png");
-doc.addImage(img,"PNG",150,220,40,40);
+/* BODY */
 
-doc.text("Verified by System (NBHC)",10,285);
+doc.setFontSize(10);
 
-doc.save("NBHC_Report.pdf");
-});
+let lines = doc.splitTextToSize(
+text,
+180
+);
+
+doc.text(
+lines,
+10,
+40
+);
+
+/* QR */
+
+let canvas =
+document.createElement(
+"canvas"
+);
+
+QRCode.toCanvas(
+
+canvas,
+
+text,
+
+function(){
+
+let img =
+canvas.toDataURL(
+"image/png"
+);
+
+doc.addImage(
+img,
+"PNG",
+150,
+230,
+40,
+40
+);
+
+doc.text(
+"Verified by NBHC",
+10,
+285
+);
+
+doc.save(
+"NBHC_Supervisor_Report.pdf"
+);
+
 }
 
-// INIT
-document.getElementById("date").value=getDate();
-loadCarry();
+);
+
+}
+
+/* INIT */
+
+document.getElementById(
+"date"
+).value = getDate();
+
+loadDashboardSettings();
+
+loadProfile();
+
 generate();
 
 </script>
 
 </body>
+
 </html>
