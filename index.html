@@ -333,7 +333,7 @@ id="totalMT">
 
 </div>
 
-<!-- LAST REPORTS -->
+<!-- REPORTS -->
 
 <div class="card">
 
@@ -597,47 +597,86 @@ function saveSettings(){
 let data = {
 
 dashboard:
-dashboardInput.value,
+document.getElementById(
+"dashboardInput"
+).value,
 
 warehouse:
-warehouseInput.value,
+document.getElementById(
+"warehouseInput"
+).value,
 
 location:
-locationInput.value,
+document.getElementById(
+"locationInput"
+).value,
 
 supervisor:
-supervisorInput.value,
+document.getElementById(
+"supervisorInput"
+).value,
 
 msir:
-msirInput.value,
+document.getElementById(
+"msirInput"
+).value,
 
 fumigation:
-fumigationInput.value,
+document.getElementById(
+"fumigationInput"
+).value,
 
 degassing:
-degassingInput.value,
+document.getElementById(
+"degassingInput"
+).value,
 
 cleaning:
-cleaningInput.value,
+document.getElementById(
+"cleaningInput"
+).value,
 
 chr:
-chrInput.value,
+document.getElementById(
+"chrInput"
+).value,
 
 spray:
-sprayInput.value,
+document.getElementById(
+"sprayInput"
+).value,
 
 audit:
-auditInput.value
+document.getElementById(
+"auditInput"
+).value
 
 };
+
+/* SAVE ALL PAGES */
 
 localStorage.setItem(
 "dashboardSettings",
 JSON.stringify(data)
 );
 
+localStorage.setItem(
+"supervisorData",
+JSON.stringify(data)
+);
+
+localStorage.setItem(
+"analyzerData",
+JSON.stringify(data)
+);
+
+localStorage.setItem(
+"historyData",
+JSON.stringify(data)
+);
+
 alert(
-"Settings Saved"
+"All Pages Updated Successfully"
 );
 
 loadData();
@@ -649,10 +688,14 @@ loadData();
 function loadData(){
 
 let d = JSON.parse(
+
 localStorage.getItem(
 "dashboardSettings"
 )
+
 ) || {};
+
+/* DASHBOARD NAME */
 
 document.getElementById(
 "dashboardName"
@@ -660,6 +703,8 @@ document.getElementById(
 
 d.dashboard ||
 "NBHC Dashboard";
+
+/* WAREHOUSE */
 
 document.getElementById(
 "warehouse"
@@ -671,6 +716,8 @@ document.getElementById(
 +
 (d.location || "Semapur");
 
+/* SUPERVISOR */
+
 document.getElementById(
 "supervisor"
 ).innerText =
@@ -678,47 +725,77 @@ document.getElementById(
 d.supervisor ||
 "Saurav Kumar";
 
+/* REPORTS */
+
 document.getElementById(
 "msir"
 ).innerText =
-
 d.msir || "-";
 
 document.getElementById(
 "fumigation"
 ).innerText =
-
 d.fumigation || "-";
 
 document.getElementById(
 "degassing"
 ).innerText =
-
 d.degassing || "-";
 
 document.getElementById(
 "cleaning"
 ).innerText =
-
 d.cleaning || "-";
 
 document.getElementById(
 "chr"
 ).innerText =
-
 d.chr || "-";
 
 document.getElementById(
 "spray"
 ).innerText =
-
 d.spray || "-";
 
 document.getElementById(
 "audit"
 ).innerText =
-
 d.audit || "-";
+
+/* INPUT AUTO FILL */
+
+dashboardInput.value =
+d.dashboard || "";
+
+warehouseInput.value =
+d.warehouse || "";
+
+locationInput.value =
+d.location || "";
+
+supervisorInput.value =
+d.supervisor || "";
+
+msirInput.value =
+d.msir || "";
+
+fumigationInput.value =
+d.fumigation || "";
+
+degassingInput.value =
+d.degassing || "";
+
+cleaningInput.value =
+d.cleaning || "";
+
+chrInput.value =
+d.chr || "";
+
+sprayInput.value =
+d.spray || "";
+
+auditInput.value =
+d.audit || "";
 
 }
 
