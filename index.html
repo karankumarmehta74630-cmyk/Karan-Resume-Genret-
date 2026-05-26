@@ -2,94 +2,136 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>404 Page</title>
+<title>Secure 404 Page</title>
 
-<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css'>
-<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Arvo'>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 
-/*======================
-    404 page
-=======================*/
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Arvo', serif;
+}
 
 body{
     background:#fff;
     overflow:hidden;
 }
 
-.page_404{
-    padding:40px 0;
-    background:#fff;
-    font-family:'Arvo', serif;
-    min-height:100vh;
-    position:relative;
+/* DESKTOP BLOCK */
+
+.desktop{
+    display:none;
 }
 
-/* ANIMATED BACKGROUND LIGHT */
+@media(min-width:768px){
+
+.mobile{
+    display:none;
+}
+
+.desktop{
+    width:100%;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    font-size:35px;
+    font-weight:bold;
+    padding:20px;
+    background:#fff;
+}
+
+}
+
+/* MAIN PAGE */
+
+.page_404{
+    width:100%;
+    min-height:100vh;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    padding:20px;
+}
+
+/* LIGHT EFFECT */
 
 .page_404::before{
     content:'';
     position:absolute;
-    width:350px;
-    height:350px;
+    width:260px;
+    height:260px;
     background:rgba(57,172,49,0.08);
     border-radius:50%;
-    top:-100px;
-    left:-100px;
-    animation:move1 6s infinite alternate;
+    top:-80px;
+    left:-80px;
+    animation:move1 5s infinite alternate;
 }
 
 .page_404::after{
     content:'';
     position:absolute;
-    width:300px;
-    height:300px;
+    width:240px;
+    height:240px;
     background:rgba(0,123,255,0.08);
     border-radius:50%;
-    bottom:-100px;
-    right:-100px;
-    animation:move2 6s infinite alternate;
+    bottom:-80px;
+    right:-80px;
+    animation:move2 5s infinite alternate;
 }
 
 @keyframes move1{
     100%{
-        transform:translate(60px,40px);
+        transform:translate(40px,30px);
     }
 }
 
 @keyframes move2{
     100%{
-        transform:translate(-60px,-40px);
+        transform:translate(-40px,-30px);
     }
 }
 
-/* GIF AREA */
+/* CONTENT */
 
-.four_zero_four_bg{
+.content{
+    position:relative;
+    z-index:10;
+    text-align:center;
+    padding-top:25px;
+}
 
-    background-image:url(https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif);
-    height:400px;
+/* GIF */
+
+.gif{
+    width:100%;
+    height:260px;
+    background:url('https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif');
     background-position:center;
     background-repeat:no-repeat;
-    position:relative;
+    background-size:contain;
     animation:float 4s infinite ease-in-out;
 }
 
 @keyframes float{
     50%{
-        transform:translateY(-10px);
+        transform:translateY(-8px);
     }
 }
 
-/* 404 TEXT */
+/* TEXT */
 
-.four_zero_four_bg h1{
-    font-size:90px;
+.error{
+    font-size:75px;
     font-weight:bold;
-    color:#000;
+    color:#111;
     animation:zoom 2s infinite alternate;
 }
 
@@ -99,65 +141,18 @@ body{
     }
 }
 
-.four_zero_four_bg h3{
-    font-size:80px;
-}
-
-/* CONTENT BOX */
-
-.contant_box_404{
-    margin-top:-50px;
-    position:relative;
-    z-index:10;
-}
-
-.contant_box_404 h3{
-    font-size:38px;
+.title{
+    font-size:30px;
     font-weight:bold;
     color:#111;
+    margin-top:5px;
 }
 
-.contant_box_404 p{
+.desc{
+    margin-top:15px;
     color:#555;
-    font-size:18px;
-    margin-top:10px;
-}
-
-/* SUPPORT BOX */
-
-.support-box{
-    margin-top:20px;
-    display:inline-block;
-    background:#f5f5f5;
-    padding:14px 25px;
-    border-radius:15px;
-    border:1px solid #ddd;
     font-size:16px;
-    color:#111;
-    font-weight:600;
-    box-shadow:0 5px 15px rgba(0,0,0,0.05);
-}
-
-/* BUTTON */
-
-.link_404{
-
-    color:#fff!important;
-    padding:14px 35px;
-    background:#39ac31;
-    margin-top:25px;
-    display:inline-block;
-    border-radius:50px;
-    text-decoration:none;
-    font-size:17px;
-    transition:0.3s;
-    box-shadow:0 10px 20px rgba(57,172,49,0.3);
-}
-
-.link_404:hover{
-    background:#2f8f28;
-    transform:translateY(-5px);
-    text-decoration:none;
+    line-height:1.7;
 }
 
 /* STATUS */
@@ -165,6 +160,7 @@ body{
 .status{
     margin-top:15px;
     color:#ff3b30;
+    font-size:15px;
     font-weight:bold;
     animation:blink 1.5s infinite;
 }
@@ -175,91 +171,226 @@ body{
     }
 }
 
-/* MOBILE */
+/* INFO BOX */
 
-@media(max-width:768px){
-
-.four_zero_four_bg h1{
-    font-size:65px;
+.info-box{
+    margin-top:20px;
+    background:#f7f7f7;
+    border:1px solid #ddd;
+    border-radius:18px;
+    padding:18px;
+    text-align:left;
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
 }
 
-.contant_box_404 h3{
-    font-size:28px;
-}
-
-.contant_box_404 p{
-    font-size:15px;
-}
-
-.support-box{
-    width:100%;
+.info-box div{
+    margin:10px 0;
     font-size:14px;
+    color:#222;
 }
+
+/* BUTTON */
 
 .link_404{
     width:100%;
+    display:block;
+    margin-top:25px;
+    padding:15px;
+    border-radius:50px;
+    text-decoration:none;
+    background:#39ac31;
+    color:#fff;
+    font-size:17px;
+    font-weight:bold;
+    transition:0.3s;
+    border:none;
+    box-shadow:0 10px 20px rgba(57,172,49,0.25);
 }
 
+.link_404:hover{
+    background:#2f8f28;
+}
+
+/* SUPPORT */
+
+.support{
+    margin-top:18px;
+    font-size:14px;
+    color:#333;
+    line-height:1.7;
+}
+
+/* ACCESS BLOCK */
+
+.block{
+    display:none;
+    margin-top:20px;
+    background:#ffebee;
+    color:#c62828;
+    padding:15px;
+    border-radius:15px;
+    font-size:15px;
+    font-weight:bold;
+    border:1px solid #ef9a9a;
+}
+
+.success{
+    display:none;
+    margin-top:20px;
+    background:#e8f5e9;
+    color:#2e7d32;
+    padding:15px;
+    border-radius:15px;
+    font-size:15px;
+    font-weight:bold;
+    border:1px solid #a5d6a7;
 }
 
 </style>
-
 </head>
 
 <body>
 
+<!-- DESKTOP BLOCK -->
+
+<div class="desktop">
+    This Website Is Available Only On Mobile Devices
+</div>
+
+<!-- MOBILE -->
+
+<div class="mobile">
+
 <section class="page_404">
 
-    <div class="container">
+<div class="content">
 
-        <div class="row">
+<div class="gif"></div>
 
-            <div class="col-sm-12">
+<div class="error">404</div>
 
-                <div class="col-sm-10 col-sm-offset-1 text-center">
+<div class="title">
+    Secure Access Verification
+</div>
 
-                    <div class="four_zero_four_bg">
+<div class="desc">
+    Device Network Verification Required<br>
+    Access allowed only for matched mobile network.
+</div>
 
-                        <h1 class="text-center">404</h1>
+<div class="status">
+    Developer Is Busy Right Now
+</div>
 
-                    </div>
+<!-- INFO -->
 
-                    <div class="contant_box_404">
+<div class="info-box">
 
-                        <h3 class="h2">
-                            Looks Like You're Lost
-                        </h3>
+<div>
+<b>Your Device :</b>
+<span id="device"></span>
+</div>
 
-                        <p>
-                            The page you are looking for is not available or temporarily removed.
-                        </p>
+<div>
+<b>Your IP Address :</b>
+<span id="ip1">Loading...</span>
+</div>
 
-                        <div class="status">
-                            Developer Is Busy Right Now
-                        </div>
+<div>
+<b>Network IP :</b>
+<span id="ip2">Loading...</span>
+</div>
 
-                        <div class="support-box">
-                            📧 Contact Support :
-                            karankumarmehta74630@gmail.com
-                        </div>
+<div>
+<b>Verification :</b>
+<span id="verifyText">Checking...</span>
+</div>
 
-                        <br>
+</div>
 
-                        <a href="#" class="link_404">
-                            Go To Home
-                        </a>
+<!-- SUCCESS -->
 
-                    </div>
+<div class="success" id="successBox">
+✅ Verified Successfully — Access Granted
+</div>
 
-                </div>
+<!-- BLOCK -->
 
-            </div>
+<div class="block" id="blockBox">
+❌ Network Verification Failed — Access Denied
+</div>
 
-        </div>
+<button class="link_404" onclick="checkIP()">
+Verify Secure Access
+</button>
 
-    </div>
+<div class="support">
+<b>Contact Support :</b><br>
+karankumarmehta74630@gmail.com
+</div>
+
+</div>
 
 </section>
+
+</div>
+
+<script>
+
+/* DEVICE */
+
+document.getElementById("device").innerHTML =
+navigator.userAgent.includes("Android")
+? "Android Mobile"
+: "Mobile Device";
+
+/* RANDOM IP */
+
+function randomIP(){
+
+return Math.floor(Math.random()*255)+"."+
+       Math.floor(Math.random()*255)+"."+
+       Math.floor(Math.random()*255)+"."+
+       Math.floor(Math.random()*255);
+
+}
+
+/* SIMULATED IP */
+
+let userIP = randomIP();
+let networkIP = Math.random() > 0.5 ? userIP : randomIP();
+
+document.getElementById("ip1").innerHTML = userIP;
+document.getElementById("ip2").innerHTML = networkIP;
+
+/* VERIFY */
+
+function checkIP(){
+
+let success = document.getElementById("successBox");
+let block = document.getElementById("blockBox");
+
+if(userIP === networkIP){
+
+document.getElementById("verifyText").innerHTML =
+"Matched Successfully";
+
+success.style.display = "block";
+block.style.display = "none";
+
+}else{
+
+document.getElementById("verifyText").innerHTML =
+"Verification Failed";
+
+block.style.display = "block";
+success.style.display = "none";
+
+}
+
+}
+
+</script>
 
 </body>
 </html>
