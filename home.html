@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Developer Secure Access</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Arvo', serif;
+}
+
+body{
+background:#fff;
+overflow-x:hidden;
+}
+
+/* DESKTOP BLOCK */
+
+.desktop{
+display:none;
+}
+
+@media(min-width:768px){
+
+.mobile{
+display:none;
+}
+
+.desktop{
+width:100%;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#fff;
+font-size:32px;
+font-weight:bold;
+text-align:center;
+color:#111;
+padding:20px;
+}
+
+}
+
+/* MAIN PAGE */
+
+.page_404{
+width:100%;
+min-height:100vh;
+background:#fff;
+position:relative;
+overflow:hidden;
+padding:20px;
+}
+
+/* LIGHT EFFECT */
+
+.page_404::before{
+content:'';
+position:absolute;
+width:240px;
+height:240px;
+background:rgba(57,172,49,0.08);
+border-radius:50%;
+top:-80px;
+left:-80px;
+animation:move1 6s infinite alternate;
+}
+
+.page_404::after{
+content:'';
+position:absolute;
+width:220px;
+height:220px;
+background:rgba(0,123,255,0.08);
+border-radius:50%;
+bottom:-80px;
+right:-80px;
+animation:move2 6s infinite alternate;
+}
+
+@keyframes move1{
+100%{
+transform:translate(40px,30px);
+}
+}
+
+@keyframes move2{
+100%{
+transform:translate(-40px,-30px);
+}
+}
+
+/* CONTENT */
+
+.content{
+position:relative;
+z-index:10;
+text-align:center;
+padding-top:10px;
+}
+
+/* GIF */
+
+.gif{
+width:100%;
+height:220px;
+background:url('https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif');
+background-position:center;
+background-repeat:no-repeat;
+background-size:contain;
+animation:float 4s infinite ease-in-out;
+}
+
+@keyframes float{
+50%{
+transform:translateY(-10px);
+}
+}
+
+/* TEXT */
+
+.error{
+font-size:75px;
+font-weight:bold;
+color:#111;
+animation:zoom 2s infinite alternate;
+}
+
+@keyframes zoom{
+100%{
+transform:scale(1.05);
+}
+}
+
+.title{
+font-size:28px;
+font-weight:bold;
+color:#111;
+margin-top:5px;
+}
+
+.desc{
+margin-top:15px;
+color:#555;
+font-size:15px;
+line-height:1.7;
+}
+
+/* STATUS */
+
+.status{
+margin-top:15px;
+color:#ff3b30;
+font-size:15px;
+font-weight:bold;
+animation:blink 1.5s infinite;
+}
+
+@keyframes blink{
+50%{
+opacity:0.5;
+}
+}
+
+/* INFO BOX */
+
+.info-box{
+margin-top:20px;
+background:#f7f7f7;
+border:1px solid #ddd;
+border-radius:18px;
+padding:18px;
+text-align:left;
+box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+.info-box div{
+margin:12px 0;
+font-size:14px;
+color:#222;
+word-break:break-word;
+}
+
+/* CARDS */
+
+.card{
+margin-top:20px;
+background:#fff;
+border:1px solid #ddd;
+border-radius:18px;
+padding:20px;
+box-shadow:0 5px 15px rgba(0,0,0,0.05);
+text-align:left;
+}
+
+.card h2{
+font-size:22px;
+margin-bottom:15px;
+color:#111;
+}
+
+.card p{
+font-size:14px;
+line-height:1.8;
+color:#444;
+margin-top:8px;
+}
+
+.card ul{
+padding-left:18px;
+}
+
+.card li{
+margin:10px 0;
+font-size:14px;
+line-height:1.7;
+color:#444;
+}
+
+/* BUTTON */
+
+.link_404{
+width:100%;
+display:block;
+margin-top:25px;
+padding:15px;
+border-radius:50px;
+text-decoration:none;
+background:#39ac31;
+color:#fff;
+font-size:17px;
+font-weight:bold;
+transition:0.3s;
+border:none;
+box-shadow:0 10px 20px rgba(57,172,49,0.25);
+}
+
+.link_404:hover{
+background:#2f8f28;
+}
+
+/* DASHBOARD BUTTON */
+
+.dashboard-btn{
+background:#007bff;
+box-shadow:0 10px 20px rgba(0,123,255,0.25);
+}
+
+.dashboard-btn:hover{
+background:#0056b3;
+}
+
+/* SUCCESS */
+
+.success{
+display:none;
+margin-top:20px;
+background:#e8f5e9;
+color:#2e7d32;
+padding:15px;
+border-radius:15px;
+font-size:15px;
+font-weight:bold;
+border:1px solid #a5d6a7;
+}
+
+/* SUPPORT */
+
+.support{
+margin-top:18px;
+font-size:14px;
+color:#333;
+line-height:1.8;
+}
+
+.support b{
+color:#111;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- DESKTOP -->
+
+<div class="desktop">
+This Website Is Available Only On Mobile Devices
+</div>
+
+<!-- MOBILE -->
+
+<div class="mobile">
+
+<section class="page_404">
+
+<div class="content">
+
+<div class="gif"></div>
+
+<div class="error">404</div>
+
+<div class="title">
+Developer Secure Access
+</div>
+
+<div class="desc">
+Secure Mobile Verification Required.<br>
+Only verified users can continue to dashboard.
+</div>
+
+<div class="status">
+Developer Is Busy Right Now
+</div>
+
+<!-- INFO -->
+
+<div class="info-box">
+
+<div>
+<b>📱 Device :</b>
+<span id="device"></span>
+</div>
+
+<div>
+<b>🌐 IPv4 Address :</b>
+<span id="ipv4">Loading...</span>
+</div>
+
+<div>
+<b>🛰 IPv6 Address :</b>
+<span id="ipv6">Loading...</span>
+</div>
+
+<div>
+<b>🖥 Browser :</b>
+<span id="browser"></span>
+</div>
+
+<div>
+<b>🔒 Verification :</b>
+<span id="verifyText">Checking...</span>
+</div>
+
+<div>
+<b>🕒 Time :</b>
+<span id="time"></span>
+</div>
+
+</div>
+
+<!-- SUCCESS -->
+
+<div class="success" id="successBox">
+✅ Secure Verification Successful — Access Granted
+</div>
+
+<!-- VERIFY BUTTON -->
+
+<button class="link_404" onclick="verifyUser()">
+Verify Secure Access
+</button>
+
+<!-- DASHBOARD BUTTON -->
+
+<button class="link_404 dashboard-btn"
+onclick="openDashboard()">
+Go To Dashboard
+</button>
+
+<!-- DEVELOPER INFO -->
+
+<div class="card">
+
+<h2>👨‍💻 Developer Information</h2>
+
+<p><b>Name :</b> Karan Kumar</p>
+
+<p><b>Role :</b> Frontend & Mobile Web Developer</p>
+
+<p><b>Email :</b> karankumarmehta74630@gmail.com</p>
+
+<p>
+<b>Speciality :</b>
+Modern UI Design, Secure Mobile Websites,
+Professional Dashboard Systems, 404 Security Pages,
+Animated Interfaces & Advanced HTML Apps.
+</p>
+
+<p>
+<b>Experience :</b>
+Building responsive mobile-friendly systems
+with security verification and professional layouts.
+</p>
+
+</div>
+
+<!-- ABOUT APP -->
+
+<div class="card">
+
+<h2>📱 About This Application</h2>
+
+<ul>
+
+<li>Secure Mobile Verification System</li>
+
+<li>Live IPv4 & IPv6 Detection</li>
+
+<li>Animated Professional 404 Interface</li>
+
+<li>Dashboard Access Verification</li>
+
+<li>Responsive Mobile UI Design</li>
+
+<li>Modern White Theme Security Page</li>
+
+<li>Fast Lightweight HTML Application</li>
+
+<li>Advanced Browser & Device Detection</li>
+
+</ul>
+
+</div>
+
+<!-- SUPPORT -->
+
+<div class="support">
+
+<b>📧 Support Contact :</b><br>
+karankumarmehta74630@gmail.com
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+<script>
+
+/* DEVICE CHECK */
+
+if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+
+document.getElementById("device").innerHTML =
+"Mobile Device Verified";
+
+}else{
+
+document.body.innerHTML =
+"<div style='display:flex;justify-content:center;align-items:center;height:100vh;font-size:30px;font-weight:bold;background:white;'>Mobile Access Only</div>";
+
+}
+
+/* BROWSER */
+
+document.getElementById("browser").innerHTML =
+navigator.userAgent;
+
+/* TIME */
+
+function updateTime(){
+
+let now = new Date();
+
+document.getElementById("time").innerHTML =
+now.toLocaleString();
+
+}
+
+setInterval(updateTime,1000);
+
+updateTime();
+
+/* IPV4 */
+
+async function getIPv4(){
+
+try{
+
+const response =
+await fetch("https://api.ipify.org?format=json");
+
+const data = await response.json();
+
+document.getElementById("ipv4").innerHTML =
+data.ip;
+
+}catch{
+
+document.getElementById("ipv4").innerHTML =
+"Unavailable";
+
+}
+
+}
+
+/* IPV6 */
+
+async function getIPv6(){
+
+try{
+
+const response =
+await fetch("https://api64.ipify.org?format=json");
+
+const data = await response.json();
+
+document.getElementById("ipv6").innerHTML =
+data.ip;
+
+}catch{
+
+document.getElementById("ipv6").innerHTML =
+"IPv6 Not Available";
+
+}
+
+}
+
+/* LOAD IPS */
+
+async function loadIPs(){
+
+await getIPv4();
+await getIPv6();
+
+document.getElementById("verifyText").innerHTML =
+"Secure Connection Ready";
+
+}
+
+loadIPs();
+
+/* VERIFY */
+
+function verifyUser(){
+
+document.getElementById("verifyText").innerHTML =
+"Matched Successfully";
+
+document.getElementById("successBox").style.display =
+"block";
+
+}
+
+/* DASHBOARD */
+
+function openDashboard(){
+
+alert("Dashboard Access Granted");
+
+window.location.href = "dashboard.html";
+
+}
+
+</script>
+
+</body>
+</html>
