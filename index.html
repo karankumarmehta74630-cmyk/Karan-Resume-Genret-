@@ -7,9 +7,7 @@
 
 <meta name="viewport"
 content="width=device-width,
-initial-scale=1.0,
-maximum-scale=1.0,
-user-scalable=no">
+initial-scale=1.0">
 
 <title>
 NBHC Dashboard
@@ -25,41 +23,32 @@ margin:0;
 padding:0;
 box-sizing:border-box;
 font-family:'Poppins',sans-serif;
--webkit-tap-highlight-color:transparent;
 }
 
 body{
-background:#f2f3f8;
+background:#f4f6f9;
 overflow-x:hidden;
 }
 
 /* HEADER */
 
 .header{
-height:70px;
 background:#536DFE;
+padding:15px;
 display:flex;
-align-items:center;
 justify-content:space-between;
-padding:0 15px;
+align-items:center;
+color:white;
 position:sticky;
 top:0;
 z-index:1000;
-color:white;
 box-shadow:0 2px 10px rgba(0,0,0,0.2);
 }
 
-.menu-btn{
-font-size:34px;
-cursor:pointer;
-}
-
-.header-title{
-font-size:24px;
-font-weight:700;
+.logo-box{
 display:flex;
 align-items:center;
-gap:10px;
+gap:12px;
 }
 
 .logo{
@@ -70,130 +59,59 @@ padding:5px;
 border-radius:10px;
 }
 
-/* SIDEBAR */
-
-.sidebar{
-position:fixed;
-top:0;
-left:-320px;
-width:290px;
-height:100%;
-background:white;
-z-index:9999;
-transition:0.3s;
-overflow:auto;
+.logo-name{
+font-size:22px;
+font-weight:700;
 }
 
-.sidebar.active{
-left:0;
-}
-
-.overlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.45);
-display:none;
-z-index:999;
-}
-
-.overlay.active{
-display:block;
-}
-
-.sidebar-top{
-background:#536DFE;
-padding:25px;
-color:white;
+.settings{
 font-size:28px;
-font-weight:700;
+cursor:pointer;
 }
 
-.menu-item{
-padding:18px 20px;
-display:flex;
-align-items:center;
-gap:15px;
-font-size:20px;
-border-bottom:1px solid #eee;
-}
+/* CONTAINER */
 
-/* BANNER */
-
-.banner{
-background:linear-gradient(90deg,#d45a88,#5c5fa8);
-padding:18px 10px;
-display:flex;
-justify-content:space-between;
-color:white;
-}
-
-.banner-box{
-flex:1;
-text-align:center;
-}
-
-.banner-box h1{
-font-size:42px;
-font-weight:700;
-}
-
-/* PROFILE */
-
-.profile-card{
-background:white;
-margin:12px;
-padding:15px;
-border-radius:20px;
-display:flex;
-gap:15px;
-box-shadow:0 2px 10px rgba(0,0,0,0.08);
-}
-
-.avatar{
-width:85px;
-height:85px;
-border-radius:50%;
-background:linear-gradient(180deg,#5c5fa8,#d45a88);
-display:flex;
-align-items:center;
-justify-content:center;
-color:white;
-font-size:32px;
-font-weight:700;
-}
-
-.profile-info{
-flex:1;
-}
-
-.profile-info h2{
-font-size:20px;
-margin-bottom:10px;
+.container{
+padding:12px;
+max-width:550px;
+margin:auto;
 }
 
 /* CARD */
 
 .card{
 background:white;
-margin:12px;
+border-radius:18px;
 padding:18px;
-border-radius:20px;
-box-shadow:0 2px 10px rgba(0,0,0,0.08);
+margin-bottom:14px;
+box-shadow:0 3px 10px rgba(0,0,0,0.08);
+animation:fadeUp 0.5s ease;
+}
+
+@keyframes fadeUp{
+
+from{
+opacity:0;
+transform:translateY(10px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
 }
 
 .title{
-font-size:15px;
+font-size:14px;
 color:#777;
-margin-bottom:8px;
+margin-bottom:5px;
 }
 
 .value{
 font-size:22px;
 font-weight:700;
-color:#536DFE;
+color:#0a3d62;
 }
 
 /* GRID */
@@ -204,31 +122,32 @@ grid-template-columns:1fr 1fr;
 gap:12px;
 }
 
-/* TASK */
+/* STATUS */
 
-.task-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-padding:12px;
+.status-box{
+background:#f8f9ff;
+padding:14px;
+border-radius:14px;
+margin-top:10px;
 }
 
-.task-btn{
-background:#536DFE;
-color:white;
-padding:20px 10px;
-border-radius:18px;
-text-align:center;
+.status-title{
+font-size:15px;
+color:#666;
+}
+
+.status-value{
 font-size:18px;
-font-weight:600;
-cursor:pointer;
+font-weight:700;
+color:#536DFE;
+margin-top:4px;
 }
 
 /* BUTTON */
 
 button{
 width:100%;
-padding:15px;
+padding:14px;
 margin-top:10px;
 border:none;
 border-radius:14px;
@@ -238,24 +157,48 @@ font-size:18px;
 font-weight:600;
 }
 
-/* STATUS */
+/* PANEL */
 
-.status-row{
-padding:12px 0;
-border-bottom:1px solid #eee;
-font-size:17px;
-display:flex;
-justify-content:space-between;
-gap:10px;
+#panel{
+position:fixed;
+top:0;
+right:-100%;
+width:90%;
+max-width:380px;
+height:100%;
+background:white;
+padding:18px;
+overflow:auto;
+transition:0.3s;
+z-index:9999;
+box-shadow:-5px 0 15px rgba(0,0,0,0.2);
 }
 
-/* FOOTER */
+#panel.active{
+right:0;
+}
 
-.footer{
-text-align:center;
-padding:20px;
+.panel-title{
+font-size:28px;
+font-weight:700;
+margin-bottom:20px;
+color:#536DFE;
+}
+
+label{
 font-size:15px;
-color:#777;
+font-weight:600;
+display:block;
+margin-top:12px;
+margin-bottom:5px;
+}
+
+input{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:16px;
 }
 
 </style>
@@ -264,140 +207,43 @@ color:#777;
 
 <body>
 
-<!-- SIDEBAR -->
-
-<div class="sidebar"
-id="sidebar">
-
-<div class="sidebar-top">
-NBHC Dashboard
-</div>
-
-<div class="menu-item">🏠 Home</div>
-<div class="menu-item"
-onclick="openPage('supervisor.html')">
-
-👨‍💼 Supervisor
-
-</div>
-
-<div class="menu-item"
-onclick="openPage('analyzer.html')">
-
-📊 Analyzer
-
-</div>
-
-<div class="menu-item"
-onclick="openPage('history.html')">
-
-📜 History
-
-</div>
-
-<div class="menu-item">📋 Reports</div>
-<div class="menu-item">⚙️ Settings</div>
-
-</div>
-
-<div class="overlay"
-id="overlay"
-onclick="closeSidebar()">
-
-</div>
-
 <!-- HEADER -->
 
 <div class="header">
 
-<div class="menu-btn"
-onclick="openSidebar()">
-
-☰
-
-</div>
-
-<div class="header-title">
+<div class="logo-box">
 
 <img src="https://i.ibb.co/svf7T4Kq/nbhclogo.png"
 class="logo">
 
-NBHC
+<div class="logo-name"
+id="dashboardName">
 
-</div>
-
-<div style="font-size:24px;">
-🏢
-</div>
-
-</div>
-
-<!-- BANNER -->
-
-<div class="banner">
-
-<div class="banner-box">
-<p>Yesterday</p>
-<h1>00</h1>
-</div>
-
-<div class="banner-box">
-<p>Rank</p>
-<h1>01</h1>
-</div>
-
-<div class="banner-box">
-<p>Score</p>
-<h1>99</h1>
-</div>
-
-</div>
-
-<!-- PROFILE -->
-
-<div class="profile-card">
-
-<div class="avatar"
-id="avatarLogo">
-
-AK
-
-</div>
-
-<div class="profile-info">
-
-<h2 id="supName">
-Anil Kumar
-</h2>
-
-<p>
-👨‍💼 Supervisor Dashboard
-</p>
-
-<br>
-
-<div style="
-display:flex;
-gap:20px;
-color:#536DFE;
-font-size:17px;">
-
-<div>🏠 Warehouse</div>
-
-<div>📦 Stock</div>
+NBHC Dashboard
 
 </div>
 
 </div>
 
+<div class="settings"
+onclick="togglePanel()">
+
+⚙️
+
 </div>
 
-<!-- DATE -->
+</div>
+
+<!-- MAIN -->
+
+<div class="container">
+
+<!-- DATE TIME -->
 
 <div class="card">
 
 <div class="title">
-📅 Date & Time
+Date & Time
 </div>
 
 <div class="value"
@@ -417,11 +263,11 @@ id="time">
 <div class="card">
 
 <div class="title">
-🏠 Warehouse
+Warehouse
 </div>
 
 <div class="value"
-id="whs">
+id="warehouse">
 
 Shanti Devi - Semapur
 
@@ -430,100 +276,263 @@ Shanti Devi - Semapur
 <div class="title"
 style="margin-top:10px;">
 
-👨‍💼 Supervisor
+Supervisor
 
 </div>
 
 <div class="value"
-id="sup">
+id="supervisor">
 
-Anil Kumar
-
-</div>
+Saurav Kumar
 
 </div>
 
-<!-- STATUS -->
+</div>
+
+<!-- TOTAL -->
 
 <div class="card">
 
 <div class="title">
-📅 Supervisor Status
+Total Stock
 </div>
 
-<div class="status-row">
-<span>📄 LAST MSIR</span>
-<span id="showMsir">--</span>
+<div class="grid">
+
+<div class="status-box">
+
+<div class="status-title">
+Total Bag
 </div>
 
-<div class="status-row">
-<span>🧪 LAST FUMIGATION</span>
-<span id="showFumigation">--</span>
+<div class="status-value"
+id="totalBag">
+
+0
+
 </div>
 
-<div class="status-row">
-<span>💨 LAST DEGASSING</span>
-<span id="showDegassing">--</span>
 </div>
 
-<div class="status-row">
-<span>🧹 LAST CLEANING</span>
-<span id="showCleaning">--</span>
+<div class="status-box">
+
+<div class="status-title">
+Total MT
 </div>
 
-<div class="status-row">
-<span>📋 LAST CHR</span>
-<span id="showChr">--</span>
+<div class="status-value"
+id="totalMT">
+
+0.000
+
 </div>
 
-<div class="status-row">
-<span>🪳 LAST SPRAY</span>
-<span id="showSpray">--</span>
 </div>
 
-<div class="status-row">
-<span>✅ LAST AUDIT</span>
-<span id="showAudit">--</span>
+</div>
+
+</div>
+
+<!-- LAST REPORTS -->
+
+<div class="card">
+
+<div class="title">
+Warehouse Reports
+</div>
+
+<div class="grid">
+
+<div class="status-box">
+<div class="status-title">
+LAST MSIR
+</div>
+<div class="status-value"
+id="msir">
+-
+</div>
+</div>
+
+<div class="status-box">
+<div class="status-title">
+LAST FUMIGATION
+</div>
+<div class="status-value"
+id="fumigation">
+-
+</div>
+</div>
+
+<div class="status-box">
+<div class="status-title">
+LAST DEGASSING
+</div>
+<div class="status-value"
+id="degassing">
+-
+</div>
+</div>
+
+<div class="status-box">
+<div class="status-title">
+LAST CLEANING 🧹
+</div>
+<div class="status-value"
+id="cleaning">
+26/05/26
+</div>
+</div>
+
+<div class="status-box">
+<div class="status-title">
+LAST CHR
+</div>
+<div class="status-value"
+id="chr">
+-
+</div>
+</div>
+
+<div class="status-box">
+<div class="status-title">
+LAST SPRAY
+</div>
+<div class="status-value"
+id="spray">
+11/05/26
+</div>
+</div>
+
+<div class="status-box">
+<div class="status-title">
+LAST AUDIT
+</div>
+<div class="status-value"
+id="audit">
+17/05/26
+</div>
+</div>
+
 </div>
 
 </div>
 
 <!-- NAVIGATION -->
 
-<div class="task-grid">
+<div class="card">
 
-<div class="task-btn">
+<button onclick="go('home.html')">
 🏠 Home
-</div>
+</button>
 
-<div class="task-btn"
-onclick="openPage('supervisor.html')">
-
+<button onclick="go('supervisor.html')">
 👨‍💼 Supervisor
+</button>
 
-</div>
-
-<div class="task-btn"
-onclick="openPage('analyzer.html')">
-
+<button onclick="go('analyzer.html')">
 📊 Analyzer
+</button>
 
-</div>
-
-<div class="task-btn"
-onclick="openPage('history.html')">
-
+<button onclick="go('history.html')">
 📜 History
+</button>
 
 </div>
 
 </div>
 
-<!-- FOOTER -->
+<!-- SETTINGS PANEL -->
 
-<div class="footer">
+<div id="panel">
 
-© NBHC Official Dashboard
+<div class="panel-title">
+Dashboard Settings
+</div>
+
+<label>
+Dashboard Name
+</label>
+
+<input id="dashboardInput"
+placeholder="NBHC Dashboard">
+
+<label>
+Warehouse Name
+</label>
+
+<input id="warehouseInput"
+placeholder="Shanti Devi">
+
+<label>
+Location
+</label>
+
+<input id="locationInput"
+placeholder="Semapur">
+
+<label>
+Supervisor Name
+</label>
+
+<input id="supervisorInput"
+placeholder="Saurav Kumar">
+
+<label>
+Last MSIR
+</label>
+
+<input id="msirInput"
+placeholder="26/05/26">
+
+<label>
+Last Fumigation
+</label>
+
+<input id="fumigationInput"
+placeholder="26/05/26">
+
+<label>
+Last Degassing
+</label>
+
+<input id="degassingInput"
+placeholder="26/05/26">
+
+<label>
+Last Cleaning
+</label>
+
+<input id="cleaningInput"
+placeholder="26/05/26">
+
+<label>
+Last CHR
+</label>
+
+<input id="chrInput"
+placeholder="26/05/26">
+
+<label>
+Last Spray
+</label>
+
+<input id="sprayInput"
+placeholder="11/05/26">
+
+<label>
+Last Audit
+</label>
+
+<input id="auditInput"
+placeholder="17/05/26">
+
+<button onclick="saveSettings()">
+Save Settings
+</button>
+
+<button onclick="togglePanel()">
+Close
+</button>
 
 </div>
 
@@ -535,15 +544,11 @@ function getDate(){
 
 let d = new Date();
 
-return String(
-d.getDate()
-).padStart(2,'0')
+return String(d.getDate()).padStart(2,'0')
 +
 "-"
 +
-String(
-d.getMonth()+1
-).padStart(2,'0')
+String(d.getMonth()+1).padStart(2,'0')
 +
 "-"
 +
@@ -567,154 +572,167 @@ d.toLocaleTimeString();
 
 setInterval(updateTime,1000);
 
+updateTime();
+
 document.getElementById(
 "date"
 ).innerText = getDate();
 
-/* SIDEBAR */
+/* PANEL */
 
-function openSidebar(){
-
-document.getElementById(
-"sidebar"
-).classList.add("active");
+function togglePanel(){
 
 document.getElementById(
-"overlay"
-).classList.add("active");
+"panel"
+).classList.toggle(
+"active"
+);
 
 }
 
-function closeSidebar(){
+/* SAVE SETTINGS */
 
-document.getElementById(
-"sidebar"
-).classList.remove("active");
+function saveSettings(){
 
-document.getElementById(
-"overlay"
-).classList.remove("active");
+let data = {
+
+dashboard:
+dashboardInput.value,
+
+warehouse:
+warehouseInput.value,
+
+location:
+locationInput.value,
+
+supervisor:
+supervisorInput.value,
+
+msir:
+msirInput.value,
+
+fumigation:
+fumigationInput.value,
+
+degassing:
+degassingInput.value,
+
+cleaning:
+cleaningInput.value,
+
+chr:
+chrInput.value,
+
+spray:
+sprayInput.value,
+
+audit:
+auditInput.value
+
+};
+
+localStorage.setItem(
+"dashboardSettings",
+JSON.stringify(data)
+);
+
+alert(
+"Settings Saved"
+);
+
+loadData();
 
 }
 
-/* PAGE OPEN */
+/* LOAD DATA */
 
-function openPage(page){
+function loadData(){
+
+let d = JSON.parse(
+localStorage.getItem(
+"dashboardSettings"
+)
+) || {};
+
+document.getElementById(
+"dashboardName"
+).innerText =
+
+d.dashboard ||
+"NBHC Dashboard";
+
+document.getElementById(
+"warehouse"
+).innerText =
+
+(d.warehouse || "Shanti Devi")
++
+" - "
++
+(d.location || "Semapur");
+
+document.getElementById(
+"supervisor"
+).innerText =
+
+d.supervisor ||
+"Saurav Kumar";
+
+document.getElementById(
+"msir"
+).innerText =
+
+d.msir || "-";
+
+document.getElementById(
+"fumigation"
+).innerText =
+
+d.fumigation || "-";
+
+document.getElementById(
+"degassing"
+).innerText =
+
+d.degassing || "-";
+
+document.getElementById(
+"cleaning"
+).innerText =
+
+d.cleaning || "-";
+
+document.getElementById(
+"chr"
+).innerText =
+
+d.chr || "-";
+
+document.getElementById(
+"spray"
+).innerText =
+
+d.spray || "-";
+
+document.getElementById(
+"audit"
+).innerText =
+
+d.audit || "-";
+
+}
+
+/* NAVIGATION */
+
+function go(page){
 
 window.location.href = page;
 
 }
 
-/* SUPERVISOR LOGO */
-
-function updateSupervisorLogo(name){
-
-let words =
-name.trim().split(" ");
-
-let logo = "";
-
-if(words.length >= 2){
-
-logo =
-words[0][0]
-+
-words[1][0];
-
-}
-
-else{
-
-logo =
-words[0][0];
-
-}
-
-document.getElementById(
-"avatarLogo"
-).innerText =
-logo.toUpperCase();
-
-}
-
-/* LOAD PROFILE */
-
-function loadProfile(){
-
-let p =
-JSON.parse(
-localStorage.getItem(
-"profile"
-)
-) || {};
-
-let supervisor =
-p.supervisor || "Anil Kumar";
-
-document.getElementById(
-"sup"
-).innerText =
-supervisor;
-
-document.getElementById(
-"supName"
-).innerText =
-supervisor;
-
-updateSupervisorLogo(
-supervisor
-);
-
-document.getElementById(
-"whs"
-).innerText =
-
-(p.warehouse || "Shanti Devi")
-+
-" - "
-+
-(p.location || "Semapur");
-
-document.getElementById(
-"showMsir"
-).innerText =
-p.msir || "--";
-
-document.getElementById(
-"showFumigation"
-).innerText =
-p.fumigation || "--";
-
-document.getElementById(
-"showDegassing"
-).innerText =
-p.degassing || "--";
-
-document.getElementById(
-"showCleaning"
-).innerText =
-p.cleaning || "--";
-
-document.getElementById(
-"showChr"
-).innerText =
-p.chr || "--";
-
-document.getElementById(
-"showSpray"
-).innerText =
-p.spray || "--";
-
-document.getElementById(
-"showAudit"
-).innerText =
-p.audit || "--";
-
-}
-
 /* INIT */
 
-loadProfile();
+loadData();
 
 </script>
 
