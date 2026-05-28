@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport"
-content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
 
-<title>Developer Secure Access</title>
+<title>NBHC SMART AI ASSISTANT</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
 
 <style>
 
@@ -15,276 +21,292 @@ content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:'Arvo', serif;
+font-family:'Poppins',sans-serif;
+-webkit-tap-highlight-color:transparent;
 }
 
 body{
-background:#fff;
-overflow-x:hidden;
+background:#ffffff;
+height:100vh;
+overflow:hidden;
 }
 
-/* DESKTOP BLOCK */
+/* =========================
+   MAIN CHAT
+========================= */
 
-.desktop{
-display:none;
-}
-
-@media(min-width:768px){
-
-.mobile{
-display:none;
-}
-
-.desktop{
+.chat-container{
 width:100%;
 height:100vh;
 display:flex;
+flex-direction:column;
+background:#fff;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.chat-header{
+background:linear-gradient(
+135deg,
+#536DFE,
+#3d5afe
+);
+
+padding:18px;
+color:#fff;
+box-shadow:0 2px 12px rgba(0,0,0,0.15);
+
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.logo{
+width:52px;
+height:52px;
+background:#fff;
+border-radius:14px;
+padding:5px;
+}
+
+.header-text{
+flex:1;
+}
+
+.header-title{
+font-size:22px;
+font-weight:700;
+}
+
+.header-sub{
+font-size:13px;
+opacity:0.9;
+margin-top:3px;
+}
+
+/* =========================
+   CHAT AREA
+========================= */
+
+.chat-box{
+flex:1;
+overflow-y:auto;
+padding:14px;
+background:#f4f6f9;
+
+display:flex;
+flex-direction:column;
+gap:12px;
+
+scroll-behavior:smooth;
+}
+
+/* =========================
+   MESSAGE
+========================= */
+
+.bot-msg,
+.user-msg{
+
+padding:14px 16px;
+border-radius:20px;
+line-height:1.8;
+font-size:14px;
+max-width:88%;
+word-break:break-word;
+
+animation:fadeUp 0.3s ease;
+
+}
+
+.bot-msg{
+
+background:#fff;
+align-self:flex-start;
+border:1px solid #e5e7eb;
+box-shadow:0 4px 12px rgba(0,0,0,0.06);
+
+}
+
+.user-msg{
+
+background:linear-gradient(
+135deg,
+#536DFE,
+#3d5afe
+);
+
+color:#fff;
+align-self:flex-end;
+box-shadow:0 4px 12px rgba(83,109,254,0.25);
+
+}
+
+@keyframes fadeUp{
+
+from{
+opacity:0;
+transform:translateY(10px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
+}
+
+/* =========================
+   INPUT
+========================= */
+
+.input-area{
+
+display:flex;
+gap:10px;
+padding:12px;
+background:#fff;
+border-top:1px solid #eee;
+
+}
+
+.input-area input{
+
+flex:1;
+padding:15px;
+border:none;
+outline:none;
+border-radius:18px;
+background:#f1f5f9;
+font-size:15px;
+
+}
+
+/* SEND BUTTON */
+
+.send-btn{
+
+width:58px;
+height:58px;
+border:none;
+border-radius:18px;
+
+background:linear-gradient(
+135deg,
+#536DFE,
+#3d5afe
+);
+
+display:flex;
 justify-content:center;
 align-items:center;
-background:#fff;
-font-size:32px;
-font-weight:bold;
-text-align:center;
-color:#111;
-padding:20px;
-}
 
-}
-
-/* MAIN PAGE */
-
-.page_404{
-width:100%;
-min-height:100vh;
-background:#fff;
-position:relative;
-overflow:hidden;
-padding:20px;
-}
-
-/* LIGHT EFFECT */
-
-.page_404::before{
-content:'';
-position:absolute;
-width:240px;
-height:240px;
-background:rgba(57,172,49,0.08);
-border-radius:50%;
-top:-80px;
-left:-80px;
-animation:move1 6s infinite alternate;
-}
-
-.page_404::after{
-content:'';
-position:absolute;
-width:220px;
-height:220px;
-background:rgba(0,123,255,0.08);
-border-radius:50%;
-bottom:-80px;
-right:-80px;
-animation:move2 6s infinite alternate;
-}
-
-@keyframes move1{
-100%{
-transform:translate(40px,30px);
-}
-}
-
-@keyframes move2{
-100%{
-transform:translate(-40px,-30px);
-}
-}
-
-/* CONTENT */
-
-.content{
-position:relative;
-z-index:10;
-text-align:center;
-padding-top:10px;
-}
-
-/* GIF */
-
-.gif{
-width:100%;
-height:220px;
-background:url('https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif');
-background-position:center;
-background-repeat:no-repeat;
-background-size:contain;
-animation:float 4s infinite ease-in-out;
-}
-
-@keyframes float{
-50%{
-transform:translateY(-10px);
-}
-}
-
-/* TEXT */
-
-.error{
-font-size:75px;
-font-weight:bold;
-color:#111;
-animation:zoom 2s infinite alternate;
-}
-
-@keyframes zoom{
-100%{
-transform:scale(1.05);
-}
-}
-
-.title{
-font-size:28px;
-font-weight:bold;
-color:#111;
-margin-top:5px;
-}
-
-.desc{
-margin-top:15px;
-color:#555;
-font-size:15px;
-line-height:1.7;
-}
-
-/* STATUS */
-
-.status{
-margin-top:15px;
-color:#ff3b30;
-font-size:15px;
-font-weight:bold;
-animation:blink 1.5s infinite;
-}
-
-@keyframes blink{
-50%{
-opacity:0.5;
-}
-}
-
-/* INFO BOX */
-
-.info-box{
-margin-top:20px;
-background:#f7f7f7;
-border:1px solid #ddd;
-border-radius:18px;
-padding:18px;
-text-align:left;
-box-shadow:0 5px 15px rgba(0,0,0,0.05);
-}
-
-.info-box div{
-margin:12px 0;
-font-size:14px;
-color:#222;
-word-break:break-word;
-}
-
-/* CARDS */
-
-.card{
-margin-top:20px;
-background:#fff;
-border:1px solid #ddd;
-border-radius:18px;
-padding:20px;
-box-shadow:0 5px 15px rgba(0,0,0,0.05);
-text-align:left;
-}
-
-.card h2{
-font-size:22px;
-margin-bottom:15px;
-color:#111;
-}
-
-.card p{
-font-size:14px;
-line-height:1.8;
-color:#444;
-margin-top:8px;
-}
-
-.card ul{
-padding-left:18px;
-}
-
-.card li{
-margin:10px 0;
-font-size:14px;
-line-height:1.7;
-color:#444;
-}
-
-/* BUTTON */
-
-.link_404{
-width:100%;
-display:block;
-margin-top:25px;
-padding:15px;
-border-radius:50px;
-text-decoration:none;
-background:#39ac31;
+font-size:24px;
 color:#fff;
-font-size:17px;
-font-weight:bold;
-transition:0.3s;
+
+cursor:pointer;
+
+box-shadow:0 8px 18px rgba(83,109,254,0.3);
+
+transition:0.2s;
+
+}
+
+.send-btn:active{
+
+transform:scale(0.88)
+rotate(-10deg);
+
+}
+
+/* =========================
+   QUICK BUTTONS
+========================= */
+
+.quick{
+
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+padding:10px;
+background:#fff;
+border-top:1px solid #f1f5f9;
+
+}
+
+.quick button{
+
+padding:13px;
 border:none;
-box-shadow:0 10px 20px rgba(57,172,49,0.25);
+border-radius:16px;
+
+background:#0f172a;
+color:#fff;
+
+font-size:13px;
+font-weight:600;
+
+cursor:pointer;
+
 }
 
-.link_404:hover{
-background:#2f8f28;
+/* =========================
+   TYPING
+========================= */
+
+.typing{
+
+opacity:0.6;
+animation:pulse 1s infinite;
+
 }
 
-/* DASHBOARD BUTTON */
+@keyframes pulse{
 
-.dashboard-btn{
-background:#007bff;
-box-shadow:0 10px 20px rgba(0,123,255,0.25);
+50%{
+opacity:0.3;
 }
 
-.dashboard-btn:hover{
-background:#0056b3;
 }
 
-/* SUCCESS */
+/* =========================
+   CLEAR BUTTON
+========================= */
 
-.success{
-display:none;
-margin-top:20px;
-background:#e8f5e9;
-color:#2e7d32;
-padding:15px;
-border-radius:15px;
+.clear-btn{
+
+margin:10px;
+padding:14px;
+border:none;
+border-radius:16px;
+
+background:#ef4444;
+color:#fff;
+
 font-size:15px;
-font-weight:bold;
-border:1px solid #a5d6a7;
+font-weight:600;
+
+cursor:pointer;
+
 }
 
-/* SUPPORT */
+/* =========================
+   MOBILE
+========================= */
 
-.support{
-margin-top:18px;
-font-size:14px;
-color:#333;
-line-height:1.8;
+@media(max-width:500px){
+
+.header-title{
+font-size:19px;
 }
 
-.support b{
-color:#111;
+.bot-msg,
+.user-msg{
+font-size:13px;
+}
+
 }
 
 </style>
@@ -293,279 +315,670 @@ color:#111;
 
 <body>
 
-<!-- DESKTOP -->
+<div class="chat-container">
 
-<div class="desktop">
-This Website Is Available Only On Mobile Devices
+<!-- HEADER -->
+
+<div class="chat-header">
+
+<img src="https://i.ibb.co/svf7T4Kq/nbhclogo.png"
+class="logo">
+
+<div class="header-text">
+
+<div class="header-title">
+NBHC SMART AI
 </div>
 
-<!-- MOBILE -->
-
-<div class="mobile">
-
-<section class="page_404">
-
-<div class="content">
-
-<div class="gif"></div>
-
-<div class="error">404</div>
-
-<div class="title">
-Developer Secure Access
-</div>
-
-<div class="desc">
-Secure Mobile Verification Required.<br>
-Only verified users can continue to dashboard.
-</div>
-
-<div class="status">
-Developer Is Busy Right Now
-</div>
-
-<!-- INFO -->
-
-<div class="info-box">
-
-<div>
-<b>📱 Device :</b>
-<span id="device"></span>
-</div>
-
-<div>
-<b>🌐 IPv4 Address :</b>
-<span id="ipv4">Loading...</span>
-</div>
-
-<div>
-<b>🛰 IPv6 Address :</b>
-<span id="ipv6">Loading...</span>
-</div>
-
-<div>
-<b>🖥 Browser :</b>
-<span id="browser"></span>
-</div>
-
-<div>
-<b>🔒 Verification :</b>
-<span id="verifyText">Checking...</span>
-</div>
-
-<div>
-<b>🕒 Time :</b>
-<span id="time"></span>
+<div class="header-sub">
+Warehouse Monitoring System
 </div>
 
 </div>
 
-<!-- SUCCESS -->
-
-<div class="success" id="successBox">
-✅ Secure Verification Successful — Access Granted
 </div>
 
-<!-- VERIFY BUTTON -->
+<!-- CHAT -->
 
-<button class="link_404" onclick="verifyUser()">
-Verify Secure Access
-</button>
+<div class="chat-box"
+id="chatBox">
 
-<!-- DASHBOARD BUTTON -->
+<div class="bot-msg">
 
-<button class="link_404 dashboard-btn"
-onclick="openindex.html()">
-Go To Dashboard
-</button>
+👋 Welcome To NBHC SMART AI ASSISTANT
 
-<!-- DEVELOPER INFO -->
+<br><br>
 
-<div class="card">
+NBHC Smart AI can help you with:
 
-<h2>👨‍💻 Developer Information</h2>
+<br><br>
 
-<p><b>Name :</b> Karan Kumar</p>
+📋 Attendance Reports  
+📊 Analyzer Reports  
+📦 Warehouse Reports  
+📍 GPS & Location  
+📜 History Reports  
+📄 PDF Reports  
+🚛 Lorry Reports  
+📈 Stock Monitoring  
+🏢 Warehouse Dashboard  
 
-<p><b>Role :</b> Frontend & Mobile Web Developer</p>
+<br><br>
 
-<p><b>Email :</b> karankumarmehta74630@gmail.com</p>
+You can type:
 
-<p>
-<b>Speciality :</b>
-Modern UI Design, Secure Mobile Websites,
-Professional Dashboard Systems, 404 Security Pages,
-Animated Interfaces & Advanced HTML Apps.
-</p>
+<br><br>
 
-<p>
-<b>Experience :</b>
-Building responsive mobile-friendly systems
-with security verification and professional layouts.
-</p>
+📋 Today Report  
+📊 Open Analyzer  
+🏢 Open Warehouse  
+📜 Show History  
+📍 Show Location  
 
-</div>
+<br><br>
 
-<!-- ABOUT APP -->
+Example:
 
-<div class="card">
+<br><br>
 
-<h2>📱 About This Application</h2>
+My name is Karan Kumar  
+Location Semapur  
+Supervisor Saurav Kumar  
+Total Bag 12000  
+Total MT 820.350  
 
-<ul>
+<br><br>
 
-<li>Secure Mobile Verification System</li>
+👨‍💻 Developer:
+Karan Kumar
 
-<li>Live IPv4 & IPv6 Detection</li>
+<br>
 
-<li>Animated Professional 404 Interface</li>
-
-<li>Dashboard Access Verification</li>
-
-<li>Responsive Mobile UI Design</li>
-
-<li>Modern White Theme Security Page</li>
-
-<li>Fast Lightweight HTML Application</li>
-
-<li>Advanced Browser & Device Detection</li>
-
-</ul>
-
-</div>
-
-<!-- SUPPORT -->
-
-<div class="support">
-
-<b>📧 Support Contact :</b><br>
+📧 Support:
 karankumarmehta74630@gmail.com
 
 </div>
 
 </div>
 
-</section>
+<!-- QUICK -->
+
+<div class="quick">
+
+<button onclick="quickMsg('Today Report')">
+📋 Today Report
+</button>
+
+<button onclick="quickMsg('Open Analyzer')">
+📊 Analyzer
+</button>
+
+<button onclick="quickMsg('Open Warehouse')">
+🏢 Warehouse
+</button>
+
+<button onclick="quickMsg('Show History')">
+📜 History
+</button>
+
+</div>
+
+<!-- INPUT -->
+
+<div class="input-area">
+
+<input type="text"
+id="userInput"
+placeholder="Type your message...">
+
+<button class="send-btn"
+onclick="sendMessage()">
+
+➤
+
+</button>
+
+</div>
+
+<button class="clear-btn"
+onclick="clearChat()">
+
+🗑 Clear Chat
+
+</button>
 
 </div>
 
 <script>
 
-/* DEVICE CHECK */
+/* =========================
+   API KEY
+========================= */
 
-if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+const API_KEY =
+"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";
 
-document.getElementById("device").innerHTML =
-"Mobile Device Verified";
+/* =========================
+   USER DATA
+========================= */
 
-}else{
+let userData =
+JSON.parse(
+localStorage.getItem(
+"nbhcUserData"
+)
+) || {
 
-document.body.innerHTML =
-"<div style='display:flex;justify-content:center;align-items:center;height:100vh;font-size:30px;font-weight:bold;background:white;'>Mobile Access Only</div>";
+name:"",
+location:"",
+supervisor:"",
+totalBag:"",
+totalMT:"",
+history:[]
+
+};
+
+/* =========================
+   SAVE USER DATA
+========================= */
+
+function saveUser(){
+
+localStorage.setItem(
+"nbhcUserData",
+JSON.stringify(userData)
+);
 
 }
 
-/* BROWSER */
+/* =========================
+   LOAD CHAT
+========================= */
 
-document.getElementById("browser").innerHTML =
-navigator.userAgent;
+window.onload = function(){
 
-/* TIME */
+const savedChat =
+localStorage.getItem(
+"nbhcChatHistory"
+);
 
-function updateTime(){
+if(savedChat){
 
-let now = new Date();
-
-document.getElementById("time").innerHTML =
-now.toLocaleString();
+document.getElementById(
+"chatBox"
+).innerHTML =
+savedChat;
 
 }
 
-setInterval(updateTime,1000);
+};
 
-updateTime();
+/* =========================
+   SAVE CHAT
+========================= */
 
-/* IPV4 */
+function saveChat(){
 
-async function getIPv4(){
+localStorage.setItem(
+"nbhcChatHistory",
+document.getElementById(
+"chatBox"
+).innerHTML
+);
+
+}
+
+/* =========================
+   CLEAR CHAT
+========================= */
+
+function clearChat(){
+
+localStorage.removeItem(
+"nbhcChatHistory"
+);
+
+location.reload();
+
+}
+
+/* =========================
+   QUICK MESSAGE
+========================= */
+
+function quickMsg(msg){
+
+document.getElementById(
+"userInput"
+).value = msg;
+
+sendMessage();
+
+}
+
+/* =========================
+   DETECT INFO
+========================= */
+
+function detectInfo(message){
+
+const lower =
+message.toLowerCase();
+
+/* NAME */
+
+if(
+lower.includes("my name is")
+){
+
+userData.name =
+message.replace(
+/my name is/gi,
+""
+).trim();
+
+}
+
+/* LOCATION */
+
+if(
+lower.includes("location")
+){
+
+userData.location =
+message;
+
+}
+
+/* SUPERVISOR */
+
+if(
+lower.includes("supervisor")
+){
+
+userData.supervisor =
+message;
+
+}
+
+/* BAG */
+
+if(
+lower.includes("total bag")
+){
+
+userData.totalBag =
+message;
+
+}
+
+/* MT */
+
+if(
+lower.includes("total mt")
+){
+
+userData.totalMT =
+message;
+
+}
+
+saveUser();
+
+}
+
+/* =========================
+   TODAY REPORT
+========================= */
+
+function todayReport(){
+
+return `
+
+📋 TODAY REPORT
+
+<br><br>
+
+👤 Name:
+${userData.name || "Not Available"}
+
+<br><br>
+
+📍 Location:
+${userData.location || "Not Available"}
+
+<br><br>
+
+👨‍💼 Supervisor:
+${userData.supervisor || "Not Available"}
+
+<br><br>
+
+📦 Total Bag:
+${userData.totalBag || "0"}
+
+<br><br>
+
+⚖️ Total MT:
+${userData.totalMT || "0"}
+
+<br><br>
+
+👨‍💻 Developer:
+Karan Kumar
+
+<br>
+
+📧 Support:
+karankumarmehta74630@gmail.com
+
+`;
+
+}
+
+/* =========================
+   SEND MESSAGE
+========================= */
+
+async function sendMessage(){
+
+const input =
+document.getElementById(
+"userInput"
+);
+
+const message =
+input.value.trim();
+
+if(message === "")
+return;
+
+/* DETECT */
+
+detectInfo(message);
+
+const chatBox =
+document.getElementById(
+"chatBox"
+);
+
+/* USER */
+
+chatBox.innerHTML += `
+
+<div class="user-msg">
+${message}
+</div>
+
+`;
+
+input.value = "";
+
+/* AUTO REPORT */
+
+if(
+message.toLowerCase()
+.includes("today report")
+){
+
+chatBox.innerHTML += `
+
+<div class="bot-msg">
+
+${todayReport()}
+
+</div>
+
+`;
+
+saveChat();
+
+chatBox.scrollTop =
+chatBox.scrollHeight;
+
+return;
+
+}
+
+/* TYPING */
+
+chatBox.innerHTML += `
+
+<div class="bot-msg typing"
+id="typing">
+
+🤖 NBHC AI Typing...
+
+</div>
+
+`;
+
+chatBox.scrollTop =
+chatBox.scrollHeight;
+
+saveChat();
 
 try{
 
 const response =
-await fetch("https://api.ipify.org?format=json");
+await fetch(
+"https://api.groq.com/openai/v1/chat/completions",
+{
 
-const data = await response.json();
+method:"POST",
 
-document.getElementById("ipv4").innerHTML =
-data.ip;
+headers:{
 
-}catch{
+"Content-Type":
+"application/json",
 
-document.getElementById("ipv4").innerHTML =
-"Unavailable";
+"Authorization":
+"Bearer " + API_KEY
+
+},
+
+body:JSON.stringify({
+
+model:
+"llama-3.3-70b-versatile",
+
+messages:[
+
+{
+
+role:"system",
+
+content:`
+
+You are NBHC SMART AI ASSISTANT.
+
+You know complete NBHC dashboard system.
+
+Developer:
+Karan Kumar
+
+Support Email:
+karankumarmehta74630@gmail.com
+
+Features:
+- Attendance Monitoring
+- Supervisor Reports
+- Analyzer Reports
+- Warehouse Monitoring
+- GPS Tracking
+- PDF Reports
+- History Reports
+- Stock Management
+- QR Verification
+
+Current User Data:
+
+Name:
+${userData.name}
+
+Location:
+${userData.location}
+
+Supervisor:
+${userData.supervisor}
+
+Total Bag:
+${userData.totalBag}
+
+Total MT:
+${userData.totalMT}
+
+Rules:
+
+- Hindi + English mix me reply karo.
+- Smart professional AI ki tarah answer do.
+- User ka naam use karo.
+- History yaad rakho.
+- Warehouse details explain karo.
+- Analyzer reports explain karo.
+- Attendance explain karo.
+- Today report explain karo.
+
+If user asks:
+"Open Analyzer"
+
+Reply:
+"📊 Analyzer Dashboard Opened Successfully"
+
+If user asks:
+"Open Warehouse"
+
+Reply:
+"🏢 Warehouse Dashboard Opened"
+
+If user asks:
+"History"
+
+Reply:
+"📜 Fetching History Reports..."
+
+Always include:
+
+👨‍💻 Developer:
+Karan Kumar
+
+📧 Support:
+karankumarmehta74630@gmail.com
+
+`
+
+},
+
+{
+
+role:"user",
+content:message
+
+}
+
+]
+
+})
+
+});
+
+/* RESPONSE */
+
+const data =
+await response.json();
+
+if(
+document.getElementById(
+"typing"
+)
+){
+
+document.getElementById(
+"typing"
+).remove();
+
+}
+
+const reply =
+data.choices[0]
+.message.content;
+
+/* AI */
+
+chatBox.innerHTML += `
+
+<div class="bot-msg">
+
+${reply}
+
+</div>
+
+`;
+
+chatBox.scrollTop =
+chatBox.scrollHeight;
+
+saveChat();
+
+}catch(error){
+
+if(
+document.getElementById(
+"typing"
+)
+){
+
+document.getElementById(
+"typing"
+).remove();
+
+}
+
+chatBox.innerHTML += `
+
+<div class="bot-msg">
+
+❌ AI Server Error
+
+<br><br>
+
+👨‍💻 Developer:
+Karan Kumar
+
+<br>
+
+📧 Support:
+karankumarmehta74630@gmail.com
+
+</div>
+
+`;
+
+saveChat();
 
 }
 
 }
 
-/* IPV6 */
+/* =========================
+   ENTER KEY
+========================= */
 
-async function getIPv6(){
+document
+.getElementById(
+"userInput"
+)
+.addEventListener(
+"keypress",
+function(e){
 
-try{
+if(e.key === "Enter"){
 
-const response =
-await fetch("https://api64.ipify.org?format=json");
-
-const data = await response.json();
-
-document.getElementById("ipv6").innerHTML =
-data.ip;
-
-}catch{
-
-document.getElementById("ipv6").innerHTML =
-"IPv6 Not Available";
+sendMessage();
 
 }
 
-}
-
-/* LOAD IPS */
-
-async function loadIPs(){
-
-await getIPv4();
-await getIPv6();
-
-document.getElementById("verifyText").innerHTML =
-"Secure Connection Ready";
-
-}
-
-loadIPs();
-
-/* VERIFY */
-
-function verifyUser(){
-
-document.getElementById("verifyText").innerHTML =
-"Matched Successfully";
-
-document.getElementById("successBox").style.display =
-"block";
-
-}
-
-/* DASHBOARD */
-
-function openDashboard(){
-
-alert("Dashboard Access Granted");
-
-window.location.href = "dashboard.html";
-
-}
+});
 
 </script>
 
