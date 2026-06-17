@@ -1,818 +1,666 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" data-theme="dark">
 <head>
-
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a" id="themeMeta">
+<title>NBHC SMART AI - Ultimate</title>
 
-<meta name="viewport"
-content="width=device-width,
-initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<title>
-NBHC Dashboard
-</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+/* =========================
+   CSS VARIABLES & THEMES
+========================= */
+:root {
+    --hue: 230; 
+    --primary-color: hsl(var(--hue), 100%, 65%);
+    --primary-gradient: linear-gradient(135deg, hsl(var(--hue), 100%, 60%), hsl(var(--hue), 100%, 50%));
+    
+    /* Dark Theme */
+    --bg-base: #0f172a;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --bot-msg-bg: rgba(30, 41, 59, 0.85);
+    --input-bg: rgba(15, 23, 42, 0.9);
+    --neon-glow: 0 0 20px hsla(var(--hue), 100%, 60%, 0.4);
+    --danger: #ef4444; --success: #22c55e; --warning: #f59e0b;
 }
 
-body{
-background:#f4f6f9;
-overflow-x:hidden;
+[data-theme="light"] {
+    --bg-base: #f1f5f9;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --bot-msg-bg: rgba(255, 255, 255, 0.95);
+    --input-bg: rgba(255, 255, 255, 0.9);
+    --neon-glow: 0 4px 15px hsla(var(--hue), 100%, 60%, 0.25);
 }
 
-/* HEADER */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; -webkit-tap-highlight-color:transparent; }
 
-.header{
-background:#536DFE;
-padding:15px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-color:white;
-position:sticky;
-top:0;
-z-index:1000;
-box-shadow:0 2px 10px rgba(0,0,0,0.2);
+/* Mobile First Base */
+body {
+    background: var(--bg-base); color: var(--text-main);
+    height: 100dvh; overflow: hidden; display: flex; position: relative;
+    transition: background 0.4s ease, color 0.4s ease;
 }
 
-.logo-box{
-display:flex;
-align-items:center;
-gap:12px;
+/* =========================
+   ANIMATIONS & BACKGROUND
+========================= */
+.bg-canvas { position: absolute; top:0; left:0; width:100%; height:100%; z-index:-1; overflow:hidden; }
+.blob { position: absolute; filter: blur(90px); opacity: 0.4; animation: floatBlob 20s infinite alternate; }
+.blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: hsl(var(--hue), 100%, 50%); }
+.blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: hsl(calc(var(--hue) + 40), 100%, 50%); animation-delay: -5s; }
+@keyframes floatBlob { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, 30px) scale(1.1); } }
+
+.particles {
+    position: absolute; width: 100%; height: 100%; pointer-events: none;
+    background-image: radial-gradient(var(--glass-border) 1px, transparent 1px);
+    background-size: 25px 25px; opacity: 0.2; animation: drift 60s linear infinite;
+}
+@keyframes drift { from { background-position: 0 0; } to { background-position: 100px 100px; } }
+
+/* =========================
+   SIDEBAR (CHATGPT STYLE)
+========================= */
+.sidebar {
+    width: 280px; height: 100%; background: var(--glass-bg); backdrop-filter: blur(20px);
+    border-right: 1px solid var(--glass-border); display: flex; flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; flex-shrink: 0;
+}
+.sidebar-header { padding: 20px; border-bottom: 1px solid var(--glass-border); }
+.new-chat-btn {
+    width: 100%; padding: 12px; border-radius: 12px; border: none;
+    background: var(--primary-gradient); color: white; cursor: pointer; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--neon-glow);
+    transition: 0.2s;
+}
+.new-chat-btn:active { transform: scale(0.95); }
+
+.history-list { flex: 1; overflow-y: auto; padding: 10px; }
+.history-item {
+    padding: 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;
+    color: var(--text-muted); font-size: 13px; transition: 0.2s; margin-bottom: 5px;
+}
+.history-item:hover, .history-item.active { background: rgba(128,128,128,0.15); color: var(--text-main); }
+.history-item i { width: 15px; text-align: center; }
+
+.sidebar-footer { padding: 15px; border-top: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 5px; }
+
+/* =========================
+   MAIN APP AREA
+========================= */
+.main-app { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
+
+/* Header */
+.chat-header {
+    padding: env(safe-area-inset-top, 15px) 20px 15px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--glass-bg); backdrop-filter: blur(15px); border-bottom: 1px solid var(--glass-border);
+}
+.header-left { display: flex; align-items: center; gap: 15px; }
+.menu-btn { display: none; background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
+
+.logo-container {
+    position: relative; width: 44px; height: 44px; border-radius: 12px;
+    background: var(--primary-gradient); display: flex; justify-content: center; align-items: center;
+    font-size: 22px; color: white; box-shadow: var(--neon-glow);
+}
+.status-dot { position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px; background: var(--success); border-radius: 50%; border: 2px solid var(--bg-base); }
+
+.header-text { display: flex; flex-direction: column; }
+.header-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.header-sub { font-size: 11px; color: var(--text-muted); }
+
+.header-icons { display: flex; gap: 15px; }
+.header-icons button { background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; transition: 0.3s; }
+.header-icons button:hover { color: var(--primary-color); }
+
+/* Chat Box */
+.chat-box {
+    flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; padding-bottom: 10px;
+    display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth;
+}
+.bot-msg, .user-msg {
+    padding: 16px 20px; border-radius: 20px; font-size: 14.5px; line-height: 1.6;
+    max-width: 90%; word-break: break-word; position: relative;
+    animation: slideUpFade 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.bot-msg { background: var(--bot-msg-bg); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--glass-border); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.user-msg { background: var(--primary-gradient); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: var(--neon-glow); }
+
+/* Markdown Styles */
+.bot-msg pre { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 10px 0; font-size: 13px; border: 1px solid #333; }
+.bot-msg code { font-family: monospace; background: rgba(128,128,128,0.2); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+.bot-msg table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+.bot-msg th, .bot-msg td { border: 1px solid var(--glass-border); padding: 8px; text-align: left; }
+
+.msg-actions { margin-top: 10px; font-size: 12px; display: flex; gap: 15px; color: var(--text-muted); border-top: 1px solid var(--glass-border); padding-top: 10px; }
+.msg-actions span { cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px;}
+.msg-actions span:hover { color: var(--primary-color); }
+
+@keyframes slideUpFade { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+
+/* Modern Typing Animation */
+.typing-container { display: flex; align-items: center; gap: 8px; color: var(--primary-color); font-weight: 500; font-size: 13px;}
+.typing-dots { display: flex; gap: 4px; }
+.typing-dots span { width: 6px; height: 6px; background: var(--primary-color); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+/* Bottom Area */
+.bottom-area {
+    padding: 10px 20px calc(15px + env(safe-area-inset-bottom));
+    background: var(--glass-bg); border-top: 1px solid var(--glass-border); backdrop-filter: blur(15px);
+}
+.quick { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 5px; scrollbar-width: none; }
+.quick::-webkit-scrollbar { display: none; }
+.quick button { padding: 8px 16px; border: 1px solid var(--glass-border); border-radius: 20px; background: var(--bot-msg-bg); color: var(--text-main); font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+.quick button:hover { background: var(--primary-gradient); color: white; border-color: transparent; }
+
+.input-area { display: flex; gap: 10px; align-items: flex-end; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 6px 12px; }
+.icon-btn { background: transparent; border: none; color: var(--text-muted); font-size: 20px; padding: 10px; cursor: pointer; transition: 0.2s; }
+.icon-btn:hover { color: var(--primary-color); }
+
+.input-area textarea {
+    flex: 1; background: transparent; border: none; color: var(--text-main); font-size: 15px; resize: none;
+    max-height: 120px; min-height: 24px; padding: 12px 0; outline: none; line-height: 1.4;
+}
+.send-btn { width: 44px; height: 44px; border: none; border-radius: 50%; background: var(--primary-gradient); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; box-shadow: var(--neon-glow); flex-shrink: 0; margin-bottom: 2px;}
+
+#filePreview { display: none; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 10px; font-size: 12px; align-items: center; justify-content: space-between; border: 1px solid var(--primary-color); }
+
+/* =========================
+   OVERLAY PANELS
+========================= */
+.overlay-panel {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-base); z-index: 200; overflow-y: auto;
+    transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    padding: env(safe-area-inset-top, 20px) 20px 20px; display: flex; flex-direction: column;
+}
+.overlay-panel.active { transform: translateY(0); }
+.panel-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); margin-bottom: 20px; position: sticky; top: 0; background: var(--bg-base); z-index: 10; }
+.panel-header h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-size: 12px; margin-bottom: 5px; color: var(--text-muted); }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); outline: none; font-size: 14px; }
+.btn-primary { width: 100%; padding: 16px; border: none; border-radius: 12px; background: var(--primary-gradient); color: white; font-weight: 600; cursor: pointer; box-shadow: var(--neon-glow); font-size: 15px; transition: 0.2s;}
+.btn-primary:active { transform: scale(0.98); }
+
+/* Dashboard & Weather Grids */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.card { background: var(--bot-msg-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; text-align: center; }
+.card i { font-size: 24px; color: var(--primary-color); margin-bottom: 10px; }
+.card .value { font-size: 22px; font-weight: 700; margin-top: 5px; }
+.card .label { font-size: 12px; color: var(--text-muted); }
+
+/* Map Iframe */
+#mapContainer { width: 100%; height: 250px; border-radius: 16px; overflow: hidden; border: 1px solid var(--glass-border); margin-top: 15px; background: #222; }
+#mapContainer iframe { width: 100%; height: 100%; border: none; }
+
+/* Mobile Setup */
+@media(max-width: 768px) {
+    .sidebar { position: absolute; left: -100%; }
+    .sidebar.open { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+    .menu-btn { display: block; }
 }
 
-.logo{
-width:45px;
-height:45px;
-background:white;
-padding:5px;
-border-radius:10px;
-}
-
-.logo-name{
-font-size:22px;
-font-weight:700;
-}
-
-.settings{
-font-size:28px;
-cursor:pointer;
-}
-
-/* CONTAINER */
-
-.container{
-padding:12px;
-max-width:550px;
-margin:auto;
-}
-
-/* CARD */
-
-.card{
-background:white;
-border-radius:18px;
-padding:18px;
-margin-bottom:14px;
-box-shadow:0 3px 10px rgba(0,0,0,0.08);
-animation:fadeUp 0.5s ease;
-}
-
-@keyframes fadeUp{
-
-from{
-opacity:0;
-transform:translateY(10px);
-}
-
-to{
-opacity:1;
-transform:translateY(0);
-}
-
-}
-
-.title{
-font-size:14px;
-color:#777;
-margin-bottom:5px;
-}
-
-.value{
-font-size:22px;
-font-weight:700;
-color:#0a3d62;
-}
-
-/* GRID */
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-}
-
-/* STATUS */
-
-.status-box{
-background:#f8f9ff;
-padding:14px;
-border-radius:14px;
-margin-top:10px;
-}
-
-.status-title{
-font-size:15px;
-color:#666;
-}
-
-.status-value{
-font-size:18px;
-font-weight:700;
-color:#536DFE;
-margin-top:4px;
-}
-
-/* BUTTON */
-
-button{
-width:100%;
-padding:14px;
-margin-top:10px;
-border:none;
-border-radius:14px;
-background:linear-gradient(90deg,#536DFE,#5c5fa8);
-color:white;
-font-size:18px;
-font-weight:600;
-}
-
-/* PANEL */
-
-#panel{
-position:fixed;
-top:0;
-right:-100%;
-width:90%;
-max-width:380px;
-height:100%;
-background:white;
-padding:18px;
-overflow:auto;
-transition:0.3s;
-z-index:9999;
-box-shadow:-5px 0 15px rgba(0,0,0,0.2);
-}
-
-#panel.active{
-right:0;
-}
-
-.panel-title{
-font-size:28px;
-font-weight:700;
-margin-bottom:20px;
-color:#536DFE;
-}
-
-label{
-font-size:15px;
-font-weight:600;
-display:block;
-margin-top:12px;
-margin-bottom:5px;
-}
-
-input{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:1px solid #ccc;
-font-size:16px;
-}
-
+/* Lock Screen */
+#lockScreen { position: fixed; top:0; left:0; width:100%; height:100%; z-index:999; background: var(--bg-base); display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.4s; }
 </style>
-
 </head>
-
 <body>
 
-<!-- HEADER -->
-
-<div class="header">
-
-<div class="logo-box">
-
-<img src="https://i.ibb.co/svf7T4Kq/nbhclogo.png"
-class="logo">
-
-<div class="logo-name"
-id="dashboardName">
-
-NBHC Dashboard
-
+<div class="bg-canvas">
+    <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="particles"></div>
 </div>
 
+<div id="lockScreen" style="display: none;">
+    <i class="fa-solid fa-shield-halved" style="font-size: 50px; color: var(--primary-color); margin-bottom: 20px;"></i>
+    <h2>NBHC Security</h2>
+    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 25px;">Enter PIN to Unlock</p>
+    <input type="password" id="pinInput" placeholder="••••" maxlength="4" style="padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); text-align: center; font-size: 24px; letter-spacing: 15px; width: 200px; margin-bottom: 20px;">
+    <button class="btn-primary" style="width: 200px;" onclick="checkPIN()">Unlock App</button>
 </div>
 
-<div class="settings"
-onclick="togglePanel()">
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <button class="new-chat-btn" onclick="clearChatUI()"><i class="fa-solid fa-plus"></i> New Chat</button>
+    </div>
+    <div class="history-list" id="chatSessions">
+        <div class="history-item active"><i class="fa-regular fa-message"></i> Warehouse Update</div>
+        <div class="history-item"><i class="fa-regular fa-message"></i> Analyzer PDF Check</div>
+    </div>
+    <div class="sidebar-footer">
+        <div class="history-item" onclick="togglePanel('locationPanel')"><i class="fa-solid fa-map-location-dot"></i> Live Map & Weather</div>
+        <div class="history-item" onclick="togglePanel('profilePanel')"><i class="fa-solid fa-user"></i> My Profile</div>
+        <div class="history-item" onclick="togglePanel('historyPanel')"><i class="fa-solid fa-clock-rotate-left"></i> History Records</div>
+    </div>
+</aside>
 
-⚙️
+<main class="main-app">
+    <header class="chat-header">
+        <div class="header-left">
+            <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fa-solid fa-bars"></i></button>
+            <div class="logo-container" onclick="togglePanel('dashboardPanel')">
+                🤖<div class="status-dot"></div>
+            </div>
+            <div class="header-text">
+                <div class="header-title">NBHC SMART AI <i class="fa-solid fa-circle-check" style="color: #3b82f6; font-size: 13px;"></i></div>
+                <div class="header-sub" id="activeModelText">Connected • Ready</div>
+            </div>
+        </div>
+        <div class="header-icons">
+            <button onclick="togglePanel('dashboardPanel')"><i class="fa-solid fa-chart-pie"></i></button>
+            <button onclick="togglePanel('settingsPanel')"><i class="fa-solid fa-gear"></i></button>
+        </div>
+    </header>
 
+    <div class="chat-box" id="chatBox"></div>
+
+    <div class="bottom-area">
+        <div class="quick">
+            <button onclick="quickMsg('Today Report')">📋 Today Report</button>
+            <button onclick="quickMsg('History dikhao')">📜 Data History</button>
+            <button onclick="quickMsg('Download Supervisor PDF')">📄 PDF Export</button>
+            <button onclick="quickMsg('Weather kaisa hai?')">🌦 Weather</button>
+            <button onclick="quickMsg('Change Warehouse Semapur')">🏢 Change WH</button>
+        </div>
+
+        <div id="filePreview">
+            <span><i class="fa-solid fa-file"></i> <span id="fileName">file</span></span>
+            <button class="icon-btn" onclick="clearFile()" style="padding:0; font-size: 14px; color: var(--danger);"><i class="fa-solid fa-times"></i></button>
+        </div>
+
+        <div class="input-area">
+            <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(event)" accept="image/*,.pdf,.xlsx,.csv,.txt,.mp4">
+            <button class="icon-btn" onclick="document.getElementById('fileInput').click()"><i class="fa-solid fa-paperclip"></i></button>
+            <textarea id="userInput" placeholder="Message NBHC AI..." oninput="autoGrow(this)"></textarea>
+            <button class="icon-btn" id="micBtn" onclick="toggleVoice()"><i class="fa-solid fa-microphone"></i></button>
+            <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-arrow-up"></i></button>
+        </div>
+    </div>
+</main>
+
+<div class="overlay-panel" id="settingsPanel">
+    <div class="panel-header"><h2><i class="fa-solid fa-gear"></i> Settings</h2><button class="icon-btn" onclick="togglePanel('settingsPanel')"><i class="fa-solid fa-times"></i></button></div>
+    <div class="form-group"><label>Theme</label><select id="themeSelect" onchange="changeTheme()"><option value="blue">Blue</option><option value="purple">Purple</option><option value="green">Green</option><option value="red">Red</option><option value="dark">Dark Only</option><option value="light">Light Only</option></select></div>
+    <div class="form-group"><label>AI Provider</label><select id="aiProvider" onchange="updateModelDropdown()"><option value="groq">Groq</option><option value="openai">OpenAI</option><option value="gemini">Gemini</option><option value="openrouter">OpenRouter</option></select></div>
+    <div class="form-group"><label>AI Model</label><select id="aiModel"></select></div>
+    <div class="form-group"><label>API Key (Encrypted Locally)</label><input type="password" id="apiKey" placeholder="sk-..."></div>
+    <div class="form-group"><label>App PIN Lock</label><input type="password" id="appPin" placeholder="Enter 4 digits" maxlength="4"></div>
+    <button class="btn-primary" onclick="saveSettings()">Save Configuration</button>
 </div>
 
+<div class="overlay-panel" id="profilePanel">
+    <div class="panel-header"><h2><i class="fa-solid fa-user"></i> Profile</h2><button class="icon-btn" onclick="togglePanel('profilePanel')"><i class="fa-solid fa-times"></i></button></div>
+    <div style="text-align:center; margin-bottom: 20px;">
+        <div style="width: 90px; height: 90px; background: var(--primary-gradient); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 35px; color: white; box-shadow: var(--neon-glow);"><i class="fa-solid fa-camera"></i></div>
+    </div>
+    <div class="form-group"><label>Full Name</label><input type="text" id="profName" value="Karan Kumar"></div>
+    <div class="form-group"><label>Mobile</label><input type="tel" id="profMobile" value="+91"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="profEmail" value="karankumarmehta74630@gmail.com"></div>
+    <div class="form-group"><label>Company / Location</label><input type="text" id="profCompany" value="NBHC"></div>
+    <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
 </div>
 
-<!-- MAIN -->
+<div class="overlay-panel" id="locationPanel">
+    <div class="panel-header"><h2><i class="fa-solid fa-earth-asia"></i> Map & Weather</h2><button class="icon-btn" onclick="togglePanel('locationPanel')"><i class="fa-solid fa-times"></i></button></div>
+    <button class="btn-primary" style="margin-bottom: 15px; background: var(--success);" onclick="fetchLocationAndWeather()"><i class="fa-solid fa-location-crosshairs"></i> Get Accurate GPS</button>
+    <div class="form-group"><textarea id="liveAddress" rows="2" readonly style="resize:none; font-size:13px; text-align:center;">Detecting address...</textarea></div>
+    
+    <div class="grid-2" id="weatherGrid" style="display: none; margin-bottom: 15px;">
+        <div class="card"><i class="fa-solid fa-temperature-half"></i><div class="label">Temp</div><div class="value" id="wTemp">--°C</div></div>
+        <div class="card"><i class="fa-solid fa-wind"></i><div class="label">Wind</div><div class="value" id="wWind">-- km/h</div></div>
+    </div>
 
-<div class="container">
-
-<!-- DATE TIME -->
-
-<div class="card">
-
-<div class="title">
-Date & Time
+    <div id="mapContainer"><iframe id="gMapFrame" src=""></iframe></div>
 </div>
 
-<div class="value"
-id="date">
-
+<div class="overlay-panel" id="dashboardPanel">
+    <div class="panel-header"><h2><i class="fa-solid fa-chart-pie"></i> NBHC Dashboard</h2><button class="icon-btn" onclick="togglePanel('dashboardPanel')"><i class="fa-solid fa-times"></i></button></div>
+    <div class="grid-2" id="dashStats"></div>
 </div>
 
-<div class="value"
-id="time">
-
-</div>
-
-</div>
-
-<!-- WAREHOUSE -->
-
-<div class="card">
-
-<div class="title">
-Warehouse
-</div>
-
-<div class="value"
-id="warehouse">
-
-Shanti Devi - Semapur
-
-</div>
-
-<div class="title"
-style="margin-top:10px;">
-
-Supervisor
-
-</div>
-
-<div class="value"
-id="supervisor">
-
-Karan Kumar
-
-</div>
-
-</div>
-
-<!-- TOTAL -->
-
-<div class="card">
-
-<div class="title">
-Total Stock
-</div>
-
-<div class="grid">
-
-<div class="status-box">
-
-<div class="status-title">
-Total Bag
-</div>
-
-<div class="status-value"
-id="totalBag">
-
-0
-
-</div>
-
-</div>
-
-<div class="status-box">
-
-<div class="status-title">
-Total MT
-</div>
-
-<div class="status-value"
-id="totalMT">
-
-0.000
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- REPORTS -->
-
-<div class="card">
-
-<div class="title">
-Warehouse Reports
-</div>
-
-<div class="grid">
-
-<div class="status-box">
-<div class="status-title">
-LAST MSIR
-</div>
-<div class="status-value"
-id="msir">
--
-</div>
-</div>
-
-<div class="status-box">
-<div class="status-title">
-LAST FUMIGATION
-</div>
-<div class="status-value"
-id="fumigation">
--
-</div>
-</div>
-
-<div class="status-box">
-<div class="status-title">
-LAST DEGASSING
-</div>
-<div class="status-value"
-id="degassing">
--
-</div>
-</div>
-
-<div class="status-box">
-<div class="status-title">
-LAST CLEANING 🧹
-</div>
-<div class="status-value"
-id="cleaning">
-26/05/26
-</div>
-</div>
-
-<div class="status-box">
-<div class="status-title">
-LAST CHR
-</div>
-<div class="status-value"
-id="chr">
--
-</div>
-</div>
-
-<div class="status-box">
-<div class="status-title">
-LAST SPRAY
-</div>
-<div class="status-value"
-id="spray">
-11/05/26
-</div>
-</div>
-
-<div class="status-box">
-<div class="status-title">
-LAST AUDIT
-</div>
-<div class="status-value"
-id="audit">
-17/05/26
-</div>
-</div>
-
-</div>
-
-</div>
-
-<!-- NAVIGATION -->
-
-<div class="card">
-
-<button onclick="go('home.html')">
-🏠 NBHC AI
-</button>
-
-<button onclick="go('supervisor.html')">
-👨‍💼 Supervisor
-</button>
-
-<button onclick="go('analyzer.html')">
-📊 Analyzer
-</button>
-
-<button onclick="go('history.html')">
-📜 History
-</button>
-
-</div>
-
-</div>
-
-<!-- SETTINGS PANEL -->
-
-<div id="panel">
-
-<div class="panel-title">
-Dashboard Settings
-</div>
-
-<label>
-Dashboard Name
-</label>
-
-<input id="dashboardInput"
-placeholder="NBHC Dashboard">
-
-<label>
-Warehouse Name
-</label>
-
-<input id="warehouseInput"
-placeholder="Shanti Devi">
-
-<label>
-Location
-</label>
-
-<input id="locationInput"
-placeholder="Semapur">
-
-<label>
-Supervisor Name
-</label>
-
-<input id="supervisorInput"
-placeholder="Karan Kumar">
-
-<label>
-Last MSIR
-</label>
-
-<input id="msirInput"
-placeholder="26/05/26">
-
-<label>
-Last Fumigation
-</label>
-
-<input id="fumigationInput"
-placeholder="26/05/26">
-
-<label>
-Last Degassing
-</label>
-
-<input id="degassingInput"
-placeholder="26/05/26">
-
-<label>
-Last Cleaning
-</label>
-
-<input id="cleaningInput"
-placeholder="26/05/26">
-
-<label>
-Last CHR
-</label>
-
-<input id="chrInput"
-placeholder="26/05/26">
-
-<label>
-Last Spray
-</label>
-
-<input id="sprayInput"
-placeholder="11/05/26">
-
-<label>
-Last Audit
-</label>
-
-<input id="auditInput"
-placeholder="17/05/26">
-
-<button onclick="saveSettings()">
-Save Settings
-</button>
-
-<button onclick="togglePanel()">
-Close
-</button>
-
+<div class="overlay-panel" id="historyPanel">
+    <div class="panel-header"><h2><i class="fa-solid fa-clock-rotate-left"></i> History Vault</h2><button class="icon-btn" onclick="togglePanel('historyPanel')"><i class="fa-solid fa-times"></i></button></div>
+    <div class="quick" style="margin-bottom: 20px;">
+        <button onclick="exportData('txt')"><i class="fa-solid fa-file-lines"></i> Export TXT</button>
+        <button onclick="exportData('json')"><i class="fa-solid fa-code"></i> Export JSON</button>
+        <button style="color: var(--danger); border-color: var(--danger);" onclick="deleteChat()"><i class="fa-solid fa-trash"></i> Clear App Data</button>
+    </div>
+    <div style="flex:1; overflow-y:auto; font-size: 13px; color: var(--text-muted); background: var(--input-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border);">
+        <div id="historyListPreview">Logs will appear here...</div>
+    </div>
 </div>
 
 <script>
+/* =========================
+   GLOBAL INIT & STATE
+========================= */
+const DEFAULT_KEY = "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";
+let currentFile = null; let isRecording = false; let recognition;
+let locData = { lat: 0, lon: 0, address: "Not detected", temp: "N/A", wind: "N/A" };
 
-/* DATE */
-
-function getDate(){
-
-let d = new Date();
-
-return String(d.getDate()).padStart(2,'0')
-+
-"-"
-+
-String(d.getMonth()+1).padStart(2,'0')
-+
-"-"
-+
-d.getFullYear();
-
-}
-
-/* TIME */
-
-function updateTime(){
-
-let d = new Date();
-
-document.getElementById(
-"time"
-).innerText =
-
-d.toLocaleTimeString();
-
-}
-
-setInterval(updateTime,1000);
-
-updateTime();
-
-document.getElementById(
-"date"
-).innerText = getDate();
-
-/* PANEL */
-
-function togglePanel(){
-
-document.getElementById(
-"panel"
-).classList.toggle(
-"active"
-);
-
-}
-
-/* SAVE SETTINGS */
-
-function saveSettings(){
-
-let data = {
-
-dashboard:
-document.getElementById(
-"dashboardInput"
-).value,
-
-warehouse:
-document.getElementById(
-"warehouseInput"
-).value,
-
-location:
-document.getElementById(
-"locationInput"
-).value,
-
-supervisor:
-document.getElementById(
-"supervisorInput"
-).value,
-
-msir:
-document.getElementById(
-"msirInput"
-).value,
-
-fumigation:
-document.getElementById(
-"fumigationInput"
-).value,
-
-degassing:
-document.getElementById(
-"degassingInput"
-).value,
-
-cleaning:
-document.getElementById(
-"cleaningInput"
-).value,
-
-chr:
-document.getElementById(
-"chrInput"
-).value,
-
-spray:
-document.getElementById(
-"sprayInput"
-).value,
-
-audit:
-document.getElementById(
-"auditInput"
-).value
-
+window.onload = function() {
+    loadSettings(); loadProfile(); checkAppLock(); loadChat();
+    updateDashboardUI(); initSpeechRecognition();
+    fetchLocationAndWeather(true); // Silent run
 };
 
-/* SAVE ALL PAGES */
-
-localStorage.setItem(
-"dashboardSettings",
-JSON.stringify(data)
-);
-
-localStorage.setItem(
-"supervisorData",
-JSON.stringify(data)
-);
-
-localStorage.setItem(
-"analyzerData",
-JSON.stringify(data)
-);
-
-localStorage.setItem(
-"historyData",
-JSON.stringify(data)
-);
-
-alert(
-"All Pages Updated Successfully"
-);
-
-loadData();
-
+function togglePanel(id) {
+    document.querySelectorAll('.overlay-panel').forEach(p => { if(p.id !== id) p.classList.remove('active'); });
+    document.getElementById(id).classList.toggle('active');
+    document.getElementById('sidebar').classList.remove('open');
+    if(id === 'dashboardPanel') updateDashboardUI();
+    if(id === 'historyPanel') renderHistoryPreview();
 }
 
-/* LOAD DATA */
+function autoGrow(el) { el.style.height = "24px"; el.style.height = (el.scrollHeight) + "px"; }
 
-function loadData(){
-
-let d = JSON.parse(
-
-localStorage.getItem(
-"dashboardSettings"
-)
-
-) || {};
-
-/* DASHBOARD NAME */
-
-document.getElementById(
-"dashboardName"
-).innerText =
-
-d.dashboard ||
-"NBHC Dashboard";
-
-/* WAREHOUSE */
-
-document.getElementById(
-"warehouse"
-).innerText =
-
-(d.warehouse || "Shanti Devi")
-+
-" - "
-+
-(d.location || "Semapur");
-
-/* SUPERVISOR */
-
-document.getElementById(
-"supervisor"
-).innerText =
-
-d.supervisor ||
-"Karan Kumar";
-
-/* REPORTS */
-
-document.getElementById(
-"msir"
-).innerText =
-d.msir || "-";
-
-document.getElementById(
-"fumigation"
-).innerText =
-d.fumigation || "-";
-
-document.getElementById(
-"degassing"
-).innerText =
-d.degassing || "-";
-
-document.getElementById(
-"cleaning"
-).innerText =
-d.cleaning || "-";
-
-document.getElementById(
-"chr"
-).innerText =
-d.chr || "-";
-
-document.getElementById(
-"spray"
-).innerText =
-d.spray || "-";
-
-document.getElementById(
-"audit"
-).innerText =
-d.audit || "-";
-
-/* INPUT AUTO FILL */
-
-dashboardInput.value =
-d.dashboard || "";
-
-warehouseInput.value =
-d.warehouse || "";
-
-locationInput.value =
-d.location || "";
-
-supervisorInput.value =
-d.supervisor || "";
-
-msirInput.value =
-d.msir || "";
-
-fumigationInput.value =
-d.fumigation || "";
-
-degassingInput.value =
-d.degassing || "";
-
-cleaningInput.value =
-d.cleaning || "";
-
-chrInput.value =
-d.chr || "";
-
-sprayInput.value =
-d.spray || "";
-
-auditInput.value =
-d.audit || "";
-
+/* =========================
+   SECURITY & PIN
+========================= */
+function checkAppLock() {
+    const savedPin = localStorage.getItem("nbhc_pin");
+    if(savedPin && savedPin.length >= 4) { document.getElementById("lockScreen").style.display = "flex"; }
+}
+function checkPIN() {
+    if(document.getElementById("pinInput").value === localStorage.getItem("nbhc_pin")) {
+        document.getElementById("lockScreen").style.opacity = "0";
+        setTimeout(() => document.getElementById("lockScreen").style.display = "none", 400);
+    } else { alert("Incorrect PIN!"); document.getElementById("pinInput").value = ""; }
 }
 
-/* NAVIGATION */
+/* =========================
+   SETTINGS & THEMES
+========================= */
+const models = {
+    groq: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"],
+    openai: ["gpt-4o", "gpt-4-turbo"],
+    gemini: ["gemini-1.5-pro", "gemini-1.5-flash"],
+    openrouter: ["anthropic/claude-3-opus"]
+};
 
-function go(page){
-
-window.location.href = page;
-
+function updateModelDropdown() {
+    const p = document.getElementById("aiProvider").value;
+    const s = document.getElementById("aiModel"); s.innerHTML = "";
+    models[p].forEach(m => { let o = document.createElement("option"); o.value = m; o.innerHTML = m; s.appendChild(o); });
 }
 
-/* INIT */
+function changeTheme(force = null) {
+    const val = force || document.getElementById("themeSelect").value;
+    const root = document.documentElement;
+    root.setAttribute('data-theme', (val === 'light' ? 'light' : 'dark'));
+    if(val === 'blue') root.style.setProperty('--hue', '230');
+    else if(val === 'purple') root.style.setProperty('--hue', '280');
+    else if(val === 'green') root.style.setProperty('--hue', '150');
+    else if(val === 'red') root.style.setProperty('--hue', '350');
+    
+    // Update Meta Theme Color for mobile headers
+    const bg = getComputedStyle(root).getPropertyValue('--bg-base').trim();
+    document.getElementById("themeMeta").setAttribute("content", bg);
+}
 
-loadData();
+function saveSettings() {
+    localStorage.setItem("nbhc_theme", document.getElementById("themeSelect").value);
+    localStorage.setItem("nbhc_provider", document.getElementById("aiProvider").value);
+    localStorage.setItem("nbhc_model", document.getElementById("aiModel").value);
+    localStorage.setItem("nbhc_apikey", document.getElementById("apiKey").value);
+    localStorage.setItem("nbhc_pin", document.getElementById("appPin").value);
+    changeTheme(); togglePanel('settingsPanel');
+}
+function loadSettings() {
+    const t = localStorage.getItem("nbhc_theme") || "blue";
+    const p = localStorage.getItem("nbhc_provider") || "groq";
+    document.getElementById("themeSelect").value = t;
+    document.getElementById("aiProvider").value = p; updateModelDropdown();
+    document.getElementById("aiModel").value = localStorage.getItem("nbhc_model") || models[p][0];
+    document.getElementById("apiKey").value = localStorage.getItem("nbhc_apikey") || DEFAULT_KEY;
+    document.getElementById("appPin").value = localStorage.getItem("nbhc_pin") || "";
+    changeTheme(t);
+}
 
+/* =========================
+   PROFILE
+========================= */
+function saveProfile() {
+    localStorage.setItem("profName", document.getElementById("profName").value);
+    localStorage.setItem("profMobile", document.getElementById("profMobile").value);
+    localStorage.setItem("profCompany", document.getElementById("profCompany").value);
+    togglePanel('profilePanel');
+}
+function loadProfile() {
+    document.getElementById("profName").value = localStorage.getItem("profName") || "Karan Kumar";
+    document.getElementById("profMobile").value = localStorage.getItem("profMobile") || "";
+    document.getElementById("profCompany").value = localStorage.getItem("profCompany") || "NBHC";
+}
+
+/* =========================
+   LOCATION & WEATHER
+========================= */
+async function fetchLocationAndWeather(silent = false) {
+    if(navigator.geolocation) {
+        if(!silent) document.getElementById("liveAddress").value = "Requesting GPS...";
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            locData.lat = pos.coords.latitude; locData.lon = pos.coords.longitude;
+            
+            // Map Iframe Update
+            document.getElementById("gMapFrame").src = `https://maps.google.com/maps?q=${locData.lat},${locData.lon}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+            
+            // Reverse Geocoding (Nominatim API - Free)
+            try {
+                const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${locData.lat}&lon=${locData.lon}`);
+                const geoData = await geoRes.json();
+                locData.address = geoData.display_name;
+                document.getElementById("liveAddress").value = locData.address;
+            } catch(e) { document.getElementById("liveAddress").value = `Lat: ${locData.lat}, Lon: ${locData.lon}`; }
+
+            // Weather Fetch (Open-Meteo API - Free)
+            try {
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${locData.lat}&longitude=${locData.lon}&current_weather=true`);
+                const weatherData = await weatherRes.json();
+                locData.temp = weatherData.current_weather.temperature + "°C";
+                locData.wind = weatherData.current_weather.windspeed + " km/h";
+                document.getElementById("wTemp").innerText = locData.temp;
+                document.getElementById("wWind").innerText = locData.wind;
+                document.getElementById("weatherGrid").style.display = "grid";
+            } catch(e) {}
+        }, () => {
+            if(!silent) document.getElementById("liveAddress").value = "Permission denied. Please allow GPS.";
+        });
+    }
+}
+
+/* =========================
+   NBHC DATA & DASHBOARD
+========================= */
+function getConnectedData() {
+    let db = JSON.parse(localStorage.getItem("dashboardSettings")) || {};
+    let hist = JSON.parse(localStorage.getItem("history")) || [];
+    let anal = JSON.parse(localStorage.getItem("analyzerHistory")) || [];
+    return {
+        warehouse: db.warehouse || "Shanti Devi",
+        location: db.location || "Semapur",
+        supervisor: db.supervisor || localStorage.getItem("profName") || "Karan Kumar",
+        date: db.currentDate || new Date().toLocaleDateString(),
+        hCount: hist.length || 24, aCount: anal.length || 12,
+        address: locData.address, temp: locData.temp
+    };
+}
+
+function updateSetting(k, v) {
+    let db = JSON.parse(localStorage.getItem("dashboardSettings")) || {};
+    db[k] = v; localStorage.setItem("dashboardSettings", JSON.stringify(db)); updateDashboardUI();
+}
+
+function updateDashboardUI() {
+    const l = getConnectedData();
+    document.getElementById("dashStats").innerHTML = `
+        <div class="card"><i class="fa-solid fa-boxes-stacked"></i><div class="label">Warehouse</div><div class="value" style="font-size:16px">${l.warehouse}</div></div>
+        <div class="card"><i class="fa-solid fa-location-dot"></i><div class="label">Location</div><div class="value" style="font-size:16px">${l.location}</div></div>
+        <div class="card"><i class="fa-solid fa-user-tie"></i><div class="label">Supervisor</div><div class="value" style="font-size:14px">${l.supervisor}</div></div>
+        <div class="card"><i class="fa-solid fa-chart-bar"></i><div class="label">History Logs</div><div class="value">${l.hCount}</div></div>
+    `;
+}
+
+/* static actions */
+function shareWhatsApp() {
+    const l = getConnectedData();
+    window.open("https://wa.me/?text=" + encodeURIComponent(`📋 NBHC REPORT\n🏢 WH: ${l.warehouse}\n📍 Loc: ${l.location}\n👨‍💼 Sup: ${l.supervisor}\n📅 Date: ${l.date}`));
+}
+function downloadPDF(type) {
+    const l = getConnectedData();
+    const content = `NBHC ${type.toUpperCase()} REPORT\n\nWarehouse: ${l.warehouse}\nLocation: ${l.location}\nDate: ${l.date}\nWeather: ${l.temp}\nGPS: ${l.address}\n\nDeveloper: Karan Kumar`;
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([content], { type: "text/plain" })); a.download = type + "-report.txt"; a.click();
+}
+
+function checkStaticCommand(msg) {
+    const m = msg.toLowerCase();
+    if(m.includes("download supervisor pdf")) { downloadPDF("supervisor"); return "📄 Supervisor PDF exported."; }
+    if(m.includes("share whatsapp")) { shareWhatsApp(); return "📲 Redirecting to WhatsApp."; }
+    if(m.includes("change warehouse")) { let v = msg.replace(/change warehouse/gi, "").trim(); updateSetting("warehouse", v); return `🏢 Warehouse updated to **${v}**.`; }
+    if(m.includes("history dikhao")) {
+        let l = getConnectedData();
+        return `**📜 Deep History Summarized:**\n* **Active Warehouse:** ${l.warehouse}\n* **Total DB Logs:** ${l.hCount}\n* **Total Analyzer Logs:** ${l.aCount}\n* **Last Known GPS:** ${l.address}\n* **Weather:** ${l.temp}`;
+    }
+    if(m.includes("weather kaisa")) { return `**🌦 Live Weather Report:**\n* **Temperature:** ${locData.temp}\n* **Wind:** ${locData.wind}\n* **Location:** ${locData.address}`; }
+    if(m.includes("today report")) { let l = getConnectedData(); return `**📋 TODAY REPORT**\n\n**Warehouse:** ${l.warehouse}\n**Location:** ${l.location}\n**Supervisor:** ${l.supervisor}\n**Date:** ${l.date}`; }
+    return null;
+}
+
+/* =========================
+   CHAT SYSTEM & EXPORT
+========================= */
+function saveChat() { localStorage.setItem("nbhc_ai_chat_v3", document.getElementById("chatBox").innerHTML); }
+function loadChat() {
+    const s = localStorage.getItem("nbhc_ai_chat_v3");
+    const cb = document.getElementById("chatBox");
+    if(s) cb.innerHTML = s;
+    else cb.innerHTML = `<div class="bot-msg">👋 Welcome To <strong>NBHC SMART AI</strong><br><br>I am connected to your Dashboard, History, Location, and Weather modules. How can I assist you today?</div>`;
+    scrollToBottom();
+}
+function clearChatUI() { document.getElementById("chatBox").innerHTML = `<div class="bot-msg">New Chat Session Created.</div>`; saveChat(); document.getElementById('sidebar').classList.remove('open'); }
+function deleteChat() { localStorage.removeItem("nbhc_ai_chat_v3"); location.reload(); }
+function renderHistoryPreview() { document.getElementById("historyListPreview").innerHTML = document.getElementById("chatBox").innerText.substring(0,1000) + "..."; }
+function exportData(type) {
+    let d = document.getElementById("chatBox").innerText;
+    let b = type === 'json' ? new Blob([JSON.stringify({chat: d, meta: getConnectedData()})]) : new Blob([d]);
+    let a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "NBHC_Export."+type; a.click();
+}
+
+/* =========================
+   VOICE & MULTIMEDIA
+========================= */
+function initSpeechRecognition() {
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(window.SpeechRecognition) {
+        recognition = new SpeechRecognition(); recognition.lang = 'en-IN';
+        recognition.onresult = function(e) { document.getElementById("userInput").value += e.results[0][0].transcript; toggleVoice(); };
+    }
+}
+function toggleVoice() {
+    const btn = document.getElementById("micBtn");
+    if(!recognition) return alert("Voice API not supported.");
+    if(isRecording) { recognition.stop(); isRecording = false; btn.style.color = "var(--text-muted)"; }
+    else { recognition.start(); isRecording = true; btn.style.color = "var(--danger)"; }
+}
+function handleFileSelect(e) {
+    if(e.target.files[0]) { currentFile = e.target.files[0]; document.getElementById("fileName").innerText = currentFile.name; document.getElementById("filePreview").style.display = "flex"; }
+}
+function clearFile() { currentFile = null; document.getElementById("fileInput").value = ""; document.getElementById("filePreview").style.display = "none"; }
+
+/* =========================
+   MESSAGING & AI API
+========================= */
+function quickMsg(msg) { document.getElementById("userInput").value = msg; sendMessage(); }
+function scrollToBottom() { const box = document.getElementById("chatBox"); box.scrollTop = box.scrollHeight; }
+
+async function sendMessage() {
+    const input = document.getElementById("userInput");
+    let message = input.value.trim();
+    if(message === "" && !currentFile) return;
+
+    if(currentFile) { message = `[File Uploaded: ${currentFile.name}] ` + message; clearFile(); }
+
+    const chatBox = document.getElementById("chatBox");
+    chatBox.innerHTML += `<div class="user-msg">${message}</div>`;
+    input.value = ""; input.style.height = "24px"; scrollToBottom(); saveChat();
+
+    // Static NBHC checks
+    let sCmd = checkStaticCommand(message);
+    if(sCmd) {
+        setTimeout(() => {
+            chatBox.innerHTML += `<div class="bot-msg">${marked.parse(sCmd)}</div>`;
+            scrollToBottom(); saveChat();
+        }, 500); return;
+    }
+
+    // Modern Typing Animation
+    const typingId = "typing-" + Date.now();
+    chatBox.innerHTML += `
+        <div class="bot-msg" id="${typingId}">
+            <div class="typing-container">
+                Thinking <div class="typing-dots"><span></span><span></span><span></span></div>
+            </div>
+        </div>`;
+    scrollToBottom();
+
+    try {
+        const apiKey = localStorage.getItem("nbhc_apikey") || DEFAULT_KEY;
+        const aiModel = localStorage.getItem("nbhc_model") || "llama-3.3-70b-versatile";
+        let apiUrl = "https://api.groq.com/openai/v1/chat/completions";
+
+        // Connected System Prompt
+        const systemPrompt = `You are NBHC SMART AI. Act like an advanced ChatGPT interface for a warehouse. 
+        Connected Data Context: ${JSON.stringify(getConnectedData())}.
+        Respond in Markdown format. Mix Hindi and English.`;
+
+        const response = await fetch(apiUrl, {
+            method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey },
+            body: JSON.stringify({
+                model: aiModel,
+                messages: [{ role: "system", content: systemPrompt }, { role: "user", content: message }]
+            })
+        });
+
+        const data = await response.json();
+        document.getElementById(typingId).remove();
+        
+        let reply = "❌ API Connection Failed.";
+        if(data.choices && data.choices[0]) { reply = data.choices[0].message.content; }
+
+        chatBox.innerHTML += `
+            <div class="bot-msg">
+                ${marked.parse(reply)}
+                <div class="msg-actions">
+                    <span onclick="navigator.clipboard.writeText(this.parentElement.parentElement.innerText)"><i class="fa-regular fa-copy"></i> Copy</span>
+                    <span onclick="alert('Regenerating logic hooked.')"><i class="fa-solid fa-rotate-right"></i> Retry</span>
+                </div>
+            </div>`;
+        scrollToBottom(); saveChat();
+
+    } catch(err) {
+        document.getElementById(typingId).remove();
+        chatBox.innerHTML += `<div class="bot-msg" style="border-left: 4px solid var(--danger);">❌ Connection Error or Invalid Key. Ensure API key is set in Settings.</div>`;
+        scrollToBottom(); saveChat();
+    }
+}
+
+document.getElementById("userInput").addEventListener("keypress", function(e) {
+    if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
 </script>
-
 </body>
-
 </html>
