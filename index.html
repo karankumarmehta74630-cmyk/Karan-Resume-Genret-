@@ -1,666 +1,612 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a" id="themeMeta">
-<title>NBHC SMART AI - Ultimate</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-<style>
-/* =========================
-   CSS VARIABLES & THEMES
-========================= */
-:root {
-    --hue: 230; 
-    --primary-color: hsl(var(--hue), 100%, 65%);
-    --primary-gradient: linear-gradient(135deg, hsl(var(--hue), 100%, 60%), hsl(var(--hue), 100%, 50%));
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f2027">
+    <title>Karan Monitor</title>
     
-    /* Dark Theme */
-    --bg-base: #0f172a;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --glass-bg: rgba(15, 23, 42, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --bot-msg-bg: rgba(30, 41, 59, 0.85);
-    --input-bg: rgba(15, 23, 42, 0.9);
-    --neon-glow: 0 0 20px hsla(var(--hue), 100%, 60%, 0.4);
-    --danger: #ef4444; --success: #22c55e; --warning: #f59e0b;
-}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-[data-theme="light"] {
-    --bg-base: #f1f5f9;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --glass-bg: rgba(255, 255, 255, 0.8);
-    --glass-border: rgba(0, 0, 0, 0.1);
-    --bot-msg-bg: rgba(255, 255, 255, 0.95);
-    --input-bg: rgba(255, 255, 255, 0.9);
-    --neon-glow: 0 4px 15px hsla(var(--hue), 100%, 60%, 0.25);
-}
+    <style>
+        /* CSS Variables & Theming */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --success: #00ff87;
+            --warning: #fdbb2d;
+            --danger: #ff0844;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --font: 'Poppins', sans-serif;
+        }
 
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; -webkit-tap-highlight-color:transparent; }
+        .light-mode {
+            --bg-gradient: linear-gradient(135deg, #e0c3fc, #8ec5fc);
+            --glass-bg: rgba(255, 255, 255, 0.3);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-main: #1a1a1a;
+            --text-muted: rgba(0, 0, 0, 0.6);
+        }
 
-/* Mobile First Base */
-body {
-    background: var(--bg-base); color: var(--text-main);
-    height: 100dvh; overflow: hidden; display: flex; position: relative;
-    transition: background 0.4s ease, color 0.4s ease;
-}
+        /* Global Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font); user-select: none; }
+        body { background: var(--bg-gradient); background-attachment: fixed; color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; transition: background 0.5s; }
 
-/* =========================
-   ANIMATIONS & BACKGROUND
-========================= */
-.bg-canvas { position: absolute; top:0; left:0; width:100%; height:100%; z-index:-1; overflow:hidden; }
-.blob { position: absolute; filter: blur(90px); opacity: 0.4; animation: floatBlob 20s infinite alternate; }
-.blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: hsl(var(--hue), 100%, 50%); }
-.blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: hsl(calc(var(--hue) + 40), 100%, 50%); animation-delay: -5s; }
-@keyframes floatBlob { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, 30px) scale(1.1); } }
+        /* Background Particles */
+        #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
-.particles {
-    position: absolute; width: 100%; height: 100%; pointer-events: none;
-    background-image: radial-gradient(var(--glass-border) 1px, transparent 1px);
-    background-size: 25px 25px; opacity: 0.2; animation: drift 60s linear infinite;
-}
-@keyframes drift { from { background-position: 0 0; } to { background-position: 100px 100px; } }
+        /* Splash Screen */
+        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f2027; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s; }
+        .splash-title { font-size: 2.5rem; font-weight: 800; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse 1.5s infinite; }
 
-/* =========================
-   SIDEBAR (CHATGPT STYLE)
-========================= */
-.sidebar {
-    width: 280px; height: 100%; background: var(--glass-bg); backdrop-filter: blur(20px);
-    border-right: 1px solid var(--glass-border); display: flex; flex-direction: column;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; flex-shrink: 0;
-}
-.sidebar-header { padding: 20px; border-bottom: 1px solid var(--glass-border); }
-.new-chat-btn {
-    width: 100%; padding: 12px; border-radius: 12px; border: none;
-    background: var(--primary-gradient); color: white; cursor: pointer; font-weight: 600;
-    display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--neon-glow);
-    transition: 0.2s;
-}
-.new-chat-btn:active { transform: scale(0.95); }
+        /* Main Container */
+        .app-container { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding-bottom: 80px; scroll-behavior: smooth; }
 
-.history-list { flex: 1; overflow-y: auto; padding: 10px; }
-.history-item {
-    padding: 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;
-    color: var(--text-muted); font-size: 13px; transition: 0.2s; margin-bottom: 5px;
-}
-.history-item:hover, .history-item.active { background: rgba(128,128,128,0.15); color: var(--text-main); }
-.history-item i { width: 15px; text-align: center; }
+        /* Glassmorphism Elements */
+        .glass { background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }
 
-.sidebar-footer { padding: 15px; border-top: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 5px; }
+        /* Header / Clock */
+        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; background: rgba(15, 32, 39, 0.8); backdrop-filter: blur(10px); }
+        .app-title { font-weight: 800; font-size: 1.2rem; color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+        .clock-container { text-align: right; }
+        .time { font-size: 1.2rem; font-weight: 600; }
+        .date { font-size: 0.7rem; color: var(--text-muted); }
 
-/* =========================
-   MAIN APP AREA
-========================= */
-.main-app { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
+        /* Views (Pages) */
+        .view { display: none; padding: 20px; animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .view.active { display: block; }
 
-/* Header */
-.chat-header {
-    padding: env(safe-area-inset-top, 15px) 20px 15px 20px;
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--glass-bg); backdrop-filter: blur(15px); border-bottom: 1px solid var(--glass-border);
-}
-.header-left { display: flex; align-items: center; gap: 15px; }
-.menu-btn { display: none; background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-.logo-container {
-    position: relative; width: 44px; height: 44px; border-radius: 12px;
-    background: var(--primary-gradient); display: flex; justify-content: center; align-items: center;
-    font-size: 22px; color: white; box-shadow: var(--neon-glow);
-}
-.status-dot { position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px; background: var(--success); border-radius: 50%; border: 2px solid var(--bg-base); }
+        /* Grid & Cards */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .card { padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: transform 0.2s; }
+        .card:active { transform: scale(0.95); }
+        .card i { font-size: 1.8rem; margin-bottom: 10px; color: var(--primary); }
+        .card .value { font-size: 1.2rem; font-weight: 600; margin: 5px 0; }
+        .card .label { font-size: 0.75rem; color: var(--text-muted); }
+        .card.unsupported .value { font-size: 0.8rem; color: var(--danger); }
 
-.header-text { display: flex; flex-direction: column; }
-.header-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-.header-sub { font-size: 11px; color: var(--text-muted); }
+        /* Battery Circular Indicator */
+        .battery-circle { position: relative; width: 200px; height: 200px; margin: 20px auto; }
+        .circular-chart { display: block; width: 100%; height: 100%; }
+        .circle-bg { fill: none; stroke: var(--glass-border); stroke-width: 3.8; }
+        .circle { fill: none; stroke: var(--success); stroke-width: 2.8; stroke-linecap: round; transition: stroke-dasharray 1s, stroke 0.5s; }
+        .batt-info { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .batt-pct { font-size: 2.5rem; font-weight: 800; }
+        .lightning { display: none; color: var(--warning); font-size: 1.5rem; animation: pulse 1s infinite; }
+        .is-charging .lightning { display: inline-block; }
 
-.header-icons { display: flex; gap: 15px; }
-.header-icons button { background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; transition: 0.3s; }
-.header-icons button:hover { color: var(--primary-color); }
+        @keyframes pulse { 0% { opacity: 0.5; text-shadow: 0 0 5px var(--warning); } 100% { opacity: 1; text-shadow: 0 0 20px var(--warning); } }
 
-/* Chat Box */
-.chat-box {
-    flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; padding-bottom: 10px;
-    display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth;
-}
-.bot-msg, .user-msg {
-    padding: 16px 20px; border-radius: 20px; font-size: 14.5px; line-height: 1.6;
-    max-width: 90%; word-break: break-word; position: relative;
-    animation: slideUpFade 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-.bot-msg { background: var(--bot-msg-bg); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--glass-border); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-.user-msg { background: var(--primary-gradient); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: var(--neon-glow); }
+        /* History List */
+        .history-list { display: flex; flex-direction: column; gap: 10px; }
+        .history-item { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-radius: 10px; }
+        
+        /* Buttons */
+        .btn { padding: 10px 20px; border: none; border-radius: 10px; background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
 
-/* Markdown Styles */
-.bot-msg pre { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 10px 0; font-size: 13px; border: 1px solid #333; }
-.bot-msg code { font-family: monospace; background: rgba(128,128,128,0.2); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
-.bot-msg table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
-.bot-msg th, .bot-msg td { border: 1px solid var(--glass-border); padding: 8px; text-align: left; }
+        /* Footer */
+        .footer { text-align: center; padding: 20px; margin-top: auto; font-size: 0.8rem; color: var(--text-muted); }
 
-.msg-actions { margin-top: 10px; font-size: 12px; display: flex; gap: 15px; color: var(--text-muted); border-top: 1px solid var(--glass-border); padding-top: 10px; }
-.msg-actions span { cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px;}
-.msg-actions span:hover { color: var(--primary-color); }
+        /* Bottom Navigation */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; justify-content: space-around; padding: 15px 5px 20px 5px; background: rgba(15, 32, 39, 0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); z-index: 100; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+        .bottom-nav::-webkit-scrollbar { display: none; }
+        .nav-item { color: var(--text-muted); font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: 0.3s; padding: 0 10px; }
+        .nav-item span { font-size: 0.65rem; font-weight: 600; }
+        .nav-item.active { color: var(--primary); text-shadow: 0 0 10px var(--primary); transform: translateY(-5px); }
 
-@keyframes slideUpFade { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
-
-/* Modern Typing Animation */
-.typing-container { display: flex; align-items: center; gap: 8px; color: var(--primary-color); font-weight: 500; font-size: 13px;}
-.typing-dots { display: flex; gap: 4px; }
-.typing-dots span { width: 6px; height: 6px; background: var(--primary-color); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
-.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
-.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
-@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-
-/* Bottom Area */
-.bottom-area {
-    padding: 10px 20px calc(15px + env(safe-area-inset-bottom));
-    background: var(--glass-bg); border-top: 1px solid var(--glass-border); backdrop-filter: blur(15px);
-}
-.quick { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 5px; scrollbar-width: none; }
-.quick::-webkit-scrollbar { display: none; }
-.quick button { padding: 8px 16px; border: 1px solid var(--glass-border); border-radius: 20px; background: var(--bot-msg-bg); color: var(--text-main); font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.2s; }
-.quick button:hover { background: var(--primary-gradient); color: white; border-color: transparent; }
-
-.input-area { display: flex; gap: 10px; align-items: flex-end; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 6px 12px; }
-.icon-btn { background: transparent; border: none; color: var(--text-muted); font-size: 20px; padding: 10px; cursor: pointer; transition: 0.2s; }
-.icon-btn:hover { color: var(--primary-color); }
-
-.input-area textarea {
-    flex: 1; background: transparent; border: none; color: var(--text-main); font-size: 15px; resize: none;
-    max-height: 120px; min-height: 24px; padding: 12px 0; outline: none; line-height: 1.4;
-}
-.send-btn { width: 44px; height: 44px; border: none; border-radius: 50%; background: var(--primary-gradient); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; box-shadow: var(--neon-glow); flex-shrink: 0; margin-bottom: 2px;}
-
-#filePreview { display: none; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 10px; font-size: 12px; align-items: center; justify-content: space-between; border: 1px solid var(--primary-color); }
-
-/* =========================
-   OVERLAY PANELS
-========================= */
-.overlay-panel {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--bg-base); z-index: 200; overflow-y: auto;
-    transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    padding: env(safe-area-inset-top, 20px) 20px 20px; display: flex; flex-direction: column;
-}
-.overlay-panel.active { transform: translateY(0); }
-.panel-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); margin-bottom: 20px; position: sticky; top: 0; background: var(--bg-base); z-index: 10; }
-.panel-header h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
-
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; font-size: 12px; margin-bottom: 5px; color: var(--text-muted); }
-.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); outline: none; font-size: 14px; }
-.btn-primary { width: 100%; padding: 16px; border: none; border-radius: 12px; background: var(--primary-gradient); color: white; font-weight: 600; cursor: pointer; box-shadow: var(--neon-glow); font-size: 15px; transition: 0.2s;}
-.btn-primary:active { transform: scale(0.98); }
-
-/* Dashboard & Weather Grids */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.card { background: var(--bot-msg-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; text-align: center; }
-.card i { font-size: 24px; color: var(--primary-color); margin-bottom: 10px; }
-.card .value { font-size: 22px; font-weight: 700; margin-top: 5px; }
-.card .label { font-size: 12px; color: var(--text-muted); }
-
-/* Map Iframe */
-#mapContainer { width: 100%; height: 250px; border-radius: 16px; overflow: hidden; border: 1px solid var(--glass-border); margin-top: 15px; background: #222; }
-#mapContainer iframe { width: 100%; height: 100%; border: none; }
-
-/* Mobile Setup */
-@media(max-width: 768px) {
-    .sidebar { position: absolute; left: -100%; }
-    .sidebar.open { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-    .menu-btn { display: block; }
-}
-
-/* Lock Screen */
-#lockScreen { position: fixed; top:0; left:0; width:100%; height:100%; z-index:999; background: var(--bg-base); display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.4s; }
-</style>
+        /* Charts */
+        .chart-box { height: 250px; margin-top: 20px; padding: 10px; }
+    </style>
 </head>
 <body>
 
-<div class="bg-canvas">
-    <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="particles"></div>
-</div>
-
-<div id="lockScreen" style="display: none;">
-    <i class="fa-solid fa-shield-halved" style="font-size: 50px; color: var(--primary-color); margin-bottom: 20px;"></i>
-    <h2>NBHC Security</h2>
-    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 25px;">Enter PIN to Unlock</p>
-    <input type="password" id="pinInput" placeholder="••••" maxlength="4" style="padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); text-align: center; font-size: 24px; letter-spacing: 15px; width: 200px; margin-bottom: 20px;">
-    <button class="btn-primary" style="width: 200px;" onclick="checkPIN()">Unlock App</button>
-</div>
-
-<aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <button class="new-chat-btn" onclick="clearChatUI()"><i class="fa-solid fa-plus"></i> New Chat</button>
-    </div>
-    <div class="history-list" id="chatSessions">
-        <div class="history-item active"><i class="fa-regular fa-message"></i> Warehouse Update</div>
-        <div class="history-item"><i class="fa-regular fa-message"></i> Analyzer PDF Check</div>
-    </div>
-    <div class="sidebar-footer">
-        <div class="history-item" onclick="togglePanel('locationPanel')"><i class="fa-solid fa-map-location-dot"></i> Live Map & Weather</div>
-        <div class="history-item" onclick="togglePanel('profilePanel')"><i class="fa-solid fa-user"></i> My Profile</div>
-        <div class="history-item" onclick="togglePanel('historyPanel')"><i class="fa-solid fa-clock-rotate-left"></i> History Records</div>
-    </div>
-</aside>
-
-<main class="main-app">
-    <header class="chat-header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fa-solid fa-bars"></i></button>
-            <div class="logo-container" onclick="togglePanel('dashboardPanel')">
-                🤖<div class="status-dot"></div>
-            </div>
-            <div class="header-text">
-                <div class="header-title">NBHC SMART AI <i class="fa-solid fa-circle-check" style="color: #3b82f6; font-size: 13px;"></i></div>
-                <div class="header-sub" id="activeModelText">Connected • Ready</div>
-            </div>
-        </div>
-        <div class="header-icons">
-            <button onclick="togglePanel('dashboardPanel')"><i class="fa-solid fa-chart-pie"></i></button>
-            <button onclick="togglePanel('settingsPanel')"><i class="fa-solid fa-gear"></i></button>
-        </div>
-    </header>
-
-    <div class="chat-box" id="chatBox"></div>
-
-    <div class="bottom-area">
-        <div class="quick">
-            <button onclick="quickMsg('Today Report')">📋 Today Report</button>
-            <button onclick="quickMsg('History dikhao')">📜 Data History</button>
-            <button onclick="quickMsg('Download Supervisor PDF')">📄 PDF Export</button>
-            <button onclick="quickMsg('Weather kaisa hai?')">🌦 Weather</button>
-            <button onclick="quickMsg('Change Warehouse Semapur')">🏢 Change WH</button>
-        </div>
-
-        <div id="filePreview">
-            <span><i class="fa-solid fa-file"></i> <span id="fileName">file</span></span>
-            <button class="icon-btn" onclick="clearFile()" style="padding:0; font-size: 14px; color: var(--danger);"><i class="fa-solid fa-times"></i></button>
-        </div>
-
-        <div class="input-area">
-            <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(event)" accept="image/*,.pdf,.xlsx,.csv,.txt,.mp4">
-            <button class="icon-btn" onclick="document.getElementById('fileInput').click()"><i class="fa-solid fa-paperclip"></i></button>
-            <textarea id="userInput" placeholder="Message NBHC AI..." oninput="autoGrow(this)"></textarea>
-            <button class="icon-btn" id="micBtn" onclick="toggleVoice()"><i class="fa-solid fa-microphone"></i></button>
-            <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-arrow-up"></i></button>
-        </div>
-    </div>
-</main>
-
-<div class="overlay-panel" id="settingsPanel">
-    <div class="panel-header"><h2><i class="fa-solid fa-gear"></i> Settings</h2><button class="icon-btn" onclick="togglePanel('settingsPanel')"><i class="fa-solid fa-times"></i></button></div>
-    <div class="form-group"><label>Theme</label><select id="themeSelect" onchange="changeTheme()"><option value="blue">Blue</option><option value="purple">Purple</option><option value="green">Green</option><option value="red">Red</option><option value="dark">Dark Only</option><option value="light">Light Only</option></select></div>
-    <div class="form-group"><label>AI Provider</label><select id="aiProvider" onchange="updateModelDropdown()"><option value="groq">Groq</option><option value="openai">OpenAI</option><option value="gemini">Gemini</option><option value="openrouter">OpenRouter</option></select></div>
-    <div class="form-group"><label>AI Model</label><select id="aiModel"></select></div>
-    <div class="form-group"><label>API Key (Encrypted Locally)</label><input type="password" id="apiKey" placeholder="sk-..."></div>
-    <div class="form-group"><label>App PIN Lock</label><input type="password" id="appPin" placeholder="Enter 4 digits" maxlength="4"></div>
-    <button class="btn-primary" onclick="saveSettings()">Save Configuration</button>
-</div>
-
-<div class="overlay-panel" id="profilePanel">
-    <div class="panel-header"><h2><i class="fa-solid fa-user"></i> Profile</h2><button class="icon-btn" onclick="togglePanel('profilePanel')"><i class="fa-solid fa-times"></i></button></div>
-    <div style="text-align:center; margin-bottom: 20px;">
-        <div style="width: 90px; height: 90px; background: var(--primary-gradient); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 35px; color: white; box-shadow: var(--neon-glow);"><i class="fa-solid fa-camera"></i></div>
-    </div>
-    <div class="form-group"><label>Full Name</label><input type="text" id="profName" value="Karan Kumar"></div>
-    <div class="form-group"><label>Mobile</label><input type="tel" id="profMobile" value="+91"></div>
-    <div class="form-group"><label>Email</label><input type="email" id="profEmail" value="karankumarmehta74630@gmail.com"></div>
-    <div class="form-group"><label>Company / Location</label><input type="text" id="profCompany" value="NBHC"></div>
-    <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
-</div>
-
-<div class="overlay-panel" id="locationPanel">
-    <div class="panel-header"><h2><i class="fa-solid fa-earth-asia"></i> Map & Weather</h2><button class="icon-btn" onclick="togglePanel('locationPanel')"><i class="fa-solid fa-times"></i></button></div>
-    <button class="btn-primary" style="margin-bottom: 15px; background: var(--success);" onclick="fetchLocationAndWeather()"><i class="fa-solid fa-location-crosshairs"></i> Get Accurate GPS</button>
-    <div class="form-group"><textarea id="liveAddress" rows="2" readonly style="resize:none; font-size:13px; text-align:center;">Detecting address...</textarea></div>
-    
-    <div class="grid-2" id="weatherGrid" style="display: none; margin-bottom: 15px;">
-        <div class="card"><i class="fa-solid fa-temperature-half"></i><div class="label">Temp</div><div class="value" id="wTemp">--°C</div></div>
-        <div class="card"><i class="fa-solid fa-wind"></i><div class="label">Wind</div><div class="value" id="wWind">-- km/h</div></div>
+    <div id="splash">
+        <i class="fas fa-bolt" style="font-size: 4rem; color: var(--warning); margin-bottom: 20px;"></i>
+        <div class="splash-title">Karan Monitor</div>
+        <div style="color: var(--text-muted); margin-top: 10px;">Loading System Data...</div>
     </div>
 
-    <div id="mapContainer"><iframe id="gMapFrame" src=""></iframe></div>
-</div>
+    <canvas id="particles"></canvas>
 
-<div class="overlay-panel" id="dashboardPanel">
-    <div class="panel-header"><h2><i class="fa-solid fa-chart-pie"></i> NBHC Dashboard</h2><button class="icon-btn" onclick="togglePanel('dashboardPanel')"><i class="fa-solid fa-times"></i></button></div>
-    <div class="grid-2" id="dashStats"></div>
-</div>
-
-<div class="overlay-panel" id="historyPanel">
-    <div class="panel-header"><h2><i class="fa-solid fa-clock-rotate-left"></i> History Vault</h2><button class="icon-btn" onclick="togglePanel('historyPanel')"><i class="fa-solid fa-times"></i></button></div>
-    <div class="quick" style="margin-bottom: 20px;">
-        <button onclick="exportData('txt')"><i class="fa-solid fa-file-lines"></i> Export TXT</button>
-        <button onclick="exportData('json')"><i class="fa-solid fa-code"></i> Export JSON</button>
-        <button style="color: var(--danger); border-color: var(--danger);" onclick="deleteChat()"><i class="fa-solid fa-trash"></i> Clear App Data</button>
-    </div>
-    <div style="flex:1; overflow-y:auto; font-size: 13px; color: var(--text-muted); background: var(--input-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border);">
-        <div id="historyListPreview">Logs will appear here...</div>
-    </div>
-</div>
-
-<script>
-/* =========================
-   GLOBAL INIT & STATE
-========================= */
-const DEFAULT_KEY = "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";
-let currentFile = null; let isRecording = false; let recognition;
-let locData = { lat: 0, lon: 0, address: "Not detected", temp: "N/A", wind: "N/A" };
-
-window.onload = function() {
-    loadSettings(); loadProfile(); checkAppLock(); loadChat();
-    updateDashboardUI(); initSpeechRecognition();
-    fetchLocationAndWeather(true); // Silent run
-};
-
-function togglePanel(id) {
-    document.querySelectorAll('.overlay-panel').forEach(p => { if(p.id !== id) p.classList.remove('active'); });
-    document.getElementById(id).classList.toggle('active');
-    document.getElementById('sidebar').classList.remove('open');
-    if(id === 'dashboardPanel') updateDashboardUI();
-    if(id === 'historyPanel') renderHistoryPreview();
-}
-
-function autoGrow(el) { el.style.height = "24px"; el.style.height = (el.scrollHeight) + "px"; }
-
-/* =========================
-   SECURITY & PIN
-========================= */
-function checkAppLock() {
-    const savedPin = localStorage.getItem("nbhc_pin");
-    if(savedPin && savedPin.length >= 4) { document.getElementById("lockScreen").style.display = "flex"; }
-}
-function checkPIN() {
-    if(document.getElementById("pinInput").value === localStorage.getItem("nbhc_pin")) {
-        document.getElementById("lockScreen").style.opacity = "0";
-        setTimeout(() => document.getElementById("lockScreen").style.display = "none", 400);
-    } else { alert("Incorrect PIN!"); document.getElementById("pinInput").value = ""; }
-}
-
-/* =========================
-   SETTINGS & THEMES
-========================= */
-const models = {
-    groq: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"],
-    openai: ["gpt-4o", "gpt-4-turbo"],
-    gemini: ["gemini-1.5-pro", "gemini-1.5-flash"],
-    openrouter: ["anthropic/claude-3-opus"]
-};
-
-function updateModelDropdown() {
-    const p = document.getElementById("aiProvider").value;
-    const s = document.getElementById("aiModel"); s.innerHTML = "";
-    models[p].forEach(m => { let o = document.createElement("option"); o.value = m; o.innerHTML = m; s.appendChild(o); });
-}
-
-function changeTheme(force = null) {
-    const val = force || document.getElementById("themeSelect").value;
-    const root = document.documentElement;
-    root.setAttribute('data-theme', (val === 'light' ? 'light' : 'dark'));
-    if(val === 'blue') root.style.setProperty('--hue', '230');
-    else if(val === 'purple') root.style.setProperty('--hue', '280');
-    else if(val === 'green') root.style.setProperty('--hue', '150');
-    else if(val === 'red') root.style.setProperty('--hue', '350');
-    
-    // Update Meta Theme Color for mobile headers
-    const bg = getComputedStyle(root).getPropertyValue('--bg-base').trim();
-    document.getElementById("themeMeta").setAttribute("content", bg);
-}
-
-function saveSettings() {
-    localStorage.setItem("nbhc_theme", document.getElementById("themeSelect").value);
-    localStorage.setItem("nbhc_provider", document.getElementById("aiProvider").value);
-    localStorage.setItem("nbhc_model", document.getElementById("aiModel").value);
-    localStorage.setItem("nbhc_apikey", document.getElementById("apiKey").value);
-    localStorage.setItem("nbhc_pin", document.getElementById("appPin").value);
-    changeTheme(); togglePanel('settingsPanel');
-}
-function loadSettings() {
-    const t = localStorage.getItem("nbhc_theme") || "blue";
-    const p = localStorage.getItem("nbhc_provider") || "groq";
-    document.getElementById("themeSelect").value = t;
-    document.getElementById("aiProvider").value = p; updateModelDropdown();
-    document.getElementById("aiModel").value = localStorage.getItem("nbhc_model") || models[p][0];
-    document.getElementById("apiKey").value = localStorage.getItem("nbhc_apikey") || DEFAULT_KEY;
-    document.getElementById("appPin").value = localStorage.getItem("nbhc_pin") || "";
-    changeTheme(t);
-}
-
-/* =========================
-   PROFILE
-========================= */
-function saveProfile() {
-    localStorage.setItem("profName", document.getElementById("profName").value);
-    localStorage.setItem("profMobile", document.getElementById("profMobile").value);
-    localStorage.setItem("profCompany", document.getElementById("profCompany").value);
-    togglePanel('profilePanel');
-}
-function loadProfile() {
-    document.getElementById("profName").value = localStorage.getItem("profName") || "Karan Kumar";
-    document.getElementById("profMobile").value = localStorage.getItem("profMobile") || "";
-    document.getElementById("profCompany").value = localStorage.getItem("profCompany") || "NBHC";
-}
-
-/* =========================
-   LOCATION & WEATHER
-========================= */
-async function fetchLocationAndWeather(silent = false) {
-    if(navigator.geolocation) {
-        if(!silent) document.getElementById("liveAddress").value = "Requesting GPS...";
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            locData.lat = pos.coords.latitude; locData.lon = pos.coords.longitude;
-            
-            // Map Iframe Update
-            document.getElementById("gMapFrame").src = `https://maps.google.com/maps?q=${locData.lat},${locData.lon}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-            
-            // Reverse Geocoding (Nominatim API - Free)
-            try {
-                const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${locData.lat}&lon=${locData.lon}`);
-                const geoData = await geoRes.json();
-                locData.address = geoData.display_name;
-                document.getElementById("liveAddress").value = locData.address;
-            } catch(e) { document.getElementById("liveAddress").value = `Lat: ${locData.lat}, Lon: ${locData.lon}`; }
-
-            // Weather Fetch (Open-Meteo API - Free)
-            try {
-                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${locData.lat}&longitude=${locData.lon}&current_weather=true`);
-                const weatherData = await weatherRes.json();
-                locData.temp = weatherData.current_weather.temperature + "°C";
-                locData.wind = weatherData.current_weather.windspeed + " km/h";
-                document.getElementById("wTemp").innerText = locData.temp;
-                document.getElementById("wWind").innerText = locData.wind;
-                document.getElementById("weatherGrid").style.display = "grid";
-            } catch(e) {}
-        }, () => {
-            if(!silent) document.getElementById("liveAddress").value = "Permission denied. Please allow GPS.";
-        });
-    }
-}
-
-/* =========================
-   NBHC DATA & DASHBOARD
-========================= */
-function getConnectedData() {
-    let db = JSON.parse(localStorage.getItem("dashboardSettings")) || {};
-    let hist = JSON.parse(localStorage.getItem("history")) || [];
-    let anal = JSON.parse(localStorage.getItem("analyzerHistory")) || [];
-    return {
-        warehouse: db.warehouse || "Shanti Devi",
-        location: db.location || "Semapur",
-        supervisor: db.supervisor || localStorage.getItem("profName") || "Karan Kumar",
-        date: db.currentDate || new Date().toLocaleDateString(),
-        hCount: hist.length || 24, aCount: anal.length || 12,
-        address: locData.address, temp: locData.temp
-    };
-}
-
-function updateSetting(k, v) {
-    let db = JSON.parse(localStorage.getItem("dashboardSettings")) || {};
-    db[k] = v; localStorage.setItem("dashboardSettings", JSON.stringify(db)); updateDashboardUI();
-}
-
-function updateDashboardUI() {
-    const l = getConnectedData();
-    document.getElementById("dashStats").innerHTML = `
-        <div class="card"><i class="fa-solid fa-boxes-stacked"></i><div class="label">Warehouse</div><div class="value" style="font-size:16px">${l.warehouse}</div></div>
-        <div class="card"><i class="fa-solid fa-location-dot"></i><div class="label">Location</div><div class="value" style="font-size:16px">${l.location}</div></div>
-        <div class="card"><i class="fa-solid fa-user-tie"></i><div class="label">Supervisor</div><div class="value" style="font-size:14px">${l.supervisor}</div></div>
-        <div class="card"><i class="fa-solid fa-chart-bar"></i><div class="label">History Logs</div><div class="value">${l.hCount}</div></div>
-    `;
-}
-
-/* static actions */
-function shareWhatsApp() {
-    const l = getConnectedData();
-    window.open("https://wa.me/?text=" + encodeURIComponent(`📋 NBHC REPORT\n🏢 WH: ${l.warehouse}\n📍 Loc: ${l.location}\n👨‍💼 Sup: ${l.supervisor}\n📅 Date: ${l.date}`));
-}
-function downloadPDF(type) {
-    const l = getConnectedData();
-    const content = `NBHC ${type.toUpperCase()} REPORT\n\nWarehouse: ${l.warehouse}\nLocation: ${l.location}\nDate: ${l.date}\nWeather: ${l.temp}\nGPS: ${l.address}\n\nDeveloper: Karan Kumar`;
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([content], { type: "text/plain" })); a.download = type + "-report.txt"; a.click();
-}
-
-function checkStaticCommand(msg) {
-    const m = msg.toLowerCase();
-    if(m.includes("download supervisor pdf")) { downloadPDF("supervisor"); return "📄 Supervisor PDF exported."; }
-    if(m.includes("share whatsapp")) { shareWhatsApp(); return "📲 Redirecting to WhatsApp."; }
-    if(m.includes("change warehouse")) { let v = msg.replace(/change warehouse/gi, "").trim(); updateSetting("warehouse", v); return `🏢 Warehouse updated to **${v}**.`; }
-    if(m.includes("history dikhao")) {
-        let l = getConnectedData();
-        return `**📜 Deep History Summarized:**\n* **Active Warehouse:** ${l.warehouse}\n* **Total DB Logs:** ${l.hCount}\n* **Total Analyzer Logs:** ${l.aCount}\n* **Last Known GPS:** ${l.address}\n* **Weather:** ${l.temp}`;
-    }
-    if(m.includes("weather kaisa")) { return `**🌦 Live Weather Report:**\n* **Temperature:** ${locData.temp}\n* **Wind:** ${locData.wind}\n* **Location:** ${locData.address}`; }
-    if(m.includes("today report")) { let l = getConnectedData(); return `**📋 TODAY REPORT**\n\n**Warehouse:** ${l.warehouse}\n**Location:** ${l.location}\n**Supervisor:** ${l.supervisor}\n**Date:** ${l.date}`; }
-    return null;
-}
-
-/* =========================
-   CHAT SYSTEM & EXPORT
-========================= */
-function saveChat() { localStorage.setItem("nbhc_ai_chat_v3", document.getElementById("chatBox").innerHTML); }
-function loadChat() {
-    const s = localStorage.getItem("nbhc_ai_chat_v3");
-    const cb = document.getElementById("chatBox");
-    if(s) cb.innerHTML = s;
-    else cb.innerHTML = `<div class="bot-msg">👋 Welcome To <strong>NBHC SMART AI</strong><br><br>I am connected to your Dashboard, History, Location, and Weather modules. How can I assist you today?</div>`;
-    scrollToBottom();
-}
-function clearChatUI() { document.getElementById("chatBox").innerHTML = `<div class="bot-msg">New Chat Session Created.</div>`; saveChat(); document.getElementById('sidebar').classList.remove('open'); }
-function deleteChat() { localStorage.removeItem("nbhc_ai_chat_v3"); location.reload(); }
-function renderHistoryPreview() { document.getElementById("historyListPreview").innerHTML = document.getElementById("chatBox").innerText.substring(0,1000) + "..."; }
-function exportData(type) {
-    let d = document.getElementById("chatBox").innerText;
-    let b = type === 'json' ? new Blob([JSON.stringify({chat: d, meta: getConnectedData()})]) : new Blob([d]);
-    let a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "NBHC_Export."+type; a.click();
-}
-
-/* =========================
-   VOICE & MULTIMEDIA
-========================= */
-function initSpeechRecognition() {
-    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(window.SpeechRecognition) {
-        recognition = new SpeechRecognition(); recognition.lang = 'en-IN';
-        recognition.onresult = function(e) { document.getElementById("userInput").value += e.results[0][0].transcript; toggleVoice(); };
-    }
-}
-function toggleVoice() {
-    const btn = document.getElementById("micBtn");
-    if(!recognition) return alert("Voice API not supported.");
-    if(isRecording) { recognition.stop(); isRecording = false; btn.style.color = "var(--text-muted)"; }
-    else { recognition.start(); isRecording = true; btn.style.color = "var(--danger)"; }
-}
-function handleFileSelect(e) {
-    if(e.target.files[0]) { currentFile = e.target.files[0]; document.getElementById("fileName").innerText = currentFile.name; document.getElementById("filePreview").style.display = "flex"; }
-}
-function clearFile() { currentFile = null; document.getElementById("fileInput").value = ""; document.getElementById("filePreview").style.display = "none"; }
-
-/* =========================
-   MESSAGING & AI API
-========================= */
-function quickMsg(msg) { document.getElementById("userInput").value = msg; sendMessage(); }
-function scrollToBottom() { const box = document.getElementById("chatBox"); box.scrollTop = box.scrollHeight; }
-
-async function sendMessage() {
-    const input = document.getElementById("userInput");
-    let message = input.value.trim();
-    if(message === "" && !currentFile) return;
-
-    if(currentFile) { message = `[File Uploaded: ${currentFile.name}] ` + message; clearFile(); }
-
-    const chatBox = document.getElementById("chatBox");
-    chatBox.innerHTML += `<div class="user-msg">${message}</div>`;
-    input.value = ""; input.style.height = "24px"; scrollToBottom(); saveChat();
-
-    // Static NBHC checks
-    let sCmd = checkStaticCommand(message);
-    if(sCmd) {
-        setTimeout(() => {
-            chatBox.innerHTML += `<div class="bot-msg">${marked.parse(sCmd)}</div>`;
-            scrollToBottom(); saveChat();
-        }, 500); return;
-    }
-
-    // Modern Typing Animation
-    const typingId = "typing-" + Date.now();
-    chatBox.innerHTML += `
-        <div class="bot-msg" id="${typingId}">
-            <div class="typing-container">
-                Thinking <div class="typing-dots"><span></span><span></span><span></span></div>
-            </div>
-        </div>`;
-    scrollToBottom();
-
-    try {
-        const apiKey = localStorage.getItem("nbhc_apikey") || DEFAULT_KEY;
-        const aiModel = localStorage.getItem("nbhc_model") || "llama-3.3-70b-versatile";
-        let apiUrl = "https://api.groq.com/openai/v1/chat/completions";
-
-        // Connected System Prompt
-        const systemPrompt = `You are NBHC SMART AI. Act like an advanced ChatGPT interface for a warehouse. 
-        Connected Data Context: ${JSON.stringify(getConnectedData())}.
-        Respond in Markdown format. Mix Hindi and English.`;
-
-        const response = await fetch(apiUrl, {
-            method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey },
-            body: JSON.stringify({
-                model: aiModel,
-                messages: [{ role: "system", content: systemPrompt }, { role: "user", content: message }]
-            })
-        });
-
-        const data = await response.json();
-        document.getElementById(typingId).remove();
+    <div class="app-container" id="app-container">
         
-        let reply = "❌ API Connection Failed.";
-        if(data.choices && data.choices[0]) { reply = data.choices[0].message.content; }
+        <div class="header glass">
+            <div class="app-title">⚡ Karan Monitor</div>
+            <div class="clock-container">
+                <div class="time" id="clock-time">00:00:00</div>
+                <div class="date" id="clock-date">-- -- ----</div>
+            </div>
+        </div>
 
-        chatBox.innerHTML += `
-            <div class="bot-msg">
-                ${marked.parse(reply)}
-                <div class="msg-actions">
-                    <span onclick="navigator.clipboard.writeText(this.parentElement.parentElement.innerText)"><i class="fa-regular fa-copy"></i> Copy</span>
-                    <span onclick="alert('Regenerating logic hooked.')"><i class="fa-solid fa-rotate-right"></i> Retry</span>
+        <div id="view-home" class="view active">
+            <div class="glass card" style="margin-bottom: 15px; flex-direction: row; justify-content: space-around;">
+                <div class="battery-circle" style="width: 100px; height: 100px; margin: 0;">
+                    <svg viewBox="0 0 36 36" class="circular-chart" id="home-batt-svg">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" id="home-batt-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div class="batt-info">
+                        <i class="fas fa-bolt lightning"></i>
+                        <div class="batt-pct" id="home-batt-txt" style="font-size: 1.2rem;">--%</div>
+                    </div>
                 </div>
-            </div>`;
-        scrollToBottom(); saveChat();
+                <div style="text-align: left;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Status</div>
+                    <div id="home-status" style="font-weight: 600; color: var(--primary);">Analyzing...</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">ETA to Full</div>
+                    <div id="home-eta" style="font-weight: 600;">--:--:--</div>
+                </div>
+            </div>
 
-    } catch(err) {
-        document.getElementById(typingId).remove();
-        chatBox.innerHTML += `<div class="bot-msg" style="border-left: 4px solid var(--danger);">❌ Connection Error or Invalid Key. Ensure API key is set in Settings.</div>`;
-        scrollToBottom(); saveChat();
-    }
-}
+            <div class="grid">
+                <div class="glass card unsupported">
+                    <i class="fas fa-heartbeat"></i>
+                    <div class="value">Not Supported On This Browser</div>
+                    <div class="label">Battery Health</div>
+                </div>
+                <div class="glass card unsupported">
+                    <i class="fas fa-thermometer-half"></i>
+                    <div class="value">Not Supported On This Browser</div>
+                    <div class="label">Battery Temp</div>
+                </div>
+                <div class="glass card unsupported">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <div class="value">Not Supported On This Browser</div>
+                    <div class="label">Voltage</div>
+                </div>
+                <div class="glass card" id="home-charge-speed-card">
+                    <i class="fas fa-stopwatch"></i>
+                    <div class="value" id="home-charge-speed">-- %/min</div>
+                    <div class="label">Charging Speed</div>
+                </div>
+            </div>
+        </div>
 
-document.getElementById("userInput").addEventListener("keypress", function(e) {
-    if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-});
-</script>
+        <div id="view-battery" class="view">
+            <h2 style="margin-bottom: 15px;">Battery Status</h2>
+            <div class="battery-circle" id="main-batt-container">
+                <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="circle" id="main-batt-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="batt-info">
+                    <i class="fas fa-bolt lightning"></i>
+                    <div class="batt-pct" id="main-batt-txt">--%</div>
+                    <div style="font-size: 0.8rem;" id="main-batt-status-txt">Analyzing</div>
+                </div>
+            </div>
+
+            <div class="glass card" style="text-align: left; align-items: flex-start; margin-top: 20px;">
+                <p><strong>Status:</strong> <span id="batt-page-status">--</span></p>
+                <hr style="width: 100%; border: 0.5px solid var(--glass-border); margin: 10px 0;">
+                <p class="unsupported"><strong>Health:</strong> Not Supported On This Browser</p>
+                <p class="unsupported"><strong>Technology:</strong> Not Supported On This Browser</p>
+                <p class="unsupported"><strong>Capacity:</strong> Not Supported On This Browser</p>
+                <p class="unsupported"><strong>Voltage:</strong> Not Supported On This Browser</p>
+            </div>
+        </div>
+
+        <div id="view-charging" class="view">
+            <h2 style="margin-bottom: 15px;">Live Charging Math</h2>
+            <div class="glass card">
+                <div class="label">Start Battery</div>
+                <div class="value" id="charge-start-batt">--%</div>
+                <div class="label" style="margin-top: 10px;">Current Battery</div>
+                <div class="value" id="charge-curr-batt" style="color: var(--success);">--%</div>
+                <div class="label" style="margin-top: 10px;">Charged Amount</div>
+                <div class="value" id="charge-diff">--%</div>
+            </div>
+            
+            <div class="grid">
+                <div class="glass card">
+                    <i class="fas fa-tachometer-alt" style="color: var(--warning);"></i>
+                    <div class="value" id="charge-rate">-- %/min</div>
+                    <div class="label">Charging Rate</div>
+                </div>
+                <div class="glass card">
+                    <i class="fas fa-hourglass-half" style="color: var(--primary);"></i>
+                    <div class="value" id="charge-countdown">--:--:--</div>
+                    <div class="label">Countdown to Full</div>
+                </div>
+                <div class="glass card">
+                    <i class="fas fa-clock" style="color: var(--success);"></i>
+                    <div class="value" id="charge-expected-time">--:--</div>
+                    <div class="label">Expected Full Time</div>
+                </div>
+                <div class="glass card">
+                    <i class="fas fa-bolt" style="color: var(--warning);"></i>
+                    <div class="value" id="charge-type">--</div>
+                    <div class="label">Speed Type</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-temperature" class="view">
+            <h2 style="margin-bottom: 15px;">Device Temperature</h2>
+            <div class="glass card unsupported" style="padding: 40px;">
+                <i class="fas fa-thermometer-empty" style="font-size: 3rem; color: var(--danger);"></i>
+                <h3 style="margin-top: 15px;">Hardware Sensors Locked</h3>
+                <p style="margin-top: 10px; font-size: 0.9rem;">Browser security sandboxes prevent web apps from accessing CPU, Battery, or Device temperature sensors.</p>
+                <p style="margin-top: 10px; font-weight: bold;">Not Supported On This Browser</p>
+            </div>
+        </div>
+
+        <div id="view-repair" class="view">
+            <h2 style="margin-bottom: 15px;">Repair & Suggestions</h2>
+            <div class="glass card">
+                <h2>Repair Score</h2>
+                <div style="font-size: 3rem; font-weight: 800; color: var(--success);" id="repair-score">--/100</div>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Based on web-available data</p>
+            </div>
+            
+            <div class="glass card unsupported" style="margin-top: 15px; text-align: left; align-items: flex-start;">
+                <h3 style="color: var(--danger);">Unsupported Checks:</h3>
+                <ul style="margin-left: 20px; font-size: 0.8rem; margin-top: 10px;">
+                    <li>Battery Drain Detection: Not Supported On This Browser</li>
+                    <li>Overheating: Not Supported On This Browser</li>
+                    <li>Cable Problem: Not Supported On This Browser</li>
+                    <li>Adapter Problem: Not Supported On This Browser</li>
+                </ul>
+            </div>
+
+            <div class="glass card" style="margin-top: 15px; text-align: left; align-items: flex-start;">
+                <h3 style="color: var(--primary);">AI Suggestions:</h3>
+                <ul style="margin-left: 20px; font-size: 0.8rem; margin-top: 10px; line-height: 1.8;">
+                    <li>Reduce screen brightness to save battery.</li>
+                    <li>Close background apps frequently.</li>
+                    <li>Use original charger and cable.</li>
+                    <li>Enable system Battery Saver mode.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="view-history" class="view">
+            <h2 style="margin-bottom: 15px;">Battery History</h2>
+            <button class="btn" onclick="clearHistory()" style="margin-bottom: 15px; background: var(--danger);"><i class="fas fa-trash"></i> Delete All History</button>
+            <div class="glass chart-box" style="margin-bottom: 20px;">
+                <canvas id="batteryChart"></canvas>
+            </div>
+            <div class="history-list" id="history-container">
+                </div>
+        </div>
+
+        <div id="view-settings" class="view">
+            <h2 style="margin-bottom: 15px;">Settings</h2>
+            <div class="glass card" style="text-align: left; align-items: stretch;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <span>Dark Mode</span>
+                    <input type="checkbox" id="theme-toggle" checked onchange="toggleTheme()">
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <span>Browser Notifications</span>
+                    <input type="checkbox" id="notify-toggle" onchange="toggleNotifications()">
+                </div>
+                <button class="btn" onclick="alert('Exporting data... (Simulation)')">Export Data (CSV)</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p style="font-weight: bold;">Karan Monitor</p>
+            <p>Made By Karan</p>
+        </div>
+
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-home"></i><span>Home</span></div>
+        <div class="nav-item" onclick="switchTab('battery', this)"><i class="fas fa-battery-three-quarters"></i><span>Battery</span></div>
+        <div class="nav-item" onclick="switchTab('charging', this)"><i class="fas fa-bolt"></i><span>Charging</span></div>
+        <div class="nav-item" onclick="switchTab('temperature', this)"><i class="fas fa-thermometer-half"></i><span>Temp</span></div>
+        <div class="nav-item" onclick="switchTab('repair', this)"><i class="fas class fa-tools"></i><span>Repair</span></div>
+        <div class="nav-item" onclick="switchTab('history', this)"><i class="fas fa-history"></i><span>History</span></div>
+        <div class="nav-item" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i><span>Settings</span></div>
+    </div>
+
+    <script>
+        // --- 1. System Constants & Globals ---
+        const UNSUPPORTED_MSG = "Not Supported On This Browser";
+        let historyData = JSON.parse(localStorage.getItem('karan_monitor_history')) || [];
+        let batteryChartInstance = null;
+        let chargeStartData = null; // { level, time }
+        let currentBatteryLevel = 0;
+        let isDeviceCharging = false;
+        let allowNotifications = false;
+
+        // --- 2. Initialization & UI Setup ---
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('splash').style.opacity = '0';
+                setTimeout(() => document.getElementById('splash').style.display = 'none', 500);
+            }, 1500);
+            
+            initClock();
+            initParticles();
+            initBatteryMonitor();
+            initChart();
+            renderHistory();
+        };
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('view-' + tabId).classList.add('active');
+            element.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+
+        // --- 3. Live Clock ---
+        function initClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('clock-time').innerText = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                document.getElementById('clock-date').innerText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+            }, 1000);
+        }
+
+        // --- 4. Battery & Charging Logic (The Core) ---
+        async function initBatteryMonitor() {
+            if ('getBattery' in navigator) {
+                const battery = await navigator.getBattery();
+                updateAllBatteryUI(battery);
+                
+                // Event Listeners
+                battery.addEventListener('levelchange', () => {
+                    updateAllBatteryUI(battery);
+                    saveHistory(battery);
+                });
+                battery.addEventListener('chargingchange', () => {
+                    updateAllBatteryUI(battery);
+                    if(battery.charging) handleChargeStart(battery);
+                    else handleChargeStop(battery);
+                });
+
+                // Periodic History Save (Background task simulation)
+                setInterval(() => saveHistory(battery), 60000); // Save every minute
+                
+                // 1-second math loop for live charging calculation
+                setInterval(() => calculateLiveChargingMath(battery), 1000);
+
+                if(battery.charging) handleChargeStart(battery);
+            } else {
+                document.getElementById('home-status').innerText = UNSUPPORTED_MSG;
+                document.getElementById('batt-page-status').innerText = UNSUPPORTED_MSG;
+            }
+        }
+
+        function updateAllBatteryUI(battery) {
+            currentBatteryLevel = Math.floor(battery.level * 100);
+            isDeviceCharging = battery.charging;
+
+            const color = currentBatteryLevel <= 20 ? 'var(--danger)' : currentBatteryLevel <= 50 ? 'var(--warning)' : 'var(--success)';
+            
+            // UI Updates
+            document.getElementById('home-batt-txt').innerText = `${currentBatteryLevel}%`;
+            document.getElementById('main-batt-txt').innerText = `${currentBatteryLevel}%`;
+            
+            const circleDash = `${currentBatteryLevel}, 100`;
+            document.getElementById('home-batt-circle').setAttribute('stroke-dasharray', circleDash);
+            document.getElementById('main-batt-circle').setAttribute('stroke-dasharray', circleDash);
+            document.getElementById('home-batt-circle').style.stroke = color;
+            document.getElementById('main-batt-circle').style.stroke = color;
+
+            const statusText = isDeviceCharging ? "Charging" : (currentBatteryLevel === 100 ? "Full" : "Discharging");
+            document.getElementById('home-status').innerText = statusText;
+            document.getElementById('batt-page-status').innerText = statusText;
+            document.getElementById('main-batt-status-txt').innerText = statusText;
+
+            // Toggle Lightning Animation Classes
+            const containers = [document.getElementById('home-batt-svg').parentElement, document.getElementById('main-batt-container')];
+            containers.forEach(c => isDeviceCharging ? c.classList.add('is-charging') : c.classList.remove('is-charging'));
+
+            // Repair Score Logic (Basic estimation based on web data)
+            let score = 100;
+            if(currentBatteryLevel < 20) score -= 10;
+            if(!isDeviceCharging && currentBatteryLevel < 50) score -= 5;
+            document.getElementById('repair-score').innerText = `${score}/100`;
+        }
+
+        // --- 5. Custom Math for Charging (No Fake Values) ---
+        function handleChargeStart(battery) {
+            chargeStartData = { level: battery.level, time: Date.now() };
+            if(allowNotifications) sendNotification("Charging Started", "Charger connected.");
+        }
+
+        function handleChargeStop(battery) {
+            chargeStartData = null;
+            document.getElementById('charge-countdown').innerText = "--:--:--";
+            document.getElementById('charge-expected-time').innerText = "--:--";
+            document.getElementById('charge-rate').innerText = "-- %/min";
+            if(allowNotifications) sendNotification("Charging Stopped", "Charger disconnected.");
+        }
+
+        function calculateLiveChargingMath(battery) {
+            if (!isDeviceCharging || !chargeStartData) return;
+
+            const currentLevel = battery.level;
+            const diffPct = (currentLevel - chargeStartData.level) * 100;
+            const timeElapsedMin = (Date.now() - chargeStartData.time) / 60000;
+
+            document.getElementById('charge-start-batt').innerText = `${Math.floor(chargeStartData.level * 100)}%`;
+            document.getElementById('charge-curr-batt').innerText = `${currentBatteryLevel}%`;
+            document.getElementById('charge-diff').innerText = `+${diffPct.toFixed(2)}%`;
+
+            let ratePerMin = 0;
+            if (timeElapsedMin > 0.5 && diffPct > 0) {
+                ratePerMin = diffPct / timeElapsedMin;
+                document.getElementById('charge-rate').innerText = `${ratePerMin.toFixed(2)} %/min`;
+                document.getElementById('home-charge-speed').innerText = `${ratePerMin.toFixed(2)} %/min`;
+
+                // Calculate Speed Type
+                let speedType = "Normal Charging";
+                if(ratePerMin > 1.0) speedType = "Fast Charging";
+                if(ratePerMin < 0.3) speedType = "Slow Charging";
+                document.getElementById('charge-type').innerText = speedType;
+
+                // Estimate remaining time
+                const remainingPct = 100 - currentBatteryLevel;
+                if (remainingPct > 0 && ratePerMin > 0) {
+                    const minutesLeft = remainingPct / ratePerMin;
+                    
+                    // Formatting countdown
+                    const hrs = Math.floor(minutesLeft / 60);
+                    const mins = Math.floor(minutesLeft % 60);
+                    const secs = Math.floor((minutesLeft * 60) % 60);
+                    const countdownStr = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                    
+                    document.getElementById('charge-countdown').innerText = countdownStr;
+                    document.getElementById('home-eta').innerText = countdownStr;
+
+                    // Expected Full Time
+                    const expectedDate = new Date(Date.now() + minutesLeft * 60000);
+                    document.getElementById('charge-expected-time').innerText = expectedDate.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+                }
+            } else {
+                document.getElementById('charge-rate').innerText = "Calculating...";
+                document.getElementById('charge-type').innerText = "Analyzing...";
+            }
+        }
+
+        // --- 6. Local Storage History ---
+        function saveHistory(battery) {
+            const entry = {
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString(),
+                level: Math.floor(battery.level * 100),
+                status: battery.charging ? "Charging" : "Discharging",
+                timestamp: Date.now()
+            };
+
+            // Prevent spamming exact same levels continuously
+            if(historyData.length > 0) {
+                const last = historyData[historyData.length - 1];
+                if(last.level === entry.level && last.status === entry.status && (entry.timestamp - last.timestamp < 300000)) {
+                    return; // Don't save if nothing changed in the last 5 mins
+                }
+            }
+
+            historyData.push(entry);
+            if(historyData.length > 50) historyData.shift(); // Keep last 50
+            localStorage.setItem('karan_monitor_history', JSON.stringify(historyData));
+            renderHistory();
+            updateChart();
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history-container');
+            container.innerHTML = '';
+            
+            [...historyData].reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'glass history-item';
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight: 600; color: var(--primary);">${item.level}% <i class="${item.status === 'Charging' ? 'fas fa-bolt' : ''}"></i></div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">${item.date} ${item.time}</div>
+                    </div>
+                    <div style="font-size: 0.8rem;">${item.status}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function clearHistory() {
+            if(confirm("Delete all battery history?")) {
+                historyData = [];
+                localStorage.removeItem('karan_monitor_history');
+                renderHistory();
+                updateChart();
+            }
+        }
+
+        // --- 7. Chart.js Implementation ---
+        function initChart() {
+            const ctx = document.getElementById('batteryChart').getContext('2d');
+            Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+            
+            batteryChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: { labels: [], datasets: [{ label: 'Battery %', data: [], borderColor: '#00f2fe', backgroundColor: 'rgba(0, 242, 254, 0.2)', fill: true, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
+            });
+            updateChart();
+        }
+
+        function updateChart() {
+            if(!batteryChartInstance) return;
+            const recent = historyData.slice(-10); // Show last 10 points
+            batteryChartInstance.data.labels = recent.map(d => d.time);
+            batteryChartInstance.data.datasets[0].data = recent.map(d => d.level);
+            batteryChartInstance.update();
+        }
+
+        // --- 8. Browser Notifications ---
+        function toggleNotifications() {
+            const checkbox = document.getElementById('notify-toggle');
+            if (checkbox.checked) {
+                if ("Notification" in window) {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === "granted") {
+                            allowNotifications = true;
+                            sendNotification("Notifications Enabled", "Karan Monitor will alert you.");
+                        } else {
+                            checkbox.checked = false;
+                            alert("Notification permission denied by browser.");
+                        }
+                    });
+                } else {
+                    checkbox.checked = false;
+                    alert("Notifications " + UNSUPPORTED_MSG);
+                }
+            } else {
+                allowNotifications = false;
+            }
+        }
+
+        function sendNotification(title, body) {
+            if (allowNotifications && Notification.permission === "granted") {
+                new Notification(title, { body: body, icon: "https://cdn-icons-png.flaticon.com/512/3103/3103446.png" });
+            }
+        }
+
+        // --- 9. Particle Canvas Animation ---
+        function initParticles() {
+            const canvas = document.getElementById('particles');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const particlesArray = [];
+            for(let i=0; i<40; i++) {
+                particlesArray.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 0.5, speedY: Math.random() * 0.5 + 0.1 });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'rgba(0, 242, 254, 0.3)';
+                particlesArray.forEach(p => {
+                    p.y -= p.speedY;
+                    if(p.y < 0) p.y = canvas.height;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
 </body>
 </html>
