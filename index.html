@@ -3,609 +3,1011 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0f2027">
-    <title>Karan Monitor</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>NBHC Smart Warehouse System</title>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* CSS Variables & Theming */
+        /* --- THEMES & VARIABLES --- */
         :root {
-            --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            --primary: #00f2fe;
-            --secondary: #4facfe;
-            --success: #00ff87;
-            --warning: #fdbb2d;
-            --danger: #ff0844;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            /* Light Theme (Default) */
+            --bg-body: #ffffff;
+            --bg-glass: rgba(255, 255, 255, 0.8);
+            --border-glass: rgba(0, 0, 0, 0.1);
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --primary: #007bff;
+            --primary-gradient: linear-gradient(135deg, var(--primary), #00d2ff);
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --input-bg: #f8f9fa;
+        }
+
+        body.dark-theme {
+            --bg-body: #121212;
+            --bg-glass: rgba(30, 30, 30, 0.8);
+            --border-glass: rgba(255, 255, 255, 0.1);
             --text-main: #ffffff;
-            --text-muted: rgba(255, 255, 255, 0.6);
-            --font: 'Poppins', sans-serif;
+            --text-muted: #bbbbbb;
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --nav-bg: rgba(18, 18, 18, 0.95);
+            --input-bg: rgba(255, 255, 255, 0.05);
         }
 
-        .light-mode {
-            --bg-gradient: linear-gradient(135deg, #e0c3fc, #8ec5fc);
-            --glass-bg: rgba(255, 255, 255, 0.3);
-            --glass-border: rgba(255, 255, 255, 0.5);
-            --text-main: #1a1a1a;
-            --text-muted: rgba(0, 0, 0, 0.6);
+        /* --- GLOBAL STYLES --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            padding-bottom: 70px; /* Space for nav */
         }
 
-        /* Global Styles */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font); user-select: none; }
-        body { background: var(--bg-gradient); background-attachment: fixed; color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; transition: background 0.5s; }
+        /* --- LOADING SCREEN --- */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-body); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        #loader img { height: 80px; margin-bottom: 20px; animation: pulse 1.5s infinite; }
+        #loader h2 { color: var(--text-main); font-weight: 600; margin-bottom: 10px; }
+        #loader p { color: var(--text-muted); font-size: 0.9rem; }
+        .spinner {
+            width: 40px; height: 40px; margin-top: 20px;
+            border: 4px solid var(--border-glass); border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Background Particles */
-        #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        /* --- HEADER --- */
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px;
+            background: var(--bg-glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-glass);
+            position: sticky; top: 0; z-index: 1000; box-shadow: var(--card-shadow);
+        }
+        .header-left { display: flex; align-items: center; }
+        .header-left img { height: 40px; margin-right: 15px; }
+        .header-titles h1 { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
+        .header-titles p { font-size: 0.75rem; color: var(--text-muted); }
+        .header-time { text-align: right; font-size: 0.8rem; font-weight: 500; color: var(--text-muted); }
 
-        /* Splash Screen */
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f2027; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s; }
-        .splash-title { font-size: 2.5rem; font-weight: 800; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse 1.5s infinite; }
-
-        /* Main Container */
-        .app-container { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding-bottom: 80px; scroll-behavior: smooth; }
-
-        /* Glassmorphism Elements */
-        .glass { background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }
-
-        /* Header / Clock */
-        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; background: rgba(15, 32, 39, 0.8); backdrop-filter: blur(10px); }
-        .app-title { font-weight: 800; font-size: 1.2rem; color: var(--primary); text-shadow: 0 0 10px var(--primary); }
-        .clock-container { text-align: right; }
-        .time { font-size: 1.2rem; font-weight: 600; }
-        .date { font-size: 0.7rem; color: var(--text-muted); }
-
-        /* Views (Pages) */
-        .view { display: none; padding: 20px; animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .view.active { display: block; }
-
+        /* --- LAYOUT & GLASSMORPHISM CARDS --- */
+        .container { padding: 20px; }
+        .page-section { display: none; animation: slideUp 0.4s ease forwards; }
+        .page-section.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Grid & Cards */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .card { padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: transform 0.2s; }
-        .card:active { transform: scale(0.95); }
-        .card i { font-size: 1.8rem; margin-bottom: 10px; color: var(--primary); }
-        .card .value { font-size: 1.2rem; font-weight: 600; margin: 5px 0; }
-        .card .label { font-size: 0.75rem; color: var(--text-muted); }
-        .card.unsupported .value { font-size: 0.8rem; color: var(--danger); }
+        .glass-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 16px; border: 1px solid var(--border-glass);
+            box-shadow: var(--card-shadow);
+            padding: 20px; margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+        .glass-card:hover { transform: translateY(-2px); }
+        .glass-card h2 { font-size: 1.3rem; margin-bottom: 15px; color: var(--primary); border-bottom: 1px solid var(--border-glass); padding-bottom: 10px; }
+        .glass-card h3 { font-size: 1.1rem; margin-bottom: 12px; margin-top: 10px; }
 
-        /* Battery Circular Indicator */
-        .battery-circle { position: relative; width: 200px; height: 200px; margin: 20px auto; }
-        .circular-chart { display: block; width: 100%; height: 100%; }
-        .circle-bg { fill: none; stroke: var(--glass-border); stroke-width: 3.8; }
-        .circle { fill: none; stroke: var(--success); stroke-width: 2.8; stroke-linecap: round; transition: stroke-dasharray 1s, stroke 0.5s; }
-        .batt-info { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-        .batt-pct { font-size: 2.5rem; font-weight: 800; }
-        .lightning { display: none; color: var(--warning); font-size: 1.5rem; animation: pulse 1s infinite; }
-        .is-charging .lightning { display: inline-block; }
+        /* --- GRID & DASHBOARD STATS --- */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-card {
+            background: var(--bg-glass); border: 1px solid var(--border-glass);
+            border-radius: 12px; padding: 15px; text-align: center;
+            box-shadow: var(--card-shadow); transition: all 0.3s ease;
+        }
+        .stat-card p { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-card h3 { font-size: 1.5rem; color: var(--text-main); margin: 0; }
+        .stat-card.highlight h3 { color: var(--primary); }
 
-        @keyframes pulse { 0% { opacity: 0.5; text-shadow: 0 0 5px var(--warning); } 100% { opacity: 1; text-shadow: 0 0 20px var(--warning); } }
-
-        /* History List */
-        .history-list { display: flex; flex-direction: column; gap: 10px; }
-        .history-item { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-radius: 10px; }
+        /* --- FORMS & INPUTS --- */
+        .form-group { margin-bottom: 15px; }
+        .flex-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .flex-row .form-group { flex: 1; margin-bottom: 0; }
         
-        /* Buttons */
-        .btn { padding: 10px 20px; border: none; border-radius: 10px; background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
+        label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+        input, select, textarea {
+            width: 100%; padding: 12px; border-radius: 10px;
+            background: var(--input-bg); border: 1px solid var(--border-glass);
+            color: var(--text-main); font-size: 0.95rem; outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
+        input[readonly] { opacity: 0.8; cursor: not-allowed; }
 
-        /* Footer */
-        .footer { text-align: center; padding: 20px; margin-top: auto; font-size: 0.8rem; color: var(--text-muted); }
+        /* --- BUTTONS --- */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--primary-gradient); color: white;
+            border: none; padding: 12px 20px; border-radius: 10px;
+            font-weight: 600; font-size: 0.95rem; cursor: pointer; width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,123,255,0.4); }
+        .btn:active { transform: translateY(0); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-success { background: linear-gradient(135deg, #28a745, #20c997); }
+        .btn-danger { background: linear-gradient(135deg, #dc3545, #f8d7da); color: #fff;}
 
-        /* Bottom Navigation */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; justify-content: space-around; padding: 15px 5px 20px 5px; background: rgba(15, 32, 39, 0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); z-index: 100; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
-        .bottom-nav::-webkit-scrollbar { display: none; }
-        .nav-item { color: var(--text-muted); font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: 0.3s; padding: 0 10px; }
-        .nav-item span { font-size: 0.65rem; font-weight: 600; }
-        .nav-item.active { color: var(--primary); text-shadow: 0 0 10px var(--primary); transform: translateY(-5px); }
+        /* --- BOTTOM NAVIGATION --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--nav-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-top: 1px solid var(--border-glass);
+            display: flex; justify-content: space-around; padding: 10px 5px;
+            z-index: 1000; box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-muted); text-decoration: none; font-size: 0.75rem; font-weight: 600;
+            cursor: pointer; transition: color 0.3s; width: 16%;
+        }
+        .nav-item i { font-size: 1.3rem; margin-bottom: 4px; transition: transform 0.3s; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active i { transform: translateY(-3px); }
 
-        /* Charts */
-        .chart-box { height: 250px; margin-top: 20px; padding: 10px; }
+        /* --- UTILITIES & EXTRAS --- */
+        .chart-container { position: relative; height: 220px; width: 100%; margin-top: 15px; }
+        hr { border: none; border-top: 1px solid var(--border-glass); margin: 20px 0; }
+        .hidden { display: none !important; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        th, td { border: 1px solid var(--border-glass); padding: 10px; text-align: left; }
+        th { background: rgba(0,0,0,0.03); font-weight: 600; color: var(--primary); }
+        body.dark-theme th { background: rgba(255,255,255,0.05); }
+        #qrcode-preview { display: flex; justify-content: center; padding: 15px; background: #fff; border-radius: 10px; margin-top:15px; }
+        
+        .stage-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;}
+        .stage-row h4 { width: 70px; font-size:0.9rem; color:var(--text-muted);}
+        
+        .photo-preview-box { width: 100%; height: 200px; border-radius: 10px; border: 2px dashed var(--border-glass); display: flex; align-items: center; justify-content: center; margin-top: 10px; overflow: hidden; background: var(--input-bg); }
+        .photo-preview-box img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body>
 
-    <div id="splash">
-        <i class="fas fa-bolt" style="font-size: 4rem; color: var(--warning); margin-bottom: 20px;"></i>
-        <div class="splash-title">Karan Monitor</div>
-        <div style="color: var(--text-muted); margin-top: 10px;">Loading System Data...</div>
+    <div id="loader">
+        <img src="https://i.ibb.co/svf7T4Kq/nbhclogo.png" alt="NBHC Logo">
+        <h2>Loading...</h2>
+        <p>Made by Karan</p>
+        <div class="spinner"></div>
     </div>
 
-    <canvas id="particles"></canvas>
-
-    <div class="app-container" id="app-container">
-        
-        <div class="header glass">
-            <div class="app-title">⚡ Karan Monitor</div>
-            <div class="clock-container">
-                <div class="time" id="clock-time">00:00:00</div>
-                <div class="date" id="clock-date">-- -- ----</div>
+    <header class="header">
+        <div class="header-left">
+            <img src="https://i.ibb.co/svf7T4Kq/nbhclogo.png" alt="Logo">
+            <div class="header-titles">
+                <h1>NBHC Smart System</h1>
+                <p>Warehouse Management Dashboard</p>
             </div>
         </div>
+        <div class="header-time" id="header-clock">
+            <div id="clock-date">--/--/----</div>
+            <div id="clock-time">--:--</div>
+        </div>
+    </header>
 
-        <div id="view-home" class="view active">
-            <div class="glass card" style="margin-bottom: 15px; flex-direction: row; justify-content: space-around;">
-                <div class="battery-circle" style="width: 100px; height: 100px; margin: 0;">
-                    <svg viewBox="0 0 36 36" class="circular-chart" id="home-batt-svg">
-                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="circle" id="home-batt-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    </svg>
-                    <div class="batt-info">
-                        <i class="fas fa-bolt lightning"></i>
-                        <div class="batt-pct" id="home-batt-txt" style="font-size: 1.2rem;">--%</div>
+    <main class="container">
+
+        <section id="page-home" class="page-section active">
+            <div class="glass-card">
+                <h2>Live Dashboard</h2>
+                <div class="dashboard-grid">
+                    <div class="stat-card"><p>Opening Bag</p><h3 id="d-op-bag">0</h3></div>
+                    <div class="stat-card"><p>Opening MT</p><h3 id="d-op-mt">0.000</h3></div>
+                    <div class="stat-card highlight"><p>Inward Bag</p><h3 id="d-in-bag">0</h3></div>
+                    <div class="stat-card highlight"><p>Inward MT</p><h3 id="d-in-mt">0.000</h3></div>
+                    <div class="stat-card"><p>Outward Bag</p><h3 id="d-out-bag">0</h3></div>
+                    <div class="stat-card"><p>Outward MT</p><h3 id="d-out-mt">0.000</h3></div>
+                    <div class="stat-card highlight"><p>Closing Bag</p><h3 id="d-cl-bag">0</h3></div>
+                    <div class="stat-card highlight"><p>Closing MT</p><h3 id="d-cl-mt">0.000</h3></div>
+                    <div class="stat-card"><p>Total Lorry</p><h3 id="d-tot-lorry">0</h3></div>
+                    <div class="stat-card"><p>Reject Lorry</p><h3 id="d-rej-lorry">0</h3></div>
+                    <div class="stat-card" style="grid-column: span 2;"><p>Pending Lorry</p><h3 id="d-pend-lorry">0</h3></div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>Opening VS Closing</h3>
+                <div class="chart-container"><canvas id="chartOpCl"></canvas></div>
+            </div>
+            <div class="glass-card">
+                <h3>Daily Stock Graph</h3>
+                <div class="chart-container"><canvas id="chartDaily"></canvas></div>
+            </div>
+            <div class="glass-card">
+                <h3>Monthly Graph</h3>
+                <div class="chart-container"><canvas id="chartMonthly"></canvas></div>
+            </div>
+        </section>
+
+        <section id="page-analyzer" class="page-section">
+            <div class="glass-card">
+                <h2>Quality Analyzer</h2>
+                <div class="flex-row">
+                    <div class="form-group"><label>Date</label><input type="text" id="a-date" readonly></div>
+                    <div class="form-group"><label>Warehouse Name</label><input type="text" id="a-whs" readonly></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Location</label><input type="text" id="a-loc" readonly></div>
+                    <div class="form-group"><label>Lorry No</label><input type="text" id="a-lorry" placeholder="Enter Lorry"></div>
+                </div>
+                
+                <hr>
+                
+                <div class="flex-row">
+                    <div class="form-group"><label>Moisture (%)</label><input type="number" step="0.1" id="a-moist"></div>
+                    <div class="form-group"><label>WDD (%)</label><input type="number" step="0.1" id="a-wdd"></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Fungus (%)</label><input type="number" step="0.1" id="a-fungus"></div>
+                    <div class="form-group"><label>FM (%)</label><input type="number" step="0.1" id="a-fm"></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Dunky</label><input type="text" value="ND" readonly></div>
+                    <div class="form-group"><label>Live</label><input type="text" value="ND" readonly></div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Remarks</label>
+                    <input type="text" id="a-remarks" value="PLEASE SUGGEST SIR...." readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Photo</label>
+                    <input type="file" id="a-photo" accept="image/*">
+                    <div class="photo-preview-box" id="a-photo-box">
+                        <span style="color:var(--text-muted)">No Image Selected</span>
+                        <img id="a-photo-preview" class="hidden">
                     </div>
                 </div>
-                <div style="text-align: left;">
-                    <div style="font-size: 0.8rem; color: var(--text-muted);">Status</div>
-                    <div id="home-status" style="font-weight: 600; color: var(--primary);">Analyzing...</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">ETA to Full</div>
-                    <div id="home-eta" style="font-weight: 600;">--:--:--</div>
+
+                <div id="a-qr-container" class="hidden">
+                    <label>QR Code</label>
+                    <div id="qrcode-preview"></div>
+                </div>
+
+                <hr>
+                <div class="flex-row" style="flex-wrap: wrap;">
+                    <button class="btn btn-success" onclick="saveAnalyzer()"><i class="fas fa-save"></i> Save History</button>
+                    <button class="btn btn-outline" onclick="shareAnalyzerWA()"><i class="fab fa-whatsapp"></i> WhatsApp Share</button>
+                    <button class="btn" onclick="generateAnalyzerPDF()"><i class="fas fa-file-pdf"></i> A4 PDF</button>
+                    <button class="btn" onclick="generateAnalyzerQR()"><i class="fas fa-qrcode"></i> QR Code</button>
+                </div>
+                <p style="text-align:center; font-size:0.8rem; margin-top:15px; color:var(--text-muted);">Verified by NBHC</p>
+            </div>
+        </section>
+
+        <section id="page-supervisor" class="page-section">
+            <div class="glass-card">
+                <h2>Supervisor Report</h2>
+                
+                <div class="flex-row"><div class="form-group"><label>DATE</label><input type="text" id="s-date" readonly></div></div>
+                <div class="flex-row">
+                    <div class="form-group"><label>WAREHOUSE NAME</label><input type="text" id="s-whs" readonly></div>
+                    <div class="form-group"><label>LOCATION</label><input type="text" id="s-loc" readonly></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>CLIENT-NAME</label><input type="text" id="s-client" readonly></div>
+                    <div class="form-group"><label>CASE TYPE</label><input type="text" id="s-case" readonly></div>
+                </div>
+                <div class="form-group"><label>COMMODITY</label><input type="text" id="s-comm" readonly></div>
+
+                <hr>
+                <h3>Stock Details</h3>
+                <div class="flex-row">
+                    <div class="form-group"><label>OPENING BAG</label><input type="number" id="s-op-b" oninput="calcSup()"></div>
+                    <div class="form-group"><label>OPENING MT</label><input type="number" step="0.001" id="s-op-m" oninput="calcSup()"></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>INWARD BAG</label><input type="number" id="s-in-b" oninput="calcSup()"></div>
+                    <div class="form-group"><label>INWARD MT</label><input type="number" step="0.001" id="s-in-m" oninput="calcSup()"></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>OUTWARD BAG</label><input type="number" id="s-out-b" oninput="calcSup()"></div>
+                    <div class="form-group"><label>OUTWARD MT</label><input type="number" step="0.001" id="s-out-m" oninput="calcSup()"></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>CLOSING BAG</label><input type="number" id="s-cl-b" readonly style="background:var(--primary-gradient); color:white; font-weight:bold; border:none;"></div>
+                    <div class="form-group"><label>CLOSING MT</label><input type="number" id="s-cl-m" readonly style="background:var(--primary-gradient); color:white; font-weight:bold; border:none;"></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>PALA BAG</label><input type="text" id="s-pala" value="00"></div>
+                    <div class="form-group"><label>CH-NO</label><input type="text" id="s-chno" readonly></div>
+                </div>
+
+                <hr>
+                <h3>Activity Dates</h3>
+                <div class="flex-row">
+                    <div class="form-group"><label>LAST MSIR</label><input type="text" id="s-msir" readonly></div>
+                    <div class="form-group"><label>LAST FUMIGATION</label><input type="text" id="s-fum" readonly></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>LAST DEGASSING</label><input type="text" id="s-degas" readonly></div>
+                    <div class="form-group"><label>LAST CLEANING</label><input type="text" id="s-clean" readonly></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>LAST CHR</label><input type="text" id="s-chr" readonly></div>
+                    <div class="form-group"><label>LAST SPRAY</label><input type="text" id="s-spray" readonly></div>
+                </div>
+                <div class="form-group"><label>LAST AUDIT</label><input type="text" id="s-audit" readonly></div>
+
+                <hr>
+                <h3>Vehicle Details</h3>
+                <div class="flex-row">
+                    <div class="form-group"><label>TOTAL LORRY</label><input type="number" id="s-tot-l" value="0"></div>
+                    <div class="form-group"><label>INWARD LORRY</label><input type="number" id="s-in-l" value="0"></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>OUTWARD LORRY</label><input type="number" id="s-out-l" value="0"></div>
+                    <div class="form-group"><label>REJECT LORRY</label><input type="number" id="s-rej-l" value="0"></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>PENDING LORRY</label><input type="number" id="s-pend-l" value="0"></div>
+                    <div class="form-group"><label>LOCK SEAL NO</label><input type="text" id="s-seal"></div>
+                </div>
+                <div class="form-group"><label>WHS NAME</label><input type="text" id="s-whsname" readonly></div>
+
+                <div id="sup-preview-box" class="hidden" style="background:var(--input-bg); padding:15px; border-radius:10px; margin-top:20px; font-family:monospace; white-space:pre-wrap; border:1px solid var(--border-glass); font-size:0.85rem;"></div>
+
+                <div class="flex-row" style="flex-wrap: wrap; margin-top: 20px;">
+                    <button class="btn btn-success" onclick="saveSupervisor()"><i class="fas fa-save"></i> Save Data</button>
+                    <button class="btn btn-outline" onclick="previewSupervisor()"><i class="fas fa-eye"></i> Auto Preview</button>
+                    <button class="btn" onclick="shareSupervisorWA()"><i class="fab fa-whatsapp"></i> Share Format</button>
+                    <button class="btn btn-danger" onclick="generateSupervisorPDF()"><i class="fas fa-file-pdf"></i> A4 PDF</button>
                 </div>
             </div>
+        </section>
 
-            <div class="grid">
-                <div class="glass card unsupported">
-                    <i class="fas fa-heartbeat"></i>
-                    <div class="value">Not Supported On This Browser</div>
-                    <div class="label">Battery Health</div>
+        <section id="page-stages" class="page-section">
+            <div class="glass-card">
+                <h2>Godown Stages (1-15)</h2>
+                <div class="flex-row">
+                    <div class="stat-card highlight" style="flex:1;"><p>Total Stage Bag</p><h3 id="stg-tot-b">0</h3></div>
+                    <div class="stat-card highlight" style="flex:1;"><p>Total Stage MT</p><h3 id="stg-tot-m">0.000</h3></div>
                 </div>
-                <div class="glass card unsupported">
-                    <i class="fas fa-thermometer-half"></i>
-                    <div class="value">Not Supported On This Browser</div>
-                    <div class="label">Battery Temp</div>
-                </div>
-                <div class="glass card unsupported">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <div class="value">Not Supported On This Browser</div>
-                    <div class="label">Voltage</div>
-                </div>
-                <div class="glass card" id="home-charge-speed-card">
-                    <i class="fas fa-stopwatch"></i>
-                    <div class="value" id="home-charge-speed">-- %/min</div>
-                    <div class="label">Charging Speed</div>
-                </div>
+                <div class="chart-container" style="height: 150px; margin-bottom: 20px;"><canvas id="chartStages"></canvas></div>
+                
+                <div id="stages-container">
+                    </div>
+                
+                <button class="btn btn-success" onclick="saveAllStages()"><i class="fas fa-save"></i> Save All Stages</button>
             </div>
-        </div>
+        </section>
 
-        <div id="view-battery" class="view">
-            <h2 style="margin-bottom: 15px;">Battery Status</h2>
-            <div class="battery-circle" id="main-batt-container">
-                <svg viewBox="0 0 36 36" class="circular-chart">
-                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    <path class="circle" id="main-batt-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                </svg>
-                <div class="batt-info">
-                    <i class="fas fa-bolt lightning"></i>
-                    <div class="batt-pct" id="main-batt-txt">--%</div>
-                    <div style="font-size: 0.8rem;" id="main-batt-status-txt">Analyzing</div>
-                </div>
+        <section id="page-history" class="page-section">
+            <div class="glass-card" style="text-align:center;">
+                <img src="https://i.ibb.co/svf7T4Kq/nbhclogo.png" alt="Logo" style="height:50px; margin-bottom:10px;">
+                <h2>Total History & Reports</h2>
             </div>
 
-            <div class="glass card" style="text-align: left; align-items: flex-start; margin-top: 20px;">
-                <p><strong>Status:</strong> <span id="batt-page-status">--</span></p>
-                <hr style="width: 100%; border: 0.5px solid var(--glass-border); margin: 10px 0;">
-                <p class="unsupported"><strong>Health:</strong> Not Supported On This Browser</p>
-                <p class="unsupported"><strong>Technology:</strong> Not Supported On This Browser</p>
-                <p class="unsupported"><strong>Capacity:</strong> Not Supported On This Browser</p>
-                <p class="unsupported"><strong>Voltage:</strong> Not Supported On This Browser</p>
+            <div class="glass-card">
+                <h3>Monthly Report Generator</h3>
+                <div class="form-group">
+                    <label>Select Month</label>
+                    <input type="month" id="h-month" onchange="renderHistory()">
+                </div>
+                <button class="btn btn-danger" onclick="generateMonthlyPDF()"><i class="fas fa-file-pdf"></i> Download Multi-Page PDF</button>
+                <div class="chart-container"><canvas id="chartHistMonthly"></canvas></div>
             </div>
-        </div>
 
-        <div id="view-charging" class="view">
-            <h2 style="margin-bottom: 15px;">Live Charging Math</h2>
-            <div class="glass card">
-                <div class="label">Start Battery</div>
-                <div class="value" id="charge-start-batt">--%</div>
-                <div class="label" style="margin-top: 10px;">Current Battery</div>
-                <div class="value" id="charge-curr-batt" style="color: var(--success);">--%</div>
-                <div class="label" style="margin-top: 10px;">Charged Amount</div>
-                <div class="value" id="charge-diff">--%</div>
+            <div class="glass-card">
+                <h3>Supervisor History Database</h3>
+                <div class="form-group">
+                    <input type="text" id="h-search" placeholder="Search by Date (DD/MM/YYYY)..." oninput="renderHistory()">
+                </div>
+                <div style="overflow-x: auto;">
+                    <table id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th><th>Op Bag</th><th>Op MT</th><th>In Bag</th><th>In MT</th>
+                                <th>Out Bag</th><th>Out MT</th><th>Cl Bag</th><th>Cl MT</th>
+                                <th>Tot Lorry</th><th>Rej Lorry</th><th>Pend Lorry</th><th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-tbody"></tbody>
+                    </table>
+                </div>
             </div>
             
-            <div class="grid">
-                <div class="glass card">
-                    <i class="fas fa-tachometer-alt" style="color: var(--warning);"></i>
-                    <div class="value" id="charge-rate">-- %/min</div>
-                    <div class="label">Charging Rate</div>
-                </div>
-                <div class="glass card">
-                    <i class="fas fa-hourglass-half" style="color: var(--primary);"></i>
-                    <div class="value" id="charge-countdown">--:--:--</div>
-                    <div class="label">Countdown to Full</div>
-                </div>
-                <div class="glass card">
-                    <i class="fas fa-clock" style="color: var(--success);"></i>
-                    <div class="value" id="charge-expected-time">--:--</div>
-                    <div class="label">Expected Full Time</div>
-                </div>
-                <div class="glass card">
-                    <i class="fas fa-bolt" style="color: var(--warning);"></i>
-                    <div class="value" id="charge-type">--</div>
-                    <div class="label">Speed Type</div>
+            <div class="glass-card">
+                <h3>Analyzer History</h3>
+                <div style="overflow-x: auto;">
+                    <table id="analyzer-history-table">
+                        <thead><tr><th>Date</th><th>Lorry</th><th>Moisture</th><th>WDD</th><th>Fungus</th><th>FM</th></tr></thead>
+                        <tbody id="analyzer-tbody"></tbody>
+                    </table>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div id="view-temperature" class="view">
-            <h2 style="margin-bottom: 15px;">Device Temperature</h2>
-            <div class="glass card unsupported" style="padding: 40px;">
-                <i class="fas fa-thermometer-empty" style="font-size: 3rem; color: var(--danger);"></i>
-                <h3 style="margin-top: 15px;">Hardware Sensors Locked</h3>
-                <p style="margin-top: 10px; font-size: 0.9rem;">Browser security sandboxes prevent web apps from accessing CPU, Battery, or Device temperature sensors.</p>
-                <p style="margin-top: 10px; font-weight: bold;">Not Supported On This Browser</p>
-            </div>
-        </div>
-
-        <div id="view-repair" class="view">
-            <h2 style="margin-bottom: 15px;">Repair & Suggestions</h2>
-            <div class="glass card">
-                <h2>Repair Score</h2>
-                <div style="font-size: 3rem; font-weight: 800; color: var(--success);" id="repair-score">--/100</div>
-                <p style="font-size: 0.8rem; color: var(--text-muted);">Based on web-available data</p>
-            </div>
-            
-            <div class="glass card unsupported" style="margin-top: 15px; text-align: left; align-items: flex-start;">
-                <h3 style="color: var(--danger);">Unsupported Checks:</h3>
-                <ul style="margin-left: 20px; font-size: 0.8rem; margin-top: 10px;">
-                    <li>Battery Drain Detection: Not Supported On This Browser</li>
-                    <li>Overheating: Not Supported On This Browser</li>
-                    <li>Cable Problem: Not Supported On This Browser</li>
-                    <li>Adapter Problem: Not Supported On This Browser</li>
-                </ul>
-            </div>
-
-            <div class="glass card" style="margin-top: 15px; text-align: left; align-items: flex-start;">
-                <h3 style="color: var(--primary);">AI Suggestions:</h3>
-                <ul style="margin-left: 20px; font-size: 0.8rem; margin-top: 10px; line-height: 1.8;">
-                    <li>Reduce screen brightness to save battery.</li>
-                    <li>Close background apps frequently.</li>
-                    <li>Use original charger and cable.</li>
-                    <li>Enable system Battery Saver mode.</li>
-                </ul>
-            </div>
-        </div>
-
-        <div id="view-history" class="view">
-            <h2 style="margin-bottom: 15px;">Battery History</h2>
-            <button class="btn" onclick="clearHistory()" style="margin-bottom: 15px; background: var(--danger);"><i class="fas fa-trash"></i> Delete All History</button>
-            <div class="glass chart-box" style="margin-bottom: 20px;">
-                <canvas id="batteryChart"></canvas>
-            </div>
-            <div class="history-list" id="history-container">
+        <section id="page-settings" class="page-section">
+            <div class="glass-card">
+                <h2>System Settings</h2>
+                <div class="form-group">
+                    <label>Theme Mode</label>
+                    <select id="set-theme" onchange="updateSettings()">
+                        <option value="light">Light Mode (White)</option>
+                        <option value="dark">Dark Mode</option>
+                    </select>
                 </div>
-        </div>
+                <div class="form-group">
+                    <label>Theme Color (Primary)</label>
+                    <input type="color" id="set-color" onchange="updateSettings()">
+                </div>
+                <div class="form-group">
+                    <label>Auto Carry Forward (Cl -> Op)</label>
+                    <select id="set-autocarry" onchange="updateSettings()">
+                        <option value="ON">ON</option><option value="OFF">OFF</option>
+                    </select>
+                    <p style="font-size:0.75rem; color:var(--text-muted); margin-top:5px;">If ON, Today's Closing becomes Tomorrow's Opening.</p>
+                </div>
 
-        <div id="view-settings" class="view">
-            <h2 style="margin-bottom: 15px;">Settings</h2>
-            <div class="glass card" style="text-align: left; align-items: stretch;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                    <span>Dark Mode</span>
-                    <input type="checkbox" id="theme-toggle" checked onchange="toggleTheme()">
+                <hr>
+                <h3>Warehouse Details</h3>
+                <div class="form-group"><label>Warehouse Name</label><input type="text" id="set-whs" onchange="updateSettings()"></div>
+                <div class="form-group"><label>Location</label><input type="text" id="set-loc" onchange="updateSettings()"></div>
+                <div class="form-group"><label>Client Name</label><input type="text" id="set-client" onchange="updateSettings()"></div>
+                <div class="form-group"><label>Case Type</label><input type="text" id="set-case" onchange="updateSettings()"></div>
+                <div class="form-group"><label>Commodity</label><input type="text" id="set-comm" onchange="updateSettings()"></div>
+                <div class="form-group"><label>CH-NO</label><input type="text" id="set-chno" onchange="updateSettings()"></div>
+                <div class="form-group"><label>WHS Name (Person)</label><input type="text" id="set-whsname" onchange="updateSettings()"></div>
+                
+                <hr>
+                <h3>Last Activity Dates (DD/MM/YY)</h3>
+                <div class="dashboard-grid">
+                    <div class="form-group"><label>Last MSIR</label><input type="text" id="set-msir" onchange="updateSettings()"></div>
+                    <div class="form-group"><label>Last Fumigation</label><input type="text" id="set-fum" onchange="updateSettings()"></div>
+                    <div class="form-group"><label>Last Degassing</label><input type="text" id="set-degas" onchange="updateSettings()"></div>
+                    <div class="form-group"><label>Last Cleaning</label><input type="text" id="set-clean" onchange="updateSettings()"></div>
+                    <div class="form-group"><label>Last CHR</label><input type="text" id="set-chr" onchange="updateSettings()"></div>
+                    <div class="form-group"><label>Last Spray</label><input type="text" id="set-spray" onchange="updateSettings()"></div>
+                    <div class="form-group"><label>Last Audit</label><input type="text" id="set-audit" onchange="updateSettings()"></div>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                    <span>Browser Notifications</span>
-                    <input type="checkbox" id="notify-toggle" onchange="toggleNotifications()">
+
+                <hr>
+                <h3>Database Backup</h3>
+                <button class="btn" onclick="exportData()"><i class="fas fa-file-export"></i> Export Backup</button>
+                <div class="form-group" style="margin-top:15px;">
+                    <label>Import Backup File (.json)</label>
+                    <input type="file" id="import-file" accept=".json" onchange="importData(event)">
                 </div>
-                <button class="btn" onclick="alert('Exporting data... (Simulation)')">Export Data (CSV)</button>
             </div>
-        </div>
+        </section>
 
-        <div class="footer">
-            <p style="font-weight: bold;">Karan Monitor</p>
-            <p>Made By Karan</p>
-        </div>
+    </main>
 
-    </div>
-
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-home"></i><span>Home</span></div>
-        <div class="nav-item" onclick="switchTab('battery', this)"><i class="fas fa-battery-three-quarters"></i><span>Battery</span></div>
-        <div class="nav-item" onclick="switchTab('charging', this)"><i class="fas fa-bolt"></i><span>Charging</span></div>
-        <div class="nav-item" onclick="switchTab('temperature', this)"><i class="fas fa-thermometer-half"></i><span>Temp</span></div>
-        <div class="nav-item" onclick="switchTab('repair', this)"><i class="fas class fa-tools"></i><span>Repair</span></div>
-        <div class="nav-item" onclick="switchTab('history', this)"><i class="fas fa-history"></i><span>History</span></div>
-        <div class="nav-item" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i><span>Settings</span></div>
-    </div>
+    <nav class="bottom-nav">
+        <a class="nav-item active" onclick="nav('home')"><i class="fas fa-home"></i>Home</a>
+        <a class="nav-item" onclick="nav('analyzer')"><i class="fas fa-microscope"></i>Analyzer</a>
+        <a class="nav-item" onclick="nav('supervisor')"><i class="fas fa-clipboard-list"></i>Supervisor</a>
+        <a class="nav-item" onclick="nav('stages')"><i class="fas fa-layer-group"></i>Stages</a>
+        <a class="nav-item" onclick="nav('history')"><i class="fas fa-history"></i>History</a>
+        <a class="nav-item" onclick="nav('settings')"><i class="fas fa-cog"></i>Settings</a>
+    </nav>
 
     <script>
-        // --- 1. System Constants & Globals ---
-        const UNSUPPORTED_MSG = "Not Supported On This Browser";
-        let historyData = JSON.parse(localStorage.getItem('karan_monitor_history')) || [];
-        let batteryChartInstance = null;
-        let chargeStartData = null; // { level, time }
-        let currentBatteryLevel = 0;
-        let isDeviceCharging = false;
-        let allowNotifications = false;
-
-        // --- 2. Initialization & UI Setup ---
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('splash').style.opacity = '0';
-                setTimeout(() => document.getElementById('splash').style.display = 'none', 500);
-            }, 1500);
-            
-            initClock();
-            initParticles();
-            initBatteryMonitor();
-            initChart();
-            renderHistory();
+        /* --- GLOBAL STATE --- */
+        let todayStr = getTodayFormatted();
+        let appData = {
+            settings: {
+                theme: 'light', color: '#007bff', autocarry: 'ON',
+                whs: 'SANTI DEVI', loc: 'SEMAPUR', client: 'SHIV SHAKTI TRADERS', case: 'RETAIL/CORPORATE',
+                comm: 'MAIZE🌽', chno: 'GODOWN', whsname: 'Karan Kumar',
+                msir: '21/05/26', fum: '30/05/26', degas: '07/06/26', clean: '26/05/26',
+                chr: '10/06/26', spray: '11/05/26', audit: '16/06/26'
+            },
+            supervisor: [],
+            analyzer: [],
+            stages: Array.from({length: 15}, (_, i) => ({ name: `Stage ${i+1}`, bag: 0, mt: 0 }))
         };
 
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('view-' + tabId).classList.add('active');
-            element.classList.add('active');
-            window.scrollTo(0, 0);
-        }
+        let charts = {};
 
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-        }
-
-        // --- 3. Live Clock ---
-        function initClock() {
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('clock-time').innerText = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                document.getElementById('clock-date').innerText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-            }, 1000);
-        }
-
-        // --- 4. Battery & Charging Logic (The Core) ---
-        async function initBatteryMonitor() {
-            if ('getBattery' in navigator) {
-                const battery = await navigator.getBattery();
-                updateAllBatteryUI(battery);
-                
-                // Event Listeners
-                battery.addEventListener('levelchange', () => {
-                    updateAllBatteryUI(battery);
-                    saveHistory(battery);
-                });
-                battery.addEventListener('chargingchange', () => {
-                    updateAllBatteryUI(battery);
-                    if(battery.charging) handleChargeStart(battery);
-                    else handleChargeStop(battery);
-                });
-
-                // Periodic History Save (Background task simulation)
-                setInterval(() => saveHistory(battery), 60000); // Save every minute
-                
-                // 1-second math loop for live charging calculation
-                setInterval(() => calculateLiveChargingMath(battery), 1000);
-
-                if(battery.charging) handleChargeStart(battery);
-            } else {
-                document.getElementById('home-status').innerText = UNSUPPORTED_MSG;
-                document.getElementById('batt-page-status').innerText = UNSUPPORTED_MSG;
+        /* --- INITIALIZATION --- */
+        window.onload = () => {
+            // Clock
+            setInterval(updateClock, 1000); updateClock();
+            
+            // Load Data
+            let stored = localStorage.getItem('nbhc_smart_db');
+            if (stored) {
+                try { appData = JSON.parse(stored); } catch(e) {}
             }
-        }
-
-        function updateAllBatteryUI(battery) {
-            currentBatteryLevel = Math.floor(battery.level * 100);
-            isDeviceCharging = battery.charging;
-
-            const color = currentBatteryLevel <= 20 ? 'var(--danger)' : currentBatteryLevel <= 50 ? 'var(--warning)' : 'var(--success)';
             
-            // UI Updates
-            document.getElementById('home-batt-txt').innerText = `${currentBatteryLevel}%`;
-            document.getElementById('main-batt-txt').innerText = `${currentBatteryLevel}%`;
+            // Core initializations
+            applyTheme();
+            initSettingsForm();
+            initAnalyzerForm();
+            initSupervisorForm();
+            buildStagesUI();
             
-            const circleDash = `${currentBatteryLevel}, 100`;
-            document.getElementById('home-batt-circle').setAttribute('stroke-dasharray', circleDash);
-            document.getElementById('main-batt-circle').setAttribute('stroke-dasharray', circleDash);
-            document.getElementById('home-batt-circle').style.stroke = color;
-            document.getElementById('main-batt-circle').style.stroke = color;
+            // Auto Carry Forward Logic
+            runAutoCarryForward();
+            
+            // Remove Loader
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+            }, 1200);
 
-            const statusText = isDeviceCharging ? "Charging" : (currentBatteryLevel === 100 ? "Full" : "Discharging");
-            document.getElementById('home-status').innerText = statusText;
-            document.getElementById('batt-page-status').innerText = statusText;
-            document.getElementById('main-batt-status-txt').innerText = statusText;
+            // Render Home
+            nav('home');
 
-            // Toggle Lightning Animation Classes
-            const containers = [document.getElementById('home-batt-svg').parentElement, document.getElementById('main-batt-container')];
-            containers.forEach(c => isDeviceCharging ? c.classList.add('is-charging') : c.classList.remove('is-charging'));
-
-            // Repair Score Logic (Basic estimation based on web data)
-            let score = 100;
-            if(currentBatteryLevel < 20) score -= 10;
-            if(!isDeviceCharging && currentBatteryLevel < 50) score -= 5;
-            document.getElementById('repair-score').innerText = `${score}/100`;
-        }
-
-        // --- 5. Custom Math for Charging (No Fake Values) ---
-        function handleChargeStart(battery) {
-            chargeStartData = { level: battery.level, time: Date.now() };
-            if(allowNotifications) sendNotification("Charging Started", "Charger connected.");
-        }
-
-        function handleChargeStop(battery) {
-            chargeStartData = null;
-            document.getElementById('charge-countdown').innerText = "--:--:--";
-            document.getElementById('charge-expected-time').innerText = "--:--";
-            document.getElementById('charge-rate').innerText = "-- %/min";
-            if(allowNotifications) sendNotification("Charging Stopped", "Charger disconnected.");
-        }
-
-        function calculateLiveChargingMath(battery) {
-            if (!isDeviceCharging || !chargeStartData) return;
-
-            const currentLevel = battery.level;
-            const diffPct = (currentLevel - chargeStartData.level) * 100;
-            const timeElapsedMin = (Date.now() - chargeStartData.time) / 60000;
-
-            document.getElementById('charge-start-batt').innerText = `${Math.floor(chargeStartData.level * 100)}%`;
-            document.getElementById('charge-curr-batt').innerText = `${currentBatteryLevel}%`;
-            document.getElementById('charge-diff').innerText = `+${diffPct.toFixed(2)}%`;
-
-            let ratePerMin = 0;
-            if (timeElapsedMin > 0.5 && diffPct > 0) {
-                ratePerMin = diffPct / timeElapsedMin;
-                document.getElementById('charge-rate').innerText = `${ratePerMin.toFixed(2)} %/min`;
-                document.getElementById('home-charge-speed').innerText = `${ratePerMin.toFixed(2)} %/min`;
-
-                // Calculate Speed Type
-                let speedType = "Normal Charging";
-                if(ratePerMin > 1.0) speedType = "Fast Charging";
-                if(ratePerMin < 0.3) speedType = "Slow Charging";
-                document.getElementById('charge-type').innerText = speedType;
-
-                // Estimate remaining time
-                const remainingPct = 100 - currentBatteryLevel;
-                if (remainingPct > 0 && ratePerMin > 0) {
-                    const minutesLeft = remainingPct / ratePerMin;
-                    
-                    // Formatting countdown
-                    const hrs = Math.floor(minutesLeft / 60);
-                    const mins = Math.floor(minutesLeft % 60);
-                    const secs = Math.floor((minutesLeft * 60) % 60);
-                    const countdownStr = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                    
-                    document.getElementById('charge-countdown').innerText = countdownStr;
-                    document.getElementById('home-eta').innerText = countdownStr;
-
-                    // Expected Full Time
-                    const expectedDate = new Date(Date.now() + minutesLeft * 60000);
-                    document.getElementById('charge-expected-time').innerText = expectedDate.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+            // Photo Preview listener
+            document.getElementById('a-photo').addEventListener('change', function(e){
+                let file = e.target.files[0];
+                if(file) {
+                    let reader = new FileReader();
+                    reader.onload = function(evt) {
+                        document.getElementById('a-photo-preview').src = evt.target.result;
+                        document.getElementById('a-photo-preview').classList.remove('hidden');
+                        document.getElementById('a-photo-box').querySelector('span').classList.add('hidden');
+                    }
+                    reader.readAsDataURL(file);
                 }
-            } else {
-                document.getElementById('charge-rate').innerText = "Calculating...";
-                document.getElementById('charge-type').innerText = "Analyzing...";
-            }
+            });
+        };
+
+        function saveData() { localStorage.setItem('nbhc_smart_db', JSON.stringify(appData)); }
+
+        function getTodayFormatted() {
+            let d = new Date();
+            let dd = String(d.getDate()).padStart(2, '0');
+            let mm = String(d.getMonth() + 1).padStart(2, '0');
+            let yyyy = d.getFullYear();
+            return `${dd}/${mm}/${yyyy}`;
         }
 
-        // --- 6. Local Storage History ---
-        function saveHistory(battery) {
-            const entry = {
-                date: new Date().toLocaleDateString(),
-                time: new Date().toLocaleTimeString(),
-                level: Math.floor(battery.level * 100),
-                status: battery.charging ? "Charging" : "Discharging",
-                timestamp: Date.now()
+        function updateClock() {
+            let d = new Date();
+            document.getElementById('clock-date').innerText = getTodayFormatted();
+            document.getElementById('clock-time').innerText = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        /* --- NAVIGATION --- */
+        function nav(page) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(`page-${page}`).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            if(page === 'home') renderHome();
+            if(page === 'stages') renderStagesChart();
+            if(page === 'history') renderHistory();
+        }
+
+        /* --- SETTINGS & THEME --- */
+        function applyTheme() {
+            let s = appData.settings;
+            document.documentElement.style.setProperty('--primary', s.color);
+            if (s.theme === 'dark') document.body.classList.add('dark-theme');
+            else document.body.classList.remove('dark-theme');
+            Chart.defaults.color = s.theme === 'dark' ? '#fff' : '#333';
+        }
+
+        function initSettingsForm() {
+            let s = appData.settings;
+            Object.keys(s).forEach(k => {
+                let el = document.getElementById(`set-${k}`);
+                if(el) el.value = s[k];
+            });
+        }
+
+        function updateSettings() {
+            let s = appData.settings;
+            Object.keys(s).forEach(k => {
+                let el = document.getElementById(`set-${k}`);
+                if(el) s[k] = el.value;
+            });
+            saveData();
+            applyTheme();
+            initAnalyzerForm();
+            initSupervisorForm(); // refresh defaults
+        }
+
+        /* --- AUTO CARRY FORWARD --- */
+        function runAutoCarryForward() {
+            if (appData.settings.autocarry !== 'ON') return;
+            if (appData.supervisor.length === 0) return;
+
+            let todayIndex = appData.supervisor.findIndex(x => x.date === todayStr);
+            if (todayIndex === -1) {
+                // Today doesn't exist yet, get last record
+                let lastRec = appData.supervisor[appData.supervisor.length - 1];
+                let newToday = {
+                    date: todayStr,
+                    opB: lastRec.clB || 0, opM: lastRec.clM || 0,
+                    inB: 0, inM: 0, outB: 0, outM: 0,
+                    clB: lastRec.clB || 0, clM: lastRec.clM || 0,
+                    pala: "00", totL: 0, inL: 0, outL: 0, rejL: 0, pendL: 0, seal: ""
+                };
+                appData.supervisor.push(newToday);
+                saveData();
+            }
+            initSupervisorForm();
+        }
+
+        /* --- SUPERVISOR LOGIC --- */
+        function initSupervisorForm() {
+            let s = appData.settings;
+            document.getElementById('s-date').value = todayStr;
+            document.getElementById('s-whs').value = s.whs;
+            document.getElementById('s-loc').value = s.loc;
+            document.getElementById('s-client').value = s.client;
+            document.getElementById('s-case').value = s.case;
+            document.getElementById('s-comm').value = s.comm;
+            document.getElementById('s-chno').value = s.chno;
+            document.getElementById('s-whsname').value = s.whsname;
+            
+            document.getElementById('s-msir').value = s.msir;
+            document.getElementById('s-fum').value = s.fum;
+            document.getElementById('s-degas').value = s.degas;
+            document.getElementById('s-clean').value = s.clean;
+            document.getElementById('s-chr').value = s.chr;
+            document.getElementById('s-spray').value = s.spray;
+            document.getElementById('s-audit').value = s.audit;
+
+            // Load today's data if exists
+            let todayRec = appData.supervisor.find(x => x.date === todayStr);
+            if (todayRec) {
+                document.getElementById('s-op-b').value = todayRec.opB; document.getElementById('s-op-m').value = todayRec.opM;
+                document.getElementById('s-in-b').value = todayRec.inB; document.getElementById('s-in-m').value = todayRec.inM;
+                document.getElementById('s-out-b').value = todayRec.outB; document.getElementById('s-out-m').value = todayRec.outM;
+                document.getElementById('s-cl-b').value = todayRec.clB; document.getElementById('s-cl-m').value = todayRec.clM;
+                document.getElementById('s-pala').value = todayRec.pala; document.getElementById('s-tot-l').value = todayRec.totL;
+                document.getElementById('s-in-l').value = todayRec.inL; document.getElementById('s-out-l').value = todayRec.outL;
+                document.getElementById('s-rej-l').value = todayRec.rejL; document.getElementById('s-pend-l').value = todayRec.pendL;
+                document.getElementById('s-seal').value = todayRec.seal || '';
+            } else {
+                ['op-b','op-m','in-b','in-m','out-b','out-m','cl-b','cl-m','tot-l','in-l','out-l','rej-l','pend-l'].forEach(id => document.getElementById(`s-${id}`).value = 0);
+            }
+            calcSup();
+        }
+
+        function calcSup() {
+            let opB = parseInt(document.getElementById('s-op-b').value) || 0;
+            let opM = parseFloat(document.getElementById('s-op-m').value) || 0;
+            let inB = parseInt(document.getElementById('s-in-b').value) || 0;
+            let inM = parseFloat(document.getElementById('s-in-m').value) || 0;
+            let outB = parseInt(document.getElementById('s-out-b').value) || 0;
+            let outM = parseFloat(document.getElementById('s-out-m').value) || 0;
+
+            let clB = opB + inB - outB;
+            let clM = opM + inM - outM;
+
+            document.getElementById('s-cl-b').value = clB;
+            document.getElementById('s-cl-m').value = clM.toFixed(3);
+        }
+
+        function generateFormatText() {
+            calcSup();
+            return `DATE-${todayStr}
+WAREHOUSE NAME- ${document.getElementById('s-whs').value}
+LOCATION- ${document.getElementById('s-loc').value}
+CLIENT-NAME- ${document.getElementById('s-client').value}
+CASE TYPE- ${document.getElementById('s-case').value}
+COMMODITY - ${document.getElementById('s-comm').value}
+
+OPENING BAG -${document.getElementById('s-op-b').value}
+OPENING MT -${document.getElementById('s-op-m').value}
+INWARD BAG -${document.getElementById('s-in-b').value}
+INWARD MT -${document.getElementById('s-in-m').value}
+OUTWARD BAG -${document.getElementById('s-out-b').value}
+OUTWARD MT -${document.getElementById('s-out-m').value}
+CLOSING BAG -${document.getElementById('s-cl-b').value}
+CLOSING MT -${document.getElementById('s-cl-m').value}
+PALA BAG -${document.getElementById('s-pala').value}
+
+CH-NO - ${document.getElementById('s-chno').value}
+LAST MSIR -${document.getElementById('s-msir').value}
+LAST FUMIGATION -${document.getElementById('s-fum').value}
+LAST DEGASSING -${document.getElementById('s-degas').value}
+LAST CLEANING -${document.getElementById('s-clean').value}
+LAST CHR -${document.getElementById('s-chr').value}
+LAST SPRAY -${document.getElementById('s-spray').value}
+LAST AUDIT -${document.getElementById('s-audit').value}
+
+TOTAL LORRY -${document.getElementById('s-tot-l').value}
+INWARD LORRY -${document.getElementById('s-in-l').value}
+OUTWARD LORRY -${document.getElementById('s-out-l').value}
+REJECT LORRY -${document.getElementById('s-rej-l').value}
+PENDING LORRY -${document.getElementById('s-pend-l').value}
+LOCK SEAL NO - ${document.getElementById('s-seal').value}
+WHS NAME - ${document.getElementById('s-whsname').value}`;
+        }
+
+        function previewSupervisor() {
+            let box = document.getElementById('sup-preview-box');
+            box.innerText = generateFormatText();
+            box.classList.remove('hidden');
+        }
+
+        function shareSupervisorWA() {
+            let text = "*NBHC Daily Supervisor Report*\n\n" + generateFormatText();
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function saveSupervisor() {
+            calcSup();
+            let data = {
+                date: todayStr,
+                opB: document.getElementById('s-op-b').value, opM: document.getElementById('s-op-m').value,
+                inB: document.getElementById('s-in-b').value, inM: document.getElementById('s-in-m').value,
+                outB: document.getElementById('s-out-b').value, outM: document.getElementById('s-out-m').value,
+                clB: document.getElementById('s-cl-b').value, clM: document.getElementById('s-cl-m').value,
+                pala: document.getElementById('s-pala').value,
+                totL: document.getElementById('s-tot-l').value, inL: document.getElementById('s-in-l').value,
+                outL: document.getElementById('s-out-l').value, rejL: document.getElementById('s-rej-l').value,
+                pendL: document.getElementById('s-pend-l').value, seal: document.getElementById('s-seal').value
             };
-
-            // Prevent spamming exact same levels continuously
-            if(historyData.length > 0) {
-                const last = historyData[historyData.length - 1];
-                if(last.level === entry.level && last.status === entry.status && (entry.timestamp - last.timestamp < 300000)) {
-                    return; // Don't save if nothing changed in the last 5 mins
-                }
-            }
-
-            historyData.push(entry);
-            if(historyData.length > 50) historyData.shift(); // Keep last 50
-            localStorage.setItem('karan_monitor_history', JSON.stringify(historyData));
-            renderHistory();
-            updateChart();
+            
+            let idx = appData.supervisor.findIndex(x => x.date === todayStr);
+            if(idx > -1) appData.supervisor[idx] = data; else appData.supervisor.push(data);
+            
+            saveData();
+            alert("Supervisor Data Saved Successfully!");
         }
 
+        function generateSupervisorPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(16);
+            doc.text("NBHC Smart Warehouse System", 14, 20);
+            doc.setFontSize(12);
+            doc.text(`Supervisor Report - ${todayStr}`, 14, 28);
+            
+            let lines = generateFormatText().split('\n');
+            let bodyData = [];
+            lines.forEach(l => {
+                if(l.trim() !== '') {
+                    let parts = l.split('-');
+                    if(parts.length >= 2) bodyData.push([parts[0].trim(), parts.slice(1).join('-').trim()]);
+                    else bodyData.push([l, '']);
+                }
+            });
+
+            doc.autoTable({
+                startY: 35,
+                head: [['Field', 'Value']],
+                body: bodyData,
+                theme: 'grid',
+                styles: { fontSize: 9 }
+            });
+            
+            doc.text("Verified by NBHC | Made by Karan", 14, doc.lastAutoTable.finalY + 15);
+            doc.save(`Supervisor_Report_${todayStr.replace(/\//g,'-')}.pdf`);
+        }
+
+        /* --- ANALYZER LOGIC --- */
+        function initAnalyzerForm() {
+            document.getElementById('a-date').value = todayStr;
+            document.getElementById('a-whs').value = appData.settings.whs;
+            document.getElementById('a-loc').value = appData.settings.loc;
+        }
+
+        function saveAnalyzer() {
+            let data = {
+                date: todayStr, lorry: document.getElementById('a-lorry').value || 'NA',
+                moist: document.getElementById('a-moist').value || 0, wdd: document.getElementById('a-wdd').value || 0,
+                fungus: document.getElementById('a-fungus').value || 0, fm: document.getElementById('a-fm').value || 0
+            };
+            appData.analyzer.push(data);
+            saveData();
+            alert("Analyzer History Saved");
+        }
+
+        function shareAnalyzerWA() {
+            let txt = `*NBHC Quality Analyzer*\nDate: ${todayStr}\nWHS: ${appData.settings.whs}\nLorry: ${document.getElementById('a-lorry').value}\nMoisture: ${document.getElementById('a-moist').value}%\nWDD: ${document.getElementById('a-wdd').value}%\nFungus: ${document.getElementById('a-fungus').value}%\nFM: ${document.getElementById('a-fm').value}%\nDunky: ND\nLive: ND\nRemarks: PLEASE SUGGEST SIR....\n\nVerified by NBHC`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`);
+        }
+
+        function generateAnalyzerQR() {
+            let qrc = document.getElementById('qrcode-preview');
+            qrc.innerHTML = '';
+            document.getElementById('a-qr-container').classList.remove('hidden');
+            let txt = `NBHC Analyzer|${todayStr}|${document.getElementById('a-lorry').value}|M:${document.getElementById('a-moist').value}%`;
+            new QRCode(qrc, { text: txt, width: 128, height: 128 });
+        }
+
+        function generateAnalyzerPDF() {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            doc.text("NBHC Quality Analysis", 14, 20);
+            doc.autoTable({
+                startY: 30,
+                body: [
+                    ['Date', todayStr], ['WHS', appData.settings.whs], ['Lorry No', document.getElementById('a-lorry').value],
+                    ['Moisture (%)', document.getElementById('a-moist').value], ['WDD (%)', document.getElementById('a-wdd').value],
+                    ['Fungus (%)', document.getElementById('a-fungus').value], ['FM (%)', document.getElementById('a-fm').value],
+                    ['Dunky / Live', 'ND / ND'], ['Remarks', 'PLEASE SUGGEST SIR....']
+                ]
+            });
+            doc.save(`Analyzer_${todayStr.replace(/\//g,'-')}.pdf`);
+        }
+
+        /* --- STAGES LOGIC --- */
+        function buildStagesUI() {
+            let html = '';
+            appData.stages.forEach((st, i) => {
+                html += `
+                <div class="stage-row">
+                    <h4>Stage ${i+1}</h4>
+                    <input type="number" id="stg-b-${i}" value="${st.bag}" placeholder="Bags" oninput="calcStages()">
+                    <input type="number" step="0.001" id="stg-m-${i}" value="${st.mt}" placeholder="MT" oninput="calcStages()">
+                </div>`;
+            });
+            document.getElementById('stages-container').innerHTML = html;
+            calcStages();
+        }
+
+        function calcStages() {
+            let totB = 0, totM = 0;
+            for(let i=0; i<15; i++) {
+                totB += parseInt(document.getElementById(`stg-b-${i}`).value) || 0;
+                totM += parseFloat(document.getElementById(`stg-m-${i}`).value) || 0;
+            }
+            document.getElementById('stg-tot-b').innerText = totB;
+            document.getElementById('stg-tot-m').innerText = totM.toFixed(3);
+        }
+
+        function saveAllStages() {
+            for(let i=0; i<15; i++) {
+                appData.stages[i].bag = parseInt(document.getElementById(`stg-b-${i}`).value) || 0;
+                appData.stages[i].mt = parseFloat(document.getElementById(`stg-m-${i}`).value) || 0;
+            }
+            saveData();
+            renderStagesChart();
+            alert("All Stages Saved Successfully!");
+        }
+
+        /* --- HOME DASHBOARD --- */
+        function renderHome() {
+            let todayRec = appData.supervisor.find(x => x.date === todayStr) || {
+                opB:0, opM:0, inB:0, inM:0, outB:0, outM:0, clB:0, clM:0, totL:0, rejL:0, pendL:0
+            };
+            
+            document.getElementById('d-op-bag').innerText = todayRec.opB; document.getElementById('d-op-mt').innerText = parseFloat(todayRec.opM).toFixed(3);
+            document.getElementById('d-in-bag').innerText = todayRec.inB; document.getElementById('d-in-mt').innerText = parseFloat(todayRec.inM).toFixed(3);
+            document.getElementById('d-out-bag').innerText = todayRec.outB; document.getElementById('d-out-mt').innerText = parseFloat(todayRec.outM).toFixed(3);
+            document.getElementById('d-cl-bag').innerText = todayRec.clB; document.getElementById('d-cl-mt').innerText = parseFloat(todayRec.clM).toFixed(3);
+            document.getElementById('d-tot-lorry').innerText = todayRec.totL; document.getElementById('d-rej-lorry').innerText = todayRec.rejL;
+            document.getElementById('d-pend-lorry').innerText = todayRec.pendL;
+
+            drawChart('chartOpCl', 'bar', ['Opening', 'Closing'], [todayRec.opB, todayRec.clB], ['#007bff', '#28a745']);
+            
+            // Daily Stock (Last 7 days)
+            let recs = appData.supervisor.slice(-7);
+            drawChart('chartDaily', 'line', recs.map(x => x.date.substring(0,5)), recs.map(x => x.clB), '#007bff');
+
+            // Monthly
+            drawChart('chartMonthly', 'bar', recs.map(x => x.date.substring(0,5)), recs.map(x => x.inB), '#17a2b8', 'Inward Bags');
+        }
+
+        /* --- HISTORY --- */
         function renderHistory() {
-            const container = document.getElementById('history-container');
-            container.innerHTML = '';
+            let filter = document.getElementById('h-search').value.toLowerCase();
+            let monthFilter = document.getElementById('h-month').value; // YYYY-MM
             
-            [...historyData].reverse().forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'glass history-item';
-                div.innerHTML = `
-                    <div>
-                        <div style="font-weight: 600; color: var(--primary);">${item.level}% <i class="${item.status === 'Charging' ? 'fas fa-bolt' : ''}"></i></div>
-                        <div style="font-size: 0.7rem; color: var(--text-muted);">${item.date} ${item.time}</div>
-                    </div>
-                    <div style="font-size: 0.8rem;">${item.status}</div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function clearHistory() {
-            if(confirm("Delete all battery history?")) {
-                historyData = [];
-                localStorage.removeItem('karan_monitor_history');
-                renderHistory();
-                updateChart();
-            }
-        }
-
-        // --- 7. Chart.js Implementation ---
-        function initChart() {
-            const ctx = document.getElementById('batteryChart').getContext('2d');
-            Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+            let tbody = document.getElementById('history-tbody');
+            tbody.innerHTML = '';
             
-            batteryChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: { labels: [], datasets: [{ label: 'Battery %', data: [], borderColor: '#00f2fe', backgroundColor: 'rgba(0, 242, 254, 0.2)', fill: true, tension: 0.4 }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
-            });
-            updateChart();
-        }
-
-        function updateChart() {
-            if(!batteryChartInstance) return;
-            const recent = historyData.slice(-10); // Show last 10 points
-            batteryChartInstance.data.labels = recent.map(d => d.time);
-            batteryChartInstance.data.datasets[0].data = recent.map(d => d.level);
-            batteryChartInstance.update();
-        }
-
-        // --- 8. Browser Notifications ---
-        function toggleNotifications() {
-            const checkbox = document.getElementById('notify-toggle');
-            if (checkbox.checked) {
-                if ("Notification" in window) {
-                    Notification.requestPermission().then(permission => {
-                        if (permission === "granted") {
-                            allowNotifications = true;
-                            sendNotification("Notifications Enabled", "Karan Monitor will alert you.");
-                        } else {
-                            checkbox.checked = false;
-                            alert("Notification permission denied by browser.");
-                        }
-                    });
-                } else {
-                    checkbox.checked = false;
-                    alert("Notifications " + UNSUPPORTED_MSG);
+            let filteredSup = appData.supervisor.filter(x => {
+                let matchSearch = x.date.includes(filter);
+                let matchMonth = true;
+                if(monthFilter) {
+                    let [y, m] = monthFilter.split('-');
+                    matchMonth = x.date.includes(`${m}/${y}`);
                 }
-            } else {
-                allowNotifications = false;
+                return matchSearch && matchMonth;
+            });
+
+            filteredSup.forEach((d, i) => {
+                tbody.innerHTML += `<tr>
+                    <td>${d.date}</td><td>${d.opB}</td><td>${d.opM}</td><td>${d.inB}</td><td>${d.inM}</td>
+                    <td>${d.outB}</td><td>${d.outM}</td><td>${d.clB}</td><td>${d.clM}</td>
+                    <td>${d.totL}</td><td>${d.rejL}</td><td>${d.pendL}</td>
+                    <td><button class="btn btn-danger" style="padding:5px 10px; margin:0;" onclick="delHist(${i})"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
+            });
+
+            // Analyzer History
+            let aBody = document.getElementById('analyzer-tbody');
+            aBody.innerHTML = '';
+            appData.analyzer.forEach(a => {
+                aBody.innerHTML += `<tr><td>${a.date}</td><td>${a.lorry}</td><td>${a.moist}</td><td>${a.wdd}</td><td>${a.fungus}</td><td>${a.fm}</td></tr>`;
+            });
+
+            if(monthFilter) {
+                drawChart('chartHistMonthly', 'line', filteredSup.map(x => x.date.substring(0,5)), filteredSup.map(x => x.clB), '#dc3545', 'Closing Stock');
             }
         }
 
-        function sendNotification(title, body) {
-            if (allowNotifications && Notification.permission === "granted") {
-                new Notification(title, { body: body, icon: "https://cdn-icons-png.flaticon.com/512/3103/3103446.png" });
+        function delHist(idx) {
+            if(confirm('Delete this record?')) {
+                appData.supervisor.splice(idx, 1);
+                saveData(); renderHistory();
             }
         }
 
-        // --- 9. Particle Canvas Animation ---
-        function initParticles() {
-            const canvas = document.getElementById('particles');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        function generateMonthlyPDF() {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            let monthFilter = document.getElementById('h-month').value;
+            let mStr = monthFilter ? monthFilter : "All Time";
+
+            // Header elements mapping to prompt
+            doc.setFontSize(18); doc.text("NBHC", 14, 20);
+            doc.setFontSize(14); doc.text("National Bulk Handling Corporation", 14, 28);
+            doc.setFontSize(10); doc.text(`Date of Gen: ${todayStr} | Report: ${mStr}`, 14, 35);
             
-            const particlesArray = [];
-            for(let i=0; i<40; i++) {
-                particlesArray.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 0.5, speedY: Math.random() * 0.5 + 0.1 });
-            }
+            let data = monthFilter ? appData.supervisor.filter(x => {
+                let [y, m] = monthFilter.split('-'); return x.date.includes(`${m}/${y}`);
+            }) : appData.supervisor;
 
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = 'rgba(0, 242, 254, 0.3)';
-                particlesArray.forEach(p => {
-                    p.y -= p.speedY;
-                    if(p.y < 0) p.y = canvas.height;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-                requestAnimationFrame(animate);
+            let bodyData = data.map(d => [d.date, d.opB, d.opM, d.inB, d.inM, d.outB, d.outM, d.clB, d.clM, d.totL, d.rejL, d.pendL]);
+
+            doc.autoTable({
+                startY: 45,
+                head: [['Date','Op B','Op M','In B','In M','Out B','Out M','Cl B','Cl M','Tot L','Rej L','Pen L']],
+                body: bodyData,
+                styles: { fontSize: 7, cellPadding: 1 }
+            });
+
+            let finalY = doc.lastAutoTable.finalY + 20;
+            doc.setFontSize(10);
+            doc.text("Verified by NBHC", 14, finalY);
+            doc.text("Made by Karan", 14, finalY + 6);
+            
+            doc.save(`NBHC_Monthly_Report_${mStr}.pdf`);
+        }
+
+        /* --- CHART HELPERS --- */
+        function drawChart(canvasId, type, labels, data, colors, label="Bags") {
+            let ctx = document.getElementById(canvasId);
+            if(!ctx) return;
+            if(charts[canvasId]) charts[canvasId].destroy();
+            charts[canvasId] = new Chart(ctx, {
+                type: type,
+                data: { labels: labels, datasets: [{ label: label, data: data, backgroundColor: colors, borderColor: colors, borderWidth: 1, tension: 0.3 }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function renderStagesChart() {
+            drawChart('chartStages', 'bar', appData.stages.map(s=>s.name.replace('Stage','S')), appData.stages.map(s=>s.bag), '#20c997', 'Bags per Stage');
+        }
+
+        /* --- BACKUP --- */
+        function exportData() {
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+            let dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "nbhc_backup.json");
+            document.body.appendChild(dl); dl.click(); dl.remove();
+        }
+        function importData(e) {
+            let file = e.target.files[0];
+            if(!file) return;
+            let reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    let imported = JSON.parse(evt.target.result);
+                    if(imported.settings && imported.supervisor) {
+                        appData = imported; saveData();
+                        alert("Backup Imported Successfully!"); location.reload();
+                    } else { alert("Invalid Backup format"); }
+                } catch(e) { alert("Error reading file."); }
             }
-            animate();
+            reader.readAsText(file);
         }
     </script>
 </body>
